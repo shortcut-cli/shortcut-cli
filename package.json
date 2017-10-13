@@ -1,0 +1,24 @@
+{
+  "name": "clubhouse-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andjosh/clubhouse-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andjosh/clubhouse-cli/issues"
+  },
+  "homepage": "https://github.com/andjosh/clubhouse-cli#readme",
+  "dependencies": {
+    "clubhouse-lib": "^0.2.0",
+    "commander": "^2.11.0"
+  }
+}
