@@ -1,3 +1,46 @@
 #!/usr/bin/env node
+const client = require('../lib/client.js');
+var program = require('commander');
 
-console.log('search')
+program
+    .version(require('../../package').version)
+    .option('-a, --archived', 'Include archived Stories')
+    .option('-p, --project [id]', 'Stories in project', 'Default')
+    .option('-s, --state [query]', 'List workflows containing query', '')
+    .parse(process.argv);
+
+const main = async () => {
+    const projects = await client.listProjects();
+
+    projects.map(fetchStories);
+    return;
+};
+
+const fetchStories = async (project) => {
+    const stories = await client.listStories(project.id);
+    const filtered = stories.filter(s => {
+        if (!(s.workflow_state_id + '').match(program.state)) {
+            return false;
+        }
+        if (!program.archived && s.archived) {
+            return false;
+        }
+        return true;
+    });
+    if (!filtered.length) {
+        return filtered;
+    }
+    console.log(`Project: ${project.name}`);
+    return filtered.map(printStory);
+};
+
+const printStory = (story) => {
+    console.log(`  #${story.id} ${story.name}`);
+    console.log(`    ${story.story_type}/${story.estimate || '_'}`);
+    if (story.archived) {
+        console.log(`    archived: ${story.archived}`);
+    }
+    return story;
+};
+
+main();
