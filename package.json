@@ -19,6 +19,7 @@
   "homepage": "https://github.com/andjosh/clubhouse-cli#readme",
   "dependencies": {
     "clubhouse-lib": "^0.2.0",
-    "commander": "^2.11.0"
+    "commander": "^2.11.0",
+    "prompt": "^1.0.0"
   }
 }

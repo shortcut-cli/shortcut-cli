@@ -1,9 +1,9 @@
 #!/usr/bin/env node
  
 require('commander')
-  .version(require('../../package').version)
-  .command('install', 'install and configure API access')
-  .command('search [query]', 'search stories with optional query',
-      { isDefault: true })
-  .command('wf [workflow]', 'list stories in a workflow')
-  .parse(process.argv);
+    .version(require('../../package').version)
+    .command('install', 'install and configure API access')
+    .command('search [query]', 'search stories with optional query',
+        { isDefault: true })
+    .command('wf [workflow]', 'list stories in a workflow')
+    .parse(process.argv);
