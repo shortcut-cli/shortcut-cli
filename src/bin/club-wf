@@ -1,3 +1,26 @@
 #!/usr/bin/env node
+const client = require('../lib/client.js');
+var program = require('commander');
 
-console.log('workflow')
+program
+    .version(require('../../package').version)
+    .option('-s, --search [query]', 'List workflows containing query', '')
+    .parse(process.argv);
+
+const main = async () => {
+    const wfs = await client.listWorkflows();
+    wfs.map(printWf);
+};
+
+const printWf = (wf) => {
+    if (!wf.name.match(program.search)) {
+        return;
+    }
+    console.log(`#${wf.id} ${wf.name}`);
+    console.log('  States:');
+    wf.states.map(printWfState);
+};
+const printWfState = (state) => {
+    console.log(`    #${state.id} ${state.name}`);
+};
+main();
