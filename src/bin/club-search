@@ -1,24 +1,40 @@
 #!/usr/bin/env node
-const client = require('../lib/client.js');
-var program = require('commander');
+const client  = require('../lib/client.js');
+const chalk   = require('chalk');
+const Spinner = require('cli-spinner').Spinner;
+const spin    = new Spinner();
+const log     = console.log;
+var program   = require('commander');
 
 program
     .version(require('../../package').version)
     .option('-a, --archived', 'Include archived Stories')
     .option('-p, --project [id]', 'Stories in project', 'Default')
-    .option('-s, --state [query]', 'List workflows containing query', '')
+    .option('-s, --state [id]', 'Stories in workflow state', '')
+    .option('-l, --label [id]', 'Stories with label', '')
     .parse(process.argv);
+spin.setSpinnerString(27);
 
 const main = async () => {
+    spin.start();
     const projects = await client.listProjects();
 
-    projects.map(fetchStories);
+    const stories = await Promise.all(projects.map(fetchStories));
+    spin.stop(true);
+    stories.map(printStories(projects));
     return;
 };
 
 const fetchStories = async (project) => {
-    const stories = await client.listStories(project.id);
+    return client.listStories(project.id);
+};
+
+const printStories = (projects) => { return (stories, index) => {
+    const project = projects[index];
     const filtered = stories.filter(s => {
+        if (!(s.labels.map(l => l.id).join(',') + '').match(program.label)) {
+            return false;
+        }
         if (!(s.workflow_state_id + '').match(program.state)) {
             return false;
         }
@@ -30,15 +46,19 @@ const fetchStories = async (project) => {
     if (!filtered.length) {
         return filtered;
     }
-    console.log(`Project: ${project.name}`);
+    log(chalk.bold('Project:') + ` ${project.name}`);
     return filtered.map(printStory);
-};
+}};
 
 const printStory = (story) => {
-    console.log(`  #${story.id} ${story.name}`);
-    console.log(`    ${story.story_type}/${story.estimate || '_'}`);
+    const labels = story.labels.map(l => {
+        return chalk.bold(`#${l.id}`) + ` ${l.name}`;
+    });
+    log(chalk.bold(`  #${story.id}`) + ` ${story.name}`);
+    log(`    Type:  ${story.story_type}/${story.estimate || '_'}`);
+    log(`    Label: ${labels.join(', ')}`);
     if (story.archived) {
-        console.log(`    archived: ${story.archived}`);
+        log('    archived: ' + chalk.bold(story.archived));
     }
     return story;
 };
