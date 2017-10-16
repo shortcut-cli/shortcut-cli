@@ -9,9 +9,10 @@ var program   = require('commander');
 program
     .version(require('../../package').version)
     .option('-a, --archived', 'Include archived Stories')
+    .option('-l, --label [id]', 'Stories with label', '')
     .option('-p, --project [id]', 'Stories in project', 'Default')
     .option('-s, --state [id]', 'Stories in workflow state', '')
-    .option('-l, --label [id]', 'Stories with label', '')
+    .option('-t, --text [text]', 'Stories with text in name', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -38,6 +39,9 @@ const printStories = (projects) => { return (stories, index) => {
         if (!(s.workflow_state_id + '').match(program.state)) {
             return false;
         }
+        if (!s.name.match(program.text)) {
+            return false;
+        }
         if (!program.archived && s.archived) {
             return false;
         }
@@ -48,7 +52,7 @@ const printStories = (projects) => { return (stories, index) => {
     }
     log(chalk.bold('Project:') + ` ${project.name}`);
     return filtered.map(printStory);
-}};
+};};
 
 const printStory = (story) => {
     const labels = story.labels.map(l => {
