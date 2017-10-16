@@ -1,14 +1,21 @@
 #!/usr/bin/env node
 const client = require('../lib/client.js');
+const chalk   = require('chalk');
+const Spinner = require('cli-spinner').Spinner;
+const spin    = new Spinner();
+const log     = console.log;
 var program = require('commander');
 
 program
     .version(require('../../package').version)
     .option('-s, --search [query]', 'List workflows containing query', '')
     .parse(process.argv);
+spin.setSpinnerString(27);
 
 const main = async () => {
+    spin.start();
     const wfs = await client.listWorkflows();
+    spin.stop(true);
     wfs.map(printWf);
 };
 
@@ -16,11 +23,11 @@ const printWf = (wf) => {
     if (!wf.name.match(program.search)) {
         return;
     }
-    console.log(`#${wf.id} ${wf.name}`);
-    console.log('  States:');
+    log(chalk.bold(`#${wf.id}`) + (` ${wf.name}`));
+    log('    == States:');
     wf.states.map(printWfState);
 };
 const printWfState = (state) => {
-    console.log(`    #${state.id} ${state.name}`);
+    log(chalk.bold(`    #${state.id}`) + ` ${state.name}`);
 };
 main();

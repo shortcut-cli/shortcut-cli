@@ -65,7 +65,7 @@ const printStory = (project) => { return (story) => {
     const labels = story.labels.map(l => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
     });
-    log(chalk.bold(`#${story.id}`) + ` ${story.name}`);
+    log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
     log(`  Type:    ${story.story_type}/${story.estimate || '_'}`);
     log(`  Label:   ${labels.join(', ')}`);
     log('  Project: ' + chalk.bold(`#${project.id}`) + ` ${project.name}`);
