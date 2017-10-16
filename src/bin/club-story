@@ -1,0 +1,72 @@
+#!/usr/bin/env node
+const client  = require('../lib/client.js');
+const chalk   = require('chalk');
+const Spinner = require('cli-spinner').Spinner;
+const spin    = new Spinner();
+const log     = console.log;
+var program   = require('commander');
+
+program
+    .usage('[options] <id>')
+    .option('-I, --idonly', 'Print only ID of story results', '')
+    .parse(process.argv);
+spin.setSpinnerString(27);
+
+const main = async () => {
+    const id = program.args[0];
+    if (!program.idonly)
+        spin.start();
+    try {
+        let story = await client.getStory(id);
+        story.owners = await Promise.all(story.owner_ids.map(fetchOwner));
+        if (!program.idonly)
+            spin.stop(true);
+        log(story);
+        printStory(story);
+    } catch (e) {
+        if (!program.idonly)
+            spin.stop(true);
+        log('Error fetching story');
+    }
+    return;
+};
+
+const fetchOwner = async (id) => {
+    return client.getMember(id);
+};
+
+const printStory = (story) => {
+    if (program.idonly) {
+        return log(story.id);
+    }
+    const labels = story.labels.map(l => {
+        return chalk.bold(`#${l.id}`) + ` ${l.name}`;
+    });
+    const owners = story.owners.map(o => {
+        return `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}` + ')');
+    });
+
+    log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
+    log(chalk.bold('Desc:') + `    ${story.description || '_'}`);
+    log(chalk.bold('Owners:') + `  ${owners.join(', ')}`);
+    log(chalk.bold('Type:') + `    ${story.story_type}/${story.estimate || '_'}`);
+    log(chalk.bold('Label:') + `   ${labels.join(', ')}`);
+    log(chalk.bold('Project:') + chalk.bold(` #${story.project_id}`));
+    log(chalk.bold('State:') + chalk.bold(`   #${story.workflow_state_id}`));
+    log(chalk.bold('URL:') + `     https://app.clubhouse.io/story/${story.id}`);
+    if (story.archived) {
+        log(chalk.bold('Archived: ') + chalk.bold(story.archived));
+    }
+    if (story.completed) {
+        log(chalk.bold('Completed: ') + chalk.bold(story.completed_at));
+    }
+    story.comments.map(c => {
+        log(chalk.bold('Comment:') + ` ${c.text}`);
+        log(chalk.bold('  at:') + ` ${c.updated_at}`);
+        return c;
+    });
+    log();
+    return story;
+};
+
+main();

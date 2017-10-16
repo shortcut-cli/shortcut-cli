@@ -7,7 +7,6 @@ const log     = console.log;
 var program   = require('commander');
 
 program
-    .version(require('../../package').version)
     .option('-a, --archived', 'Include archived Stories')
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name', '')

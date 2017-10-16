@@ -5,5 +5,6 @@ require('commander')
     .command('install', 'install and configure API access')
     .command('search [query]', 'search stories with optional query',
         { isDefault: true })
+    .command('story', 'view or manipulate stories')
     .command('wf', 'list workflows and their states')
     .parse(process.argv);
