@@ -9,8 +9,9 @@ var program   = require('commander');
 program
     .version(require('../../package').version)
     .option('-a, --archived', 'Include archived Stories')
+    .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name', '')
-    .option('-p, --project [id]', 'Stories in project', '')
+    .option('-p, --project [id]', 'Stories in project', '.')
     .option('-s, --state [id]', 'Stories in workflow state', '')
     .option('-t, --text [name]', 'Stories with text in name', '')
     .option('-y, --type [name]', 'Stories of type', '')
@@ -18,14 +19,17 @@ program
 spin.setSpinnerString(27);
 
 const main = async () => {
-    spin.start();
+    if (!program.idonly)
+        spin.start();
     const projects = await client.listProjects();
-
-    const stories = await Promise.all(projects
-        .filter(p => (p.id + '').match(program.project))
-        .map(fetchStories));
-    spin.stop(true);
-    stories.map(printStories(projects));
+    const filteredProjects = projects
+        .filter(p => {
+            return !!(p.id + '').match(program.project);
+        });
+    const stories = await Promise.all(filteredProjects.map(fetchStories));
+    if (!program.idonly)
+        spin.stop(true);
+    stories.map(printStories(filteredProjects));
     return;
 };
 
@@ -62,6 +66,9 @@ const printStories = (projects) => { return (stories, index) => {
 };};
 
 const printStory = (project) => { return (story) => {
+    if (program.idonly) {
+        return log(story.id);
+    }
     const labels = story.labels.map(l => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
     });
@@ -73,6 +80,7 @@ const printStory = (project) => { return (story) => {
     if (story.archived) {
         log('  archived: ' + chalk.bold(story.archived));
     }
+    log();
     return story;
 };};
 
