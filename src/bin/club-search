@@ -69,6 +69,7 @@ const printStory = (project) => { return (story) => {
     log(`  Type:    ${story.story_type}/${story.estimate || '_'}`);
     log(`  Label:   ${labels.join(', ')}`);
     log('  Project: ' + chalk.bold(`#${project.id}`) + ` ${project.name}`);
+    log(`  URL:     https://app.clubhouse.io/story/${story.id}`);
     if (story.archived) {
         log('  archived: ' + chalk.bold(story.archived));
     }
