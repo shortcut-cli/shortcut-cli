@@ -101,6 +101,11 @@ const printStory = (story) => {
         log(chalk.bold('  at:') + ` ${c.updated_at}`);
         return c;
     });
+    story.files.map(c => {
+        log(chalk.bold('File:') + `    ${c.url}?token=${client.requestFactory.token}`);
+        log(chalk.bold('  name:') + `  ${c.name}`);
+        return c;
+    });
     log();
     return story;
 };
