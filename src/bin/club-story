@@ -9,25 +9,60 @@ var program   = require('commander');
 program
     .usage('[options] <id>')
     .option('-I, --idonly', 'Print only ID of story results', '')
+    .option('-s, --state [id]', 'Update workflow state of story', '')
+    .option('-e, --estimate [number]', 'Update estimate of story', '')
+    .option('-c, --comment [text]', 'Add comment to story', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
 const main = async () => {
-    const id = program.args[0];
     if (!program.idonly)
         spin.start();
+    let wf = { states: [] };
     try {
-        let story = await client.getStory(id);
-        story.owners = await Promise.all(story.owner_ids.map(fetchOwner));
-        if (!program.idonly)
-            spin.stop(true);
-        log(story);
-        printStory(story);
+        const wfs = await client.listWorkflows();
+        wf = wfs[0];
     } catch (e) {
+        log('Error fetching workflows');
+    }
+    let update = {};
+    if (program.state)
+        update.workflow_state_id = parseInt(program.state, 10);
+    if (program.estimate)
+        update.estimate = parseInt(program.estimate, 10);
+    const hasUpdate = Object.keys(update).length > 0;
+    program.args.map(async (id) => {
+        let story;
+        try {
+            if (program.comment) {
+                await client.createStoryComment(id, program.comment);
+            }
+        } catch (e) {
+            log('Error creating comment', id);
+        }
+        try {
+            story = await client.getStory(id);
+            story.owners = await Promise.all(story.owner_ids.map(fetchOwner));
+            story.state = wf.states
+                .filter(s => s.id === story.workflow_state_id)[0];
+        } catch (e) {
+            log('Error fetching story', id);
+        }
+        try {
+            if (hasUpdate) {
+                let changed = await client.updateStory(id, update);
+                story = Object.assign({}, story, changed);
+            }
+        } catch (e) {
+            log('Error updating story', id);
+        }
         if (!program.idonly)
             spin.stop(true);
-        log('Error fetching story');
-    }
+        if (story)
+            printStory(story);
+    });
+    if (!program.idonly)
+        spin.stop(true);
     return;
 };
 
@@ -47,12 +82,12 @@ const printStory = (story) => {
     });
 
     log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
-    log(chalk.bold('Desc:') + `    ${story.description || '_'}`);
-    log(chalk.bold('Owners:') + `  ${owners.join(', ')}`);
+    log(chalk.bold('Desc:') + `    ${formatLong(story.description || '_')}`);
+    log(chalk.bold('Owners:') + `  ${owners.join(', ') || '_'}`);
     log(chalk.bold('Type:') + `    ${story.story_type}/${story.estimate || '_'}`);
-    log(chalk.bold('Label:') + `   ${labels.join(', ')}`);
+    log(chalk.bold('Label:') + `   ${labels.join(', ') || '_'}`);
     log(chalk.bold('Project:') + chalk.bold(` #${story.project_id}`));
-    log(chalk.bold('State:') + chalk.bold(`   #${story.workflow_state_id}`));
+    log(chalk.bold('State:') + chalk.bold(`   #${story.workflow_state_id} `) + story.state.name);
     log(chalk.bold('URL:') + `     https://app.clubhouse.io/story/${story.id}`);
     if (story.archived) {
         log(chalk.bold('Archived: ') + chalk.bold(story.archived));
@@ -61,12 +96,17 @@ const printStory = (story) => {
         log(chalk.bold('Completed: ') + chalk.bold(story.completed_at));
     }
     story.comments.map(c => {
-        log(chalk.bold('Comment:') + ` ${c.text}`);
+        log(chalk.bold('Comment:') + ` ${formatLong(c.text)}`);
         log(chalk.bold('  at:') + ` ${c.updated_at}`);
         return c;
     });
     log();
     return story;
+};
+
+const formatLong = (str) => {
+    return str.split('\n')
+        .join('\n         ');
 };
 
 main();
