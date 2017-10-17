@@ -8,6 +8,7 @@ var program   = require('commander');
 
 program
     .usage('[options] <id>')
+    .description('Update and/or display story details')
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-s, --state [id]', 'Update workflow state of story', '')
     .option('-e, --estimate [number]', 'Update estimate of story', '')
@@ -21,7 +22,7 @@ const main = async () => {
     let wf = { states: [] };
     try {
         const wfs = await client.listWorkflows();
-        wf = wfs[0];
+        wf = wfs[0];    // TODO: this is always getting the default workflow
     } catch (e) {
         log('Error fetching workflows');
     }

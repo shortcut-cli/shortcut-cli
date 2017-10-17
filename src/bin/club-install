@@ -1,27 +1,29 @@
 #!/usr/bin/env node
-const prompt = require('prompt');
+const prompt    = require('prompt');
 const configure = require('../lib/configure.js');
-const extant = configure.loadConfig();
-var program = require('commander');
+const extant    = configure.loadConfig();
+const log       = console.log;
+var program     = require('commander');
 
 program
     .version(require('../../package').version)
+    .description('Install access token for clubhouse API')
     .option('-f, --force', 'Force install/reinstall')
     .parse(process.argv);
 
 if (!extant || program.force) {
-    console.log('API Token (https://app.clubhouse.io/tubi/settings/account/api-tokens): ');
+    log('API Token (https://app.clubhouse.io/tubi/settings/account/api-tokens): ');
     prompt.start({ message: 'clubhouse' });
     prompt.get(['token'], (err, result) => {
-        if (err) return console.error(err);
-        console.log('Saving token...');
+        if (err) return log(err);
+        log('Saving token...');
         const success = configure.saveConfig({ token: result.token });
         if (success) {
-            console.log('Saved token');
+            log('Saved token');
         } else {
-            console.error('Error saving token');
+            log('Error saving token');
         }
     });
 } else if (extant) {
-    console.log('A configuration/token is already saved. To override, re-run with --force');
+    log('A configuration/token is already saved. To override, re-run with --force');
 }

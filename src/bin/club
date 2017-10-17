@@ -1,7 +1,9 @@
 #!/usr/bin/env node
+const pkg = require('../../package.json');
  
 require('commander')
-    .version(require('../../package').version)
+    .version(pkg.version)
+    .description(pkg.description)
     .command('install', 'install and configure API access')
     .command('search [query]', 'search stories with optional query',
         { isDefault: true })

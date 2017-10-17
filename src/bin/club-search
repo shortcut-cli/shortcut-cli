@@ -7,6 +7,7 @@ const log     = console.log;
 var program   = require('commander');
 
 program
+    .description('Search through clubouse stories')
     .option('-a, --archived', 'Include archived Stories')
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name', '')

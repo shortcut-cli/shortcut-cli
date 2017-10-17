@@ -7,8 +7,8 @@ const log     = console.log;
 var program = require('commander');
 
 program
-    .version(require('../../package').version)
-    .option('-s, --search [query]', 'List workflows containing query', '')
+    .description('Display workflows/states available for stories')
+    .option('-s, --search [query]', 'List states containing query', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -20,14 +20,14 @@ const main = async () => {
 };
 
 const printWf = (wf) => {
-    if (!wf.name.match(program.search)) {
-        return;
-    }
     log(chalk.bold(`#${wf.id}`) + (` ${wf.name}`));
     log('    == States:');
     wf.states.map(printWfState);
 };
 const printWfState = (state) => {
+    if (!state.name.match(new RegExp(program.search, 'i'))) {
+        return;
+    }
     log(chalk.bold(`    #${state.id}`) + ` ${state.name}`);
 };
 main();
