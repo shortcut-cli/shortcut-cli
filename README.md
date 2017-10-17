@@ -26,7 +26,7 @@
 ### Search
 
 ~~~sh
-  Usage: club-search [options]
+  Usage: club search [options]
 
   Search through clubouse stories
 
@@ -46,7 +46,7 @@
 ### Stories
 
 ~~~sh
-  Usage: club-story [options] <id>
+  Usage: club story [options] <id>
 
   Update and/or display story details
 
@@ -63,7 +63,7 @@
 ### Workflows
 
 ~~~sh
-  Usage: club-wf [options]
+  Usage: club wf [options]
 
   Display workflows/states available for stories
 
@@ -76,8 +76,14 @@
 
 ### Install
 
+Install via npm:
+
 ~~~sh
-  Usage: club-install [options]
+$ npm install clubhouse-cli -g
+~~~
+
+~~~sh
+  Usage: club install [options]
 
   Install access token for clubhouse API
 
