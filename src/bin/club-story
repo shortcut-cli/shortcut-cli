@@ -43,8 +43,6 @@ const main = async () => {
         try {
             story = await client.getStory(id);
             story.owners = await Promise.all(story.owner_ids.map(fetchOwner));
-            story.state = wf.states
-                .filter(s => s.id === story.workflow_state_id)[0];
         } catch (e) {
             log('Error fetching story', id);
         }
@@ -56,6 +54,8 @@ const main = async () => {
         } catch (e) {
             log('Error updating story', id);
         }
+        story.state = wf.states
+            .filter(s => s.id === story.workflow_state_id)[0];
         if (!program.idonly)
             spin.stop(true);
         if (story)
