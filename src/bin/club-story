@@ -55,8 +55,10 @@ const main = async () => {
         } catch (e) {
             log('Error updating story', id);
         }
-        story.state = wf.states
-            .filter(s => s.id === story.workflow_state_id)[0];
+        if (story) {
+            story.state = wf.states
+                .filter(s => s.id === story.workflow_state_id)[0];
+        }
         if (!program.idonly)
             spin.stop(true);
         if (story)
