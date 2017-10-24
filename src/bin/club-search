@@ -5,8 +5,10 @@ const Spinner = require('cli-spinner').Spinner;
 const spin    = new Spinner();
 const log     = console.log;
 var program   = require('commander');
-var wf        = { states: [] };
+var wfs       = [];
+var projects  = [];
 var members   = [];
+var wf        = { states: [] };
 
 program
     .description('Search through clubouse stories')
@@ -24,13 +26,15 @@ const main = async () => {
     if (!program.idonly)
         spin.start();
     try {
-        const wfs = await client.listWorkflows();
+        [ wfs, members, projects ] = await Promise.all([
+            client.listWorkflows(),
+            client.listMembers(),
+            client.listProjects()
+        ]);
         wf = wfs[0];    // TODO: this is always getting the default workflow
-        members = await client.listMembers();
     } catch (e) {
         log('Error fetching workflows');
     }
-    const projects = await client.listProjects();
     const filteredProjects = projects
         .filter(p => {
             return !!(p.id + '').match(program.project);
