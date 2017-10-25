@@ -6,12 +6,15 @@ const client   = require('../lib/client.js');
 const spin     = new Spinner();
 const log      = console.log;
 var program    = require('commander');
+var wfs       = [];
+var members   = [];
+var wf        = { states: [] };
 
 program
     .usage('[options] <id>')
     .description('Update and/or display story details')
     .option('-I, --idonly', 'Print only ID of story results', '')
-    .option('-s, --state [id]', 'Update workflow state of story', '')
+    .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-e, --estimate [number]', 'Update estimate of story', '')
     .option('-c, --comment [text]', 'Add comment to story', '')
     .option('-o, --open', 'Open story in browser')
@@ -21,18 +24,26 @@ spin.setSpinnerString(27);
 const main = async () => {
     if (!program.idonly)
         spin.start();
-    let wf = { states: [] };
     try {
-        const wfs = await client.listWorkflows();
+        [ wfs, members ] = await Promise.all([
+            client.listWorkflows(),
+            client.listMembers(),
+        ]);
         wf = wfs[0];    // TODO: this is always getting the default workflow
     } catch (e) {
         log('Error fetching workflows');
     }
     let update = {};
-    if (program.state)
-        update.workflow_state_id = parseInt(program.state, 10);
-    if (program.estimate)
+    if (program.state) {
+        const stateMatch = new RegExp(program.state, 'i');
+        const newState = wf.states.filter(s => {
+            return !!`${s.id} ${s.name}`.match(stateMatch);
+        })[0];
+        update.workflow_state_id = (newState || {}).id;
+    }
+    if (program.estimate) {
         update.estimate = parseInt(program.estimate, 10);
+    }
     const hasUpdate = Object.keys(update).length > 0;
     program.args.map(async (id) => {
         let story;
@@ -45,7 +56,9 @@ const main = async () => {
         }
         try {
             story = await client.getStory(id);
-            story.owners = await Promise.all(story.owner_ids.map(fetchOwner));
+            story.owners = members.filter(m => {
+                return story.owner_ids.indexOf(m.id) > -1;
+            });
         } catch (e) {
             log('Error fetching story', id);
         }
@@ -72,10 +85,6 @@ const main = async () => {
     if (!program.idonly)
         spin.stop(true);
     return;
-};
-
-const fetchOwner = async (id) => {
-    return client.getMember(id);
 };
 
 const storyURL = (story) => {
