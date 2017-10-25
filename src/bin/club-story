@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-const client  = require('../lib/client.js');
-const chalk   = require('chalk');
-const Spinner = require('cli-spinner').Spinner;
-const spin    = new Spinner();
-const log     = console.log;
-var program   = require('commander');
+const { exec } = require('child_process');
+const chalk    = require('chalk');
+const Spinner  = require('cli-spinner').Spinner;
+const client   = require('../lib/client.js');
+const spin     = new Spinner();
+const log      = console.log;
+var program    = require('commander');
 
 program
     .usage('[options] <id>')
@@ -13,6 +14,7 @@ program
     .option('-s, --state [id]', 'Update workflow state of story', '')
     .option('-e, --estimate [number]', 'Update estimate of story', '')
     .option('-c, --comment [text]', 'Add comment to story', '')
+    .option('-o, --open', 'Open story in browser')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -61,8 +63,11 @@ const main = async () => {
         }
         if (!program.idonly)
             spin.stop(true);
-        if (story)
+        if (story) {
             printStory(story);
+            if (program.open)
+                exec('open ' + storyURL(story));
+        }
     });
     if (!program.idonly)
         spin.stop(true);
@@ -71,6 +76,10 @@ const main = async () => {
 
 const fetchOwner = async (id) => {
     return client.getMember(id);
+};
+
+const storyURL = (story) => {
+    return `https://app.clubhouse.io/story/${story.id}`;
 };
 
 const printStory = (story) => {
@@ -91,7 +100,7 @@ const printStory = (story) => {
     log(chalk.bold('Label:') + `   ${labels.join(', ') || '_'}`);
     log(chalk.bold('Project:') + chalk.bold(` #${story.project_id}`));
     log(chalk.bold('State:') + chalk.bold(`   #${story.workflow_state_id} `) + story.state.name);
-    log(chalk.bold('URL:') + `     https://app.clubhouse.io/story/${story.id}`);
+    log(chalk.bold('URL:') + `     ${storyURL(story)}`);
     if (story.archived) {
         log(chalk.bold('Archived: ') + chalk.bold(story.archived));
     }
