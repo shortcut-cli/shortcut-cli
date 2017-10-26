@@ -16,8 +16,9 @@ program
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-e, --estimate [number]', 'Update estimate of story', '')
+    .option('-o, --owners [id|name]', 'Update owners of story, comma-separated', '')
     .option('-c, --comment [text]', 'Add comment to story', '')
-    .option('-o, --open', 'Open story in browser')
+    .option('-O, --open', 'Open story in browser')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -44,6 +45,13 @@ const main = async () => {
     if (program.estimate) {
         update.estimate = parseInt(program.estimate, 10);
     }
+    if (program.owners) {
+        const ownerMatch = new RegExp(program.owners.split(',').join('|'), 'i');
+        update.owner_ids = members.filter(m => {
+            return !!`${m.id} ${m.profile.name} ${m.profile.mention_name}`
+                .match(ownerMatch);
+        }).map(m => m.id);
+    }
     const hasUpdate = Object.keys(update).length > 0;
     program.args.map(async (id) => {
         let story;
@@ -56,9 +64,6 @@ const main = async () => {
         }
         try {
             story = await client.getStory(id);
-            story.owners = members.filter(m => {
-                return story.owner_ids.indexOf(m.id) > -1;
-            });
         } catch (e) {
             log('Error fetching story', id);
         }
@@ -73,6 +78,9 @@ const main = async () => {
         if (story) {
             story.state = wf.states
                 .filter(s => s.id === story.workflow_state_id)[0];
+            story.owners = members.filter(m => {
+                return story.owner_ids.indexOf(m.id) > -1;
+            });
         }
         if (!program.idonly)
             spin.stop(true);

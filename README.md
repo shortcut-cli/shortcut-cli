@@ -17,7 +17,7 @@
   Commands:
 
     install         install and configure API access
-    find [query]    find stories with optional query
+    find            find stories with optional query
     story           view or manipulate stories
     wf              list workflows and their states
     help [cmd]      display help for [cmd]
@@ -26,7 +26,7 @@
 ### Search
 
 ~~~sh
-  Usage: club-find [options]
+  Usage: club find [options]
 
   Search through clubouse stories
 
@@ -60,7 +60,7 @@ $ club find -o 'josh' -s 'Review'
 ### Stories
 
 ~~~sh
-  Usage: club-story [options] <id>
+  Usage: club story [options] <id>
 
   Update and/or display story details
 
@@ -71,14 +71,15 @@ $ club find -o 'josh' -s 'Review'
     -s, --state [id|name]    Update workflow state of story
     -e, --estimate [number]  Update estimate of story
     -c, --comment [text]     Add comment to story
-    -o, --open               Open story in browser
+    -o, --owner [id|name]    Update owners of story, comma-separated
+    -O, --open               Open story in browser
     -h, --help               output usage information
 ~~~
 
 Example output:
 
 ~~~sh
-$ club story 1480 -c 'This is a commend'
+$ club story 1480 -c 'This is a commend' -o josh
 #1480 Create Thinga-ma-bob
 Desc:    Create a thing to display:
 Owners:  Josh (josh)
