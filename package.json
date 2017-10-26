@@ -1,7 +1,7 @@
 {
   "name": "clubhouse-cli",
   "version": "0.3.0",
-  "description": "A command line tool for searching and updating clubhouse.io stories",
+  "description": "A command line tool for searching,viewing, and updating clubhouse.io stories",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

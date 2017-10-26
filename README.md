@@ -5,7 +5,7 @@
 ~~~sh
   Usage: club [options] [command]
 
-  A command line tool for searching and updating clubhouse.io stories
+  A command line tool for searching, viewing, and updating clubhouse.io stories
 
 
   Options:
@@ -17,7 +17,7 @@
   Commands:
 
     install         install and configure API access
-    search [query]  search stories with optional query
+    find [query]    find stories with optional query
     story           view or manipulate stories
     wf              list workflows and their states
     help [cmd]      display help for [cmd]
@@ -26,7 +26,7 @@
 ### Search
 
 ~~~sh
-  Usage: club-search [options]
+  Usage: club-find [options]
 
   Search through clubouse stories
 
@@ -47,7 +47,7 @@
 Example output
 
 ~~~sh
-$ club search -o 'josh' -s 'Review'
+$ club find -o 'josh' -s 'Review'
 #1480 Create Thinga-ma-bob
   Type:    feature/3
   Label:   #512 client_web
