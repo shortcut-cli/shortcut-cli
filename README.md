@@ -26,7 +26,7 @@
 ### Search
 
 ~~~sh
-  Usage: club search [options]
+  Usage: club-search [options]
 
   Search through clubouse stories
 
@@ -35,18 +35,32 @@
 
     -a, --archived         Include archived Stories
     -I, --idonly           Print only ID of story results
-    -l, --label [id|name]  Stories with label id/name
+    -l, --label [id|name]  Stories with label id/name, by regex
+    -o, --owner [name]     Stories with owner, by regex
     -p, --project [id]     Stories in project
-    -s, --state [id]       Stories in workflow state
-    -t, --text [name]      Stories with text in name
-    -y, --type [name]      Stories of type
+    -s, --state [id|name]  Stories in workflow state id/name, by regex
+    -t, --text [name]      Stories with text in name, by regex
+    -y, --type [name]      Stories of type, by regex
     -h, --help             output usage information
+~~~
+
+Example output
+
+~~~sh
+$ club search -o 'josh' -s 'Review'
+#1480 Create Thinga-ma-bob
+  Type:    feature/3
+  Label:   #512 client_web
+  Project: #14 Customers
+  Owners:  Josh (josh)
+  State:   #500000020 Code Review
+  URL:     https://app.clubhouse.io/story/1480
 ~~~
 
 ### Stories
 
 ~~~sh
-  Usage: club story [options] <id>
+  Usage: club-story [options] <id>
 
   Update and/or display story details
 
@@ -54,10 +68,27 @@
   Options:
 
     -I, --idonly             Print only ID of story results
-    -s, --state [id]         Update workflow state of story
+    -s, --state [id|name]    Update workflow state of story
     -e, --estimate [number]  Update estimate of story
     -c, --comment [text]     Add comment to story
+    -o, --open               Open story in browser
     -h, --help               output usage information
+~~~
+
+Example output:
+
+~~~sh
+$ club story 1480 -c 'This is a commend'
+#1480 Create Thinga-ma-bob
+Desc:    Create a thing to display:
+Owners:  Josh (josh)
+Type:    feature/3
+Label:   #512 client_web
+Project: #14
+State:   #500000020 Code Review
+URL:     https://app.clubhouse.io/story/1480
+Comment: This is a commend
+  at: 2017-10-25T16:17:04Z
 ~~~
 
 ### Workflows
