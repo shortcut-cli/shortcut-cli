@@ -5,14 +5,13 @@ This project adheres to the [Contributor Covenant](http://contributor-covenant.o
 ## How to Contribute
 
 Please make sure that your contribution fits well in the project's style & concept:
-- Adhere to [Standard Ruby](https://ruby-doc.org/stdlib-2.3.1/)
 - Pass all tests
 
 ## Creating an Issue
 
 Before you create a new Issue:
 
-Check the [Issues](https://github.com/officeluv/humanity-api/issues) on Github to ensure one doesn't already exist.
+Check the [Issues](https://github.com/andjosh/clubhouse-cli/issues) on Github to ensure one doesn't already exist.
 
 - Place use one of these topics in the beginning of your issue title- Contrib, Hotfix, Error, Help or Feature.
 - Clearly describe the issue, including the steps to reproduce the issue.
