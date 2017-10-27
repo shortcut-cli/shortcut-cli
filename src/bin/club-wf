@@ -2,7 +2,7 @@
 const client = require('../lib/client.js');
 const chalk   = require('chalk');
 const Spinner = require('cli-spinner').Spinner;
-const spin    = new Spinner();
+const spin    = new Spinner('Loading... %s ');
 const log     = console.log;
 var program = require('commander');
 
