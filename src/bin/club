@@ -9,4 +9,5 @@ require('commander')
         { isDefault: true })
     .command('story [options]', 'view or manipulate stories')
     .command('wf [options]', 'list workflows and their states')
+    .command('members [options]', 'list members')
     .parse(process.argv);
