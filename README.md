@@ -18,6 +18,7 @@
 
     install         install and configure API access
     find            find stories with optional query
+    members         list members
     story           view or manipulate stories
     wf              list workflows and their states
     help [cmd]      display help for [cmd]
@@ -90,6 +91,21 @@ State:   #500000020 Code Review
 URL:     https://app.clubhouse.io/story/1480
 Comment: This is a commend
   at: 2017-10-25T16:17:04Z
+~~~
+
+### Members
+
+~~~sh
+  Usage: club-members [options]
+
+  Display members available for stories
+
+
+  Options:
+
+    -s, --search [query]  List members with name containing query
+    -d, --disabled        List members including disabled
+    -h, --help            output usage information
 ~~~
 
 ### Workflows
