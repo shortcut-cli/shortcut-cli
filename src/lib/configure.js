@@ -30,7 +30,24 @@ const saveConfig = (opt) => {
     }
 };
 
+const saveWorkspace = (name, workspace) => {
+    const extant = loadConfig();
+    let workspaces = extant.workspaces || {};
+    workspaces[name] = workspace;
+    return saveConfig(Object.assign({}, extant, {
+        workspaces
+    }));
+}
+
+const removeWorkspace = (name) => {
+    const extant = loadConfig();
+    delete extant.workspaces[name];
+    return saveConfig(Object.assign({}, extant));
+}
+
 module.exports = {
     loadConfig,
-    saveConfig
+    saveConfig,
+    saveWorkspace,
+    removeWorkspace,
 };

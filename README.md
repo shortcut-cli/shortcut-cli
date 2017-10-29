@@ -20,7 +20,8 @@
     find            find stories with optional query
     members         list members
     story           view or manipulate stories
-    wf              list workflows and their states
+    workflows       list workflows and their states
+    workspace       list stories matching saved workspace query
     help [cmd]      display help for [cmd]
 ~~~
 
@@ -40,6 +41,7 @@
     -o, --owner [name]     Stories with owner, by regex
     -p, --project [id]     Stories in project
     -s, --state [id|name]  Stories in workflow state id/name, by regex
+    -S, --save [name]      Save search configuration as workspace
     -t, --text [name]      Stories with text in name, by regex
     -y, --type [name]      Stories of type, by regex
     -h, --help             output usage information
@@ -93,6 +95,22 @@ Comment: This is a commend
   at: 2017-10-25T16:17:04Z
 ~~~
 
+### Workspace
+
+~~~sh
+  Usage: club workspace [options]
+
+  List stories matching saved workspace query
+
+
+  Options:
+
+    -l, --list          List saved workspaces
+    -n, --name [name]   Load named workspace
+    -u, --unset [name]  Force unset saved workspace
+    -h, --help          output usage information
+~~~
+
 ### Members
 
 ~~~sh
@@ -111,7 +129,7 @@ Comment: This is a commend
 ### Workflows
 
 ~~~sh
-  Usage: club wf [options]
+  Usage: club workflows [options]
 
   Display workflows/states available for stories
 

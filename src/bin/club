@@ -5,9 +5,10 @@ require('commander')
     .version(pkg.version)
     .description(pkg.description)
     .command('install [options]', 'install and configure API access')
-    .command('find [options]', 'find stories with optional query',
-        { isDefault: true })
-    .command('story [options]', 'view or manipulate stories')
-    .command('wf [options]', 'list workflows and their states')
+    .command('find [options]', 'find stories with optional query')
+    .command('story ID [options]', 'view or manipulate stories')
     .command('members [options]', 'list members')
+    .command('workflows [options]', 'list workflows and their states')
+    .command('workspace [options]', 'list stories matching saved workspace query',
+        { isDefault: true })
     .parse(process.argv);
