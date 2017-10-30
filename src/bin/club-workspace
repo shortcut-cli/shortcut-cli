@@ -42,6 +42,7 @@ const main = async () => {
         } else {
             log('Loading workspace %s:', program.name, toArgs(workspace));
             log();
+            let stories = [];
             try {
                 stories = await storyLib.listStories(workspace);
             } catch (e) {

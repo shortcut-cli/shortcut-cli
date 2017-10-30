@@ -1,15 +1,10 @@
 #!/usr/bin/env node
 const Spinner   = require('cli-spinner').Spinner;
-const client    = require('../lib/client.js');
 const configure = require('../lib/configure.js');
 const storyLib  = require('../lib/stories.js');
 const spin      = new Spinner('Finding... %s ');
 const log       = console.log;
 var program     = require('commander');
-var wfs         = [];
-var projects    = [];
-var members     = [];
-var wf          = { states: [] };
 
 program
     .description('Search through clubouse stories')
