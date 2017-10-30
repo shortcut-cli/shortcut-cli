@@ -111,27 +111,29 @@ const printStory = (story) => {
     });
 
     log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
-    log(chalk.bold('Desc:') + `    ${formatLong(story.description || '_')}`);
-    log(chalk.bold('Owners:') + `  ${owners.join(', ') || '_'}`);
-    log(chalk.bold('Type:') + `    ${story.story_type}/${story.estimate || '_'}`);
-    log(chalk.bold('Label:') + `   ${labels.join(', ') || '_'}`);
-    log(chalk.bold('Project:') + chalk.bold(` #${story.project_id}`));
-    log(chalk.bold('State:') + chalk.bold(`   #${story.workflow_state_id} `) + story.state.name);
-    log(chalk.bold('URL:') + `     ${storyURL(story)}`);
+    log(chalk.bold('Desc:') + `     ${formatLong(story.description || '_')}`);
+    log(chalk.bold('Owners:') + `   ${owners.join(', ') || '_'}`);
+    log(chalk.bold('Type:') + `     ${story.story_type}/${story.estimate || '_'}`);
+    log(chalk.bold('Label:') + `    ${labels.join(', ') || '_'}`);
+    log(chalk.bold('Project:') + chalk.bold(`  #${story.project_id}`));
+    log(chalk.bold('State:') + chalk.bold(`    #${story.workflow_state_id} `) + story.state.name);
+    log(chalk.bold('URL:') + `      ${storyURL(story)}`);
     if (story.archived) {
-        log(chalk.bold('Archived: ') + chalk.bold(story.archived));
+        log(chalk.bold('Archived:  ') + chalk.bold(story.archived));
     }
     if (story.completed) {
-        log(chalk.bold('Completed: ') + chalk.bold(story.completed_at));
+        log(chalk.bold('Completed:  ') + chalk.bold(story.completed_at));
     }
     story.comments.map(c => {
-        log(chalk.bold('Comment:') + ` ${formatLong(c.text)}`);
-        log(chalk.bold('  at:') + ` ${c.updated_at}`);
+        const author = members.filter(m => m.id === c.author_id)[0]
+            || { profile: {} };
+        log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
+        log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
         return c;
     });
     story.files.map(c => {
-        log(chalk.bold('File:') + `    ${c.url}?token=${client.requestFactory.token}`);
-        log(chalk.bold('  name:') + `  ${c.name}`);
+        log(chalk.bold('File:') + `     ${c.url}?token=${client.requestFactory.token}`);
+        log(chalk.bold('          name:') + `  ${c.name}`);
         return c;
     });
     log();
