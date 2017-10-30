@@ -15,13 +15,13 @@ const listStories = async (program) => {
     wf = wfs[0];    // TODO: this is always getting the default workflow
     const filteredProjects = projects
         .filter(p => {
-            return !!(p.id + '').match(program.project);
+            return !!(p.id + p.name).match(new RegExp(program.project, 'i'));
         });
     var stories = await Promise.all(filteredProjects.map(fetchStories));
     return stories.map(filterStories(program, filteredProjects))
         .reduce((a, b) => {
             return a.concat(b);
-        }, [])
+        }, []);
 };
 const fetchStories = async (project) => {
     return client.listStories(project.id);
