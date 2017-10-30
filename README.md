@@ -35,16 +35,16 @@
 
   Options:
 
-    -a, --archived         Include archived Stories
-    -I, --idonly           Print only ID of story results
-    -l, --label [id|name]  Stories with label id/name, by regex
-    -o, --owner [name]     Stories with owner, by regex
-    -p, --project [id]     Stories in project
-    -s, --state [id|name]  Stories in workflow state id/name, by regex
-    -S, --save [name]      Save search configuration as workspace
-    -t, --text [name]      Stories with text in name, by regex
-    -y, --type [name]      Stories of type, by regex
-    -h, --help             output usage information
+    -a, --archived          Include archived Stories
+    -I, --idonly            Print only ID of story results
+    -l, --label [id|name]   Stories with label id/name, by regex
+    -o, --owner [name]      Stories with owner, by regex
+    -p, --project [id|name] Stories in project
+    -s, --state [id|name]   Stories in workflow state id/name, by regex
+    -S, --save [name]       Save search configuration as workspace
+    -t, --text [name]       Stories with text in name, by regex
+    -y, --type [name]       Stories of type, by regex
+    -h, --help              output usage information
 ~~~
 
 Example output
