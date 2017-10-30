@@ -1,6 +1,6 @@
 {
   "name": "clubhouse-cli",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "A command line tool for searching,viewing, and updating clubhouse.io stories",
   "main": "index.js",
   "scripts": {
