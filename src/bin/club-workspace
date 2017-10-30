@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const { execSync } = require('child_process');
 const configure    = require('../lib/configure.js');
+const storyLib     = require('../lib/stories.js');
 const config       = configure.loadConfig();
 const log          = console.log;
 var program        = require('commander');
@@ -12,40 +12,46 @@ program
     .option('-u, --unset [name]', 'Force unset saved workspace')
     .parse(process.argv);
 
-if (!config || !config.token) {
-    log('Not installed yet.');
-    log('Please run: club install');
-} else if (!config.workspaces) {
-    log('No workspace saved.');
-    log('Please run:');
-    log('  club find [options] --save');
-    log('to create your first one.');
-} else if (program.list) {
-    log('Workspaces:');
-    Object.keys(config.workspaces)
-        .map(w => {
-            log(' ', w + ':', toArgs(config.workspaces[w]));
-        });
-} else if (program.unset) {
-    const success = configure.removeWorkspace(program.unset);
-    if (success) {
-        log('Successfully removed %s workspace', program.unset);
-    }
-} else {
-    const workspace = config.workspaces[program.name];
-    if (!workspace) {
-        log('No workspace saved with name', program.name);
+const main = async () => {
+    if (!config || !config.token) {
+        log('Not installed yet.');
+        log('Please run: club install');
+    } else if (!config.workspaces) {
+        log('No workspace saved.');
         log('Please run:');
-        log('  club find [options] --save', program.name);
-        log('to create it.');
+        log('  club find [options] --save');
+        log('to create your first one.');
+    } else if (program.list) {
+        log('Workspaces:');
+        Object.keys(config.workspaces)
+            .map(w => {
+                log(' ', w + ':', toArgs(config.workspaces[w]));
+            });
+    } else if (program.unset) {
+        const success = configure.removeWorkspace(program.unset);
+        if (success) {
+            log('Successfully removed %s workspace', program.unset);
+        }
     } else {
-        log('Loading workspace %s:', program.name, toArgs(workspace));
-        log();
-        const output = execSync('club find ' + toArgs(workspace))
-            .toString('utf8');
-        log(output);
+        const workspace = config.workspaces[program.name];
+        if (!workspace) {
+            log('No workspace saved with name', program.name);
+            log('Please run:');
+            log('  club find [options] --save', program.name);
+            log('to create it.');
+        } else {
+            log('Loading workspace %s:', program.name, toArgs(workspace));
+            log();
+            try {
+                stories = await storyLib.listStories(workspace);
+            } catch (e) {
+                log('Error fetching stories:', e);
+            }
+            stories.map(storyLib.printStory(program));
+        }
     }
-}
+};
+main();
 
 function toArgs(obj) {
     return Object.keys(obj)
