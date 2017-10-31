@@ -204,5 +204,7 @@ $ club install
 
 ## Acknowledgments
 
+- [Repository for this code](https://github.com/andjosh/clubhouse-cli)
+- [NPM registry for this code](https://www.npmjs.com/package/clubhouse-cli)
 - [Clubhouse API](http://clubhouse.io/api/rest/v2/)
 - Official [clubhouse-lib](https://github.com/clubhouse/clubhouse-lib)
