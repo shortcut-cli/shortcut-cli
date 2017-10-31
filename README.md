@@ -1,5 +1,18 @@
 # clubhouse-cli
 
+This is a command line interface for [Clubhouse](https://app.clubhouse.io), focused on the display and manipulation of stories. With this, you can run custom searches, save them as local workspaces, and recall those workspaces. You can also view full stories, update most attributes on a story, and create brand new stories quickly.
+
+## Table of Contents
+- [Usage & Commands](#usage)
+    - [Search](#search)
+    - [Stories](#stories)
+    - [Story Creation](#story-creation)
+    - [Workspace](#workspace)
+    - [Members](#members)
+    - [Workflows](#workflows)
+    - [Install](#install)
+- [Acknowledgments](#acknowledgments)
+
 ## Usage
 
 ~~~
@@ -101,7 +114,7 @@ Comment: This is a commend
 ### Story Creation
 
 ~~~
-  Usage: club-create [options]
+  Usage: club create [options]
 
   create a story with provided details
 
@@ -141,7 +154,7 @@ Comment: This is a commend
 ### Members
 
 ~~~
-  Usage: club-members [options]
+  Usage: club members [options]
 
   Display members available for stories
 
@@ -173,6 +186,7 @@ Install via npm:
 
 ~~~sh
 $ npm install clubhouse-cli -g
+$ club install
 ~~~
 
 ~~~
@@ -187,3 +201,8 @@ $ npm install clubhouse-cli -g
     -f, --force    Force install/reinstall
     -h, --help     output usage information
 ~~~
+
+## Acknowledgments
+
+- [Clubhouse API](http://clubhouse.io/api/rest/v2/)
+- Official [clubhouse-lib](https://github.com/clubhouse/clubhouse-lib)
