@@ -7,18 +7,11 @@ module.exports = {
     "extends": "eslint:recommended",
     "parserOptions": {
         "ecmaVersion": 2017,
-        "ecmaFeatures": {
-            "experimentalObjectRestSpread": true,
-            "jsx": true
-        },
         "sourceType": "module"
     },
     "plugins": [
-        "react"
     ],
     "rules": {
-        "react/jsx-uses-vars": 2,
-        "jsx-quotes" : [2, "prefer-single"],
         "object-curly-spacing" : [2, "always"],
         "indent": [
             "error",
