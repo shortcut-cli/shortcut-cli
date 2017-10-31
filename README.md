@@ -2,7 +2,7 @@
 
 ## Usage
 
-~~~sh
+~~~
   Usage: club [options] [command]
 
   A command line tool for searching, viewing, and updating clubhouse.io stories
@@ -19,7 +19,8 @@
     install         install and configure API access
     find            find stories with optional query
     members         list members
-    story           view or manipulate stories
+    story           view or manipulate a story or stories
+    create          create a story
     workflows       list workflows and their states
     workspace       list stories matching saved workspace query
     help [cmd]      display help for [cmd]
@@ -27,7 +28,7 @@
 
 ### Search
 
-~~~sh
+~~~
   Usage: club find [options]
 
   Search through clubouse stories
@@ -49,7 +50,7 @@
 
 Example output
 
-~~~sh
+~~~
 $ club find -o 'josh' -s 'Review'
 #1480 Create Thinga-ma-bob
   Type:    feature/3
@@ -62,7 +63,7 @@ $ club find -o 'josh' -s 'Review'
 
 ### Stories
 
-~~~sh
+~~~
   Usage: club story [options] <id>
 
   Update and/or display story details
@@ -73,6 +74,8 @@ $ club find -o 'josh' -s 'Review'
     -I, --idonly             Print only ID of story results
     -s, --state [id|name]    Update workflow state of story
     -e, --estimate [number]  Update estimate of story
+    -E, --epic [id|name]     Update epic of story
+    -l, --label [id|name]    Update story with labels, comma-separated
     -c, --comment [text]     Add comment to story
     -o, --owner [id|name]    Update owners of story, comma-separated
     -O, --open               Open story in browser
@@ -81,23 +84,47 @@ $ club find -o 'josh' -s 'Review'
 
 Example output:
 
-~~~sh
+~~~
 $ club story 1480 -c 'This is a commend' -o josh
 #1480 Create Thinga-ma-bob
 Desc:    Create a thing to display:
 Owners:  Josh (josh)
 Type:    feature/3
 Label:   #512 client_web
-Project: #14
+Project: #14 Customer
 State:   #500000020 Code Review
 URL:     https://app.clubhouse.io/story/1480
 Comment: This is a commend
          Josh at: 2017-10-25T16:17:04Z
 ~~~
 
+### Story Creation
+
+~~~
+  Usage: club-create [options]
+
+  create a story with provided details
+
+
+  Options:
+
+    -d, --description [text]  Set description of story
+    -e, --estimate [number]   Set estimate of story
+    -E, --epic [id|name]      Set epic of story
+    -I, --idonly              Print only ID of story result
+    -l, --label [id|name]     Stories with label id/name, by regex
+    -o, --owners [id|name]    Set owners of story, comma-separated
+    -O, --open                Open story in browser
+    -p, --project [id|name]   Set project of story, required
+    -t, --title [text]        Set title of story, required
+    -s, --state [id|name]     Set workflow state of story
+    -y, --type [name]         Set type of story, default: feature
+    -h, --help                output usage information
+~~~
+
 ### Workspace
 
-~~~sh
+~~~
   Usage: club workspace [options]
 
   List stories matching saved workspace query
@@ -113,7 +140,7 @@ Comment: This is a commend
 
 ### Members
 
-~~~sh
+~~~
   Usage: club-members [options]
 
   Display members available for stories
@@ -128,7 +155,7 @@ Comment: This is a commend
 
 ### Workflows
 
-~~~sh
+~~~
   Usage: club workflows [options]
 
   Display workflows/states available for stories
@@ -148,7 +175,7 @@ Install via npm:
 $ npm install clubhouse-cli -g
 ~~~
 
-~~~sh
+~~~
   Usage: club install [options]
 
   Install access token for clubhouse API
