@@ -1,6 +1,6 @@
 {
   "name": "clubhouse-cli",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "A command line tool for viewing, creating and updating clubhouse.io stories",
   "main": "index.js",
   "engines": {
@@ -16,7 +16,10 @@
     "type": "git",
     "url": "git+https://github.com/andjosh/clubhouse-cli.git"
   },
-  "keywords": ["clubhouse", "cli"],
+  "keywords": [
+    "clubhouse",
+    "cli"
+  ],
   "author": "email@andjosh.com",
   "license": "MIT",
   "bugs": {
