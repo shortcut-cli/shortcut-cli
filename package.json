@@ -16,9 +16,9 @@
     "type": "git",
     "url": "git+https://github.com/andjosh/clubhouse-cli.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["clubhouse", "cli"],
+  "author": "email@andjosh.com",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/andjosh/clubhouse-cli/issues"
   },
