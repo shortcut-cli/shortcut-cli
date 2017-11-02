@@ -92,6 +92,7 @@ $ club find -o 'josh' -s 'Review'
     -c, --comment [text]     Add comment to story
     -o, --owner [id|name]    Update owners of story, comma-separated
     -O, --open               Open story in browser
+    -t, --title [text]       Update title of story
     -y, --type [name]        Set type of story
     -h, --help               output usage information
 ~~~
