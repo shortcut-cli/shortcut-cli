@@ -9,6 +9,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     - [Story Creation](#story-creation)
     - [Workspace](#workspace)
     - [Members](#members)
+    - [Epics](#epics)
     - [Workflows](#workflows)
     - [Install](#install)
 - [Acknowledgments](#acknowledgments)
@@ -35,6 +36,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     story           view or manipulate a story or stories
     create          create a story
     workflows       list workflows and their states
+    epics           list epics and their states
     workspace       list stories matching saved workspace query
     help [cmd]      display help for [cmd]
 ~~~
@@ -166,6 +168,24 @@ Comment: This is a commend
     -s, --search [query]  List members with name containing query
     -d, --disabled        List members including disabled
     -h, --help            output usage information
+~~~
+
+### Epics
+
+~~~
+  Usage: club epics [options]
+
+  Display epics available for stories
+
+
+  Options:
+
+    -a, --archived       List only epics including archived
+    -c, --completed      List only epics that have been completed
+    -d, --detailed       List more details for each epic
+    -t, --title [query]  List epics with name/title containing query
+    -s, --started        List epics that have been started
+    -h, --help           output usage information
 ~~~
 
 ### Workflows
