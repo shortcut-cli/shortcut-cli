@@ -24,6 +24,7 @@ program
     .option('-o, --owners [id|name]', 'Update owners of story, comma-separated', '')
     .option('-O, --open', 'Open story in browser')
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
+    .option('-y, --type [name]', 'Update type of story', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -54,6 +55,12 @@ const main = async () => {
     }
     if (program.estimate) {
         update.estimate = parseInt(program.estimate, 10);
+    }
+    if (program.type) {
+        const typeMatch = new RegExp(program.type, 'i');
+        update.story_type = ['feature', 'bug', 'chore'].filter(t => {
+            return !!t.match(typeMatch);
+        })[0];
     }
     if (program.owners) {
         const ownerMatch = new RegExp(program.owners.split(',').join('|'), 'i');
