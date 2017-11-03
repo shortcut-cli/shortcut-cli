@@ -11,6 +11,6 @@ require('commander')
     .command('members [options]', 'list members')
     .command('workflows [options]', 'list workflows and their states')
     .command('epics [options]', 'list epics and their states')
-    .command('workspace [options]', 'list stories matching saved workspace query',
+    .command('workspace [NAME] [options]', 'list stories matching saved workspace query',
         { isDefault: true })
     .parse(process.argv);

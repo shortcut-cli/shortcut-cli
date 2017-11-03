@@ -142,7 +142,7 @@ Comment: This is a commend
 ### Workspace
 
 ~~~
-  Usage: club workspace [options]
+  Usage: club workspace [NAME] [options]
 
   List stories matching saved workspace query
 

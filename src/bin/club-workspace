@@ -8,7 +8,7 @@ var program        = require('commander');
 program
     .description('List stories matching saved workspace query')
     .option('-l, --list', 'List saved workspaces')
-    .option('-n, --name [name]', 'Load named workspace', 'default')
+    .option('-n, --name [name]', 'Load named workspace', '')
     .option('-u, --unset [name]', 'Force unset saved workspace')
     .parse(process.argv);
 
@@ -33,14 +33,15 @@ const main = async () => {
             log('Successfully removed %s workspace', program.unset);
         }
     } else {
-        const workspace = config.workspaces[program.name];
+        const name = program.name || program.args[0] || 'default';
+        const workspace = config.workspaces[name];
         if (!workspace) {
-            log('No workspace saved with name', program.name);
+            log('No workspace saved with name', name);
             log('Please run:');
-            log('  club find [options] --save', program.name);
+            log('  club find [options] --save', name);
             log('to create it.');
         } else {
-            log('Loading workspace %s:', program.name, toArgs(workspace));
+            log('Loading workspace %s:', name, toArgs(workspace));
             log();
             let stories = [];
             try {
