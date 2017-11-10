@@ -164,6 +164,10 @@ const printStory = (story) => {
         log(chalk.bold('Epic:') + chalk.bold(`     #${story.epic_id} `) + story.epic.name);
     }
     log(chalk.bold('State:') + chalk.bold(`    #${story.workflow_state_id} `) + story.state.name);
+    log(chalk.bold('Created:') + `  ${story.created_at}`);
+    if (story.created_at != story.updated_at) {
+        log(chalk.bold('Updated:') + `  ${story.updated_at}`);
+    }
     log(chalk.bold('URL:') + `      ${storyURL(story)}`);
     if (story.archived) {
         log(chalk.bold('Archived: ') + chalk.bold(story.archived));

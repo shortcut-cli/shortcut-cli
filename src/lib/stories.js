@@ -86,6 +86,7 @@ const printStory = (program) => { return (story) => {
     log('  Owners:   ' + `${owners.join(', ') || '_'}`);
     log('  State:    ' + chalk.bold(`#${story.workflow_state_id} `) + story.state.name);
     log(`  URL:      https://app.clubhouse.io/story/${story.id}`);
+    log('  Created:  ' + `${story.created_at} ${story.updated_at != story.created_at ? 'Updated: ' + story.updated_at : ''}`);
     if (story.archived) {
         log('  archived: ' + chalk.bold(story.archived));
     }
