@@ -112,7 +112,7 @@ const printStory = (program) => { return (story) => {
 };};
 
 const parseDateComparator = (arg) => {
-    const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 12 } };
+    const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 30 } };
     const parsedDate = new Date(arg.slice(match.index));
     const comparator = arg.slice(0, match.index);
     return (date) => {
