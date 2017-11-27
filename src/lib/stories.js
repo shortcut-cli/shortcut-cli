@@ -58,7 +58,7 @@ const filterStories = (program, projects) => { return (stories, index) => {
             .match(regexLabel)) {
             return false;
         }
-        if (!(s.workflow_state_id + ' ' + s.state.name)
+        if (!(s.workflow_state_id + ' ' + (s.state || {}).name)
             .match(regexState)) {
             return false;
         }
