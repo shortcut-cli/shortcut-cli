@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const { exec } = require('child_process');
 const chalk    = require('chalk');
+const debug    = require('debug')('club');
 const Spinner  = require('cli-spinner').Spinner;
 const client   = require('../lib/client.js');
 const spin     = new Spinner('Loading... %s ');
@@ -33,16 +34,19 @@ const main = async () => {
     if (!program.idonly)
         spin.start();
     try {
+        debug('request workflows, members, projects, epics');
         [ wfs, members, projects, epics ] = await Promise.all([
             client.listWorkflows(),
             client.listMembers(),
             client.listProjects(),
             client.listEpics(),
         ]);
+        debug('response workflows, members, projects, epics');
         wf = wfs[0];    // TODO: this is always getting the default workflow
     } catch (e) {
         log('Error fetching workflows');
     }
+    debug('constructing story update');
     let update = {};
     if (program.archived) {
         update.archived = true;
@@ -93,29 +97,37 @@ const main = async () => {
         }
     }
     const hasUpdate = Object.keys(update).length > 0;
+    debug('constructed story update');
     program.args.map(async (id) => {
         let story;
         try {
             if (program.comment) {
+                debug('request comment create');
                 await client.createStoryComment(id, program.comment);
+                debug('response comment create');
             }
         } catch (e) {
             log('Error creating comment', id);
         }
         try {
+            debug('request story');
             story = await client.getStory(id);
+            debug('response story');
         } catch (e) {
             log('Error fetching story', id);
         }
         try {
             if (hasUpdate) {
+                debug('request story update');
                 let changed = await client.updateStory(id, update);
+                debug('response story update');
                 story = Object.assign({}, story, changed);
             }
         } catch (e) {
             log('Error updating story', id);
         }
         if (story) {
+            debug('hydrating story');
             story.state = wf.states
                 .filter(s => s.id === story.workflow_state_id)[0];
             story.epic = epics
@@ -125,6 +137,7 @@ const main = async () => {
             story.owners = members.filter(m => {
                 return story.owner_ids.indexOf(m.id) > -1;
             });
+            debug('hydrated story');
         }
         if (!program.idonly)
             spin.stop(true);
