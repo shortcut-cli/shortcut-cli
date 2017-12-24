@@ -43,8 +43,6 @@ const filterStories = (program, projects) => { return (stories, index) => {
         story.project = project;
         story.state = wf.states
             .filter(s => s.id === story.workflow_state_id)[0];
-        return story;
-    }).map(story => {
         story.owners = members.filter(m => {
             return story.owner_ids.indexOf(m.id) > -1;
         });
