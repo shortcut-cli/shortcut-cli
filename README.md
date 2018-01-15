@@ -52,7 +52,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
   Options:
 
     -a, --archived          Include archived Stories
-    -I, --idonly            Print only ID of story results
+    -q, --quiet             Print only story output, no loading dialog
     -l, --label [id|name]   Stories with label id/name, by regex
     -o, --owner [name]      Stories with owner, by regex
     -p, --project [id|name] Stories in project
@@ -83,6 +83,8 @@ $ club find -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
 
 #### Story Output Formatting
 
+Templating variables:
+
 ~~~
 %i      Print ID of story
 %t      Print title/name of story
@@ -97,6 +99,8 @@ $ club find -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
 %c      Print story creation timestamp
 %u      Print story updated timestamp (if different from created)
 ~~~
+
+Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and `\n` (newline) literals in the formatting string. Otherwise, you can actually just type a newline character.
 
 ### Stories
 
