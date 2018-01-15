@@ -10,7 +10,7 @@ program
     .description('Search through clubouse stories')
     .option('-a, --archived', 'Include archived Stories')
     .option('-c, --created [operator][date]', 'Stories created within criteria (oprateor is one of <|>|=)', '')
-    .option('-I, --idonly', 'Print only ID of story results', '')
+    .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('-o, --owner [name]', 'Stories with owner, by regex', '')
     .option('-p, --project [id]', 'Stories in project', '')
@@ -24,7 +24,7 @@ program
 spin.setSpinnerString(27);
 
 const main = async () => {
-    if (!program.idonly)
+    if (!program.quiet)
         spin.start();
     let stories = [];
     try {
@@ -32,7 +32,7 @@ const main = async () => {
     } catch (e) {
         log('Error fetching stories:', e);
     }
-    if (!program.idonly)
+    if (!program.quiet)
         spin.stop(true);
     stories.map(storyLib.printStory(program));
     if (program.save) {
@@ -47,6 +47,8 @@ const main = async () => {
             type:       program.type     || undefined,
             updated:    program.updated  || undefined,
             created:    program.created  || undefined,
+            quiet:      program.quiet    || undefined,
+            format:     program.format   || undefined,
         });
         if (success) {
             log('Saved query as %s workspace', name);

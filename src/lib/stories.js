@@ -86,9 +86,6 @@ const filterStories = (program, projects) => { return (stories, index) => {
 };};
 
 const printStory = (program) => { return (story) => {
-    if (program.idonly) {
-        return log(story.id);
-    }
     const defaultFormat = `#%I %t
     \tType:   \t%y/%e
     \tLabels: \t%l
@@ -109,7 +106,7 @@ const printStory = (program) => { return (story) => {
     log(format
         .replace(/%I/, chalk.blue.bold(`${story.id}`))
         .replace(/%t/, chalk.blue(`${story.name}`))
-        .replace(/%d/, story.description)
+        .replace(/%d/, story.description || '')
         .replace(/%y/, story.story_type)
         .replace(/%e/, story.estimate || '_')
         .replace(/%l/, labels.join(', ') || '_')
