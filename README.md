@@ -74,6 +74,28 @@ $ club find -o 'josh' -s 'Review'
   Owners:  Josh (josh)
   State:   #500000020 Code Review
   URL:     https://app.clubhouse.io/story/1480
+
+# Custom formatting is an option
+$ club find -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
+1480    #500000020 Code Review  Create Thinga-ma-bob
+    Josh (josh)
+~~~
+
+#### Story Output Formatting
+
+~~~
+%i      Print ID of story
+%t      Print title/name of story
+%a      Print archived status of story
+%o      Print owners of story
+%l      Print labels on story
+%u      Print URL of story
+%p      Print project of story
+%y      Print story type
+%e      Print story estimate
+%s      Print story state
+%c      Print story creation timestamp
+%u      Print story updated timestamp (if different from created)
 ~~~
 
 ### Stories
