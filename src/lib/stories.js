@@ -86,7 +86,7 @@ const filterStories = (program, projects) => { return (stories, index) => {
 };};
 
 const printStory = (program) => { return (story) => {
-    const defaultFormat = `#%I %t
+    const defaultFormat = `#%i %t
     \tType:   \t%y/%e
     \tLabels: \t%l
     \tProject:\t%p
@@ -104,7 +104,7 @@ const printStory = (program) => { return (story) => {
         return `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}` + ')');
     });
     log(format
-        .replace(/%I/, chalk.blue.bold(`${story.id}`))
+        .replace(/%i/, chalk.blue.bold(`${story.id}`))
         .replace(/%t/, chalk.blue(`${story.name}`))
         .replace(/%d/, story.description || '')
         .replace(/%y/, story.story_type)
