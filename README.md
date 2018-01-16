@@ -179,6 +179,7 @@ Comment: This is a commend
     -l, --list          List saved workspaces
     -n, --name [name]   Load named workspace
     -u, --unset [name]  Force unset saved workspace
+    -q, --quiet         Print only resulting story output, no loading dialog
     -h, --help          output usage information
 ~~~
 
