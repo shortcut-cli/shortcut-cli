@@ -5,7 +5,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
 ## Table of Contents
 - [Usage & Commands](#usage)
     - [Search](#search)
-    - [Stories](#stories)
+    - [Story](#story)
     - [Story Creation](#story-creation)
     - [Workspace](#workspace)
     - [Members](#members)
@@ -60,6 +60,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     -S, --save [name]       Save search configuration as workspace
     -t, --text [name]       Stories with text in name, by regex
     -y, --type [name]       Stories of type, by regex
+    -f, --format [template] Format each story output by template
     -h, --help              output usage information
 ~~~
 
@@ -102,7 +103,7 @@ Templating variables:
 
 Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and `\n` (newline) literals in the formatting string. Otherwise, you can actually just type a newline character.
 
-### Stories
+### Story
 
 ~~~
   Usage: club story [options] <id>
