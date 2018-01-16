@@ -5,7 +5,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
 ## Table of Contents
 - [Usage & Commands](#usage)
     - [Search](#search)
-    - [Stories](#stories)
+    - [Story](#story)
     - [Story Creation](#story-creation)
     - [Workspace](#workspace)
     - [Members](#members)
@@ -52,7 +52,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
   Options:
 
     -a, --archived          Include archived Stories
-    -I, --idonly            Print only ID of story results
+    -q, --quiet             Print only story output, no loading dialog
     -l, --label [id|name]   Stories with label id/name, by regex
     -o, --owner [name]      Stories with owner, by regex
     -p, --project [id|name] Stories in project
@@ -60,6 +60,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     -S, --save [name]       Save search configuration as workspace
     -t, --text [name]       Stories with text in name, by regex
     -y, --type [name]       Stories of type, by regex
+    -f, --format [template] Format each story output by template
     -h, --help              output usage information
 ~~~
 
@@ -74,9 +75,35 @@ $ club find -o 'josh' -s 'Review'
   Owners:  Josh (josh)
   State:   #500000020 Code Review
   URL:     https://app.clubhouse.io/story/1480
+
+# Custom formatting is an option
+$ club find -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
+1480    #500000020 Code Review  Create Thinga-ma-bob
+    Josh (josh)
 ~~~
 
-### Stories
+#### Story Output Formatting
+
+Templating variables:
+
+~~~
+%i      Print ID of story
+%t      Print title/name of story
+%a      Print archived status of story
+%o      Print owners of story
+%l      Print labels on story
+%u      Print URL of story
+%p      Print project of story
+%y      Print story type
+%e      Print story estimate
+%s      Print story state
+%c      Print story creation timestamp
+%u      Print story updated timestamp (if different from created)
+~~~
+
+Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and `\n` (newline) literals in the formatting string. Otherwise, you can actually just type a newline character.
+
+### Story
 
 ~~~
   Usage: club story [options] <id>

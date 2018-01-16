@@ -41,8 +41,10 @@ const main = async () => {
             log('  club find [options] --save', name);
             log('to create it.');
         } else {
-            log('Loading workspace %s:', name, toArgs(workspace));
-            log();
+            if (!program.quiet){
+                log('Loading workspace %s:', name, toArgs(workspace));
+                log();
+            }
             let stories = [];
             try {
                 stories = await storyLib.listStories(workspace);
