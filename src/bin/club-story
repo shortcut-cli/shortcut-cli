@@ -175,6 +175,8 @@ const printStory = (story) => {
     log(chalk.bold('Project:') + chalk.bold(`  #${story.project_id} `) + story.project.name);
     if (story.epic) {
         log(chalk.bold('Epic:') + chalk.bold(`     #${story.epic_id} `) + story.epic.name);
+    } else {
+        log(chalk.bold('Epic:') + '     _');
     }
     log(chalk.bold('State:') + chalk.bold(`    #${story.workflow_state_id} `) + story.state.name);
     log(chalk.bold('Created:') + `  ${story.created_at}`);
