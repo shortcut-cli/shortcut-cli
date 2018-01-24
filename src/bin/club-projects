@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+const client = require('../lib/client.js');
+const chalk   = require('chalk');
+const Spinner = require('cli-spinner').Spinner;
+const spin    = new Spinner('Loading... %s ');
+const log     = console.log;
+var program = require('commander');
+
+program
+    .description('Display projects available for stories')
+    .option('-a, --archived', 'List only projects including archived', '')
+    .option('-d, --detailed', 'List more details for each project', '')
+    .option('-t, --title [query]', 'List projects with name/title containing query', '')
+    .parse(process.argv);
+spin.setSpinnerString(27);
+
+const main = async () => {
+    spin.start();
+    const projects = await client.listProjects();
+    spin.stop(true);
+    const textMatch = new RegExp(program.title, 'i');
+    projects.filter(o => {
+        return !!`${o.name} ${o.name}`
+            .match(textMatch);
+    }).map(printItem);
+};
+
+const printItem = (proj) => {
+    if (proj.archived && !program.archived) return;
+    log(chalk.bold(`#${proj.id}`) + chalk.blue(` ${proj.name}`));
+    log(chalk.bold('Points:        ') + (` ${proj.stats.num_points}`));
+    log(chalk.bold('Stories:       ') + (` ${proj.stats.num_stories}`));
+    log(chalk.bold('Started:       ') + (` ${proj.start_time}`));
+    if (proj.archived) {
+        log(chalk.bold('Archived:      ') + (` ${proj.archived}`));
+    }
+    if (program.detailed) {
+        log(chalk.bold('Description:    ') + (` ${proj.description}`));
+    }
+    log();
+};
+main();

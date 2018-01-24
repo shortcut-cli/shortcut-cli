@@ -11,6 +11,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     - [Members](#members)
     - [Epics](#epics)
     - [Workflows](#workflows)
+    - [Projects](#projects)
     - [Install](#install)
 - [Acknowledgments](#acknowledgments)
 
@@ -37,6 +38,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     create          create a story
     workflows       list workflows and their states
     epics           list epics and their states
+    projects        list or search projects
     workspace       list stories matching saved workspace query
     help [cmd]      display help for [cmd]
 ~~~
@@ -228,6 +230,22 @@ Comment: This is a commend
 
     -s, --search [query]  List states containing query
     -h, --help            output usage information
+~~~
+
+### Projects
+
+~~~
+  Usage: club projects [options]
+
+  Display projects available for stories
+
+
+  Options:
+
+    -a, --archived       List only projects including archived
+    -d, --detailed       List more details for each project
+    -t, --title [query]  List projects with name/title containing query
+    -h, --help           output usage information
 ~~~
 
 ### Install
