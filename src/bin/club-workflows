@@ -29,5 +29,7 @@ const printWfState = (state) => {
         return;
     }
     log(chalk.bold(`    #${state.id}`) + ` ${state.name}`);
+    log(           `         Type:   \t${state.type}`);
+    log(           `         Stories:\t${state.num_stories}`);
 };
 main();
