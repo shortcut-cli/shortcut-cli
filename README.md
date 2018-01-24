@@ -118,6 +118,7 @@ Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and 
     -I, --idonly             Print only ID of story results
     -s, --state [id|name]    Update workflow state of story
     -e, --estimate [number]  Update estimate of story
+    -d, --description [text] Update description of story
     -E, --epic [id|name]     Update epic of story
     -l, --label [id|name]    Update story with labels, comma-separated
     -c, --comment [text]     Add comment to story

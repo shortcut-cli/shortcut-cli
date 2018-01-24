@@ -20,6 +20,7 @@ program
     .option('-e, --estimate [number]', 'Update estimate of story', '')
     .option('-E, --epic [id|name]', 'Set epic of story')
     .option('-c, --comment [text]', 'Add comment to story', '')
+    .option('-d, --description [text]', 'Update description of story', '')
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('-o, --owners [id|name]', 'Update owners of story, comma-separated', '')
@@ -63,6 +64,9 @@ const main = async () => {
     }
     if (program.title) {
         update.name = program.title;
+    }
+    if (program.description) {
+        update.description = program.description;
     }
     if (program.type) {
         const typeMatch = new RegExp(program.type, 'i');
