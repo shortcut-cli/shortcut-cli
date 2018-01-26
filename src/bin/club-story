@@ -194,6 +194,11 @@ const printStory = (story) => {
     if (story.completed) {
         log(chalk.bold('Completed: ') + chalk.bold(story.completed_at));
     }
+    story.tasks.map(c => {
+        log(chalk.bold('Task:     ') + (c.completed ? '[X]' : '[ ]')
+            + ' ' + formatLong(c.description));
+        return c;
+    });
     story.comments.map(c => {
         const author = members.filter(m => m.id === c.author_id)[0]
             || { profile: {} };
