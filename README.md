@@ -57,7 +57,8 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     -q, --quiet             Print only story output, no loading dialog
     -l, --label [id|name]   Stories with label id/name, by regex
     -o, --owner [name]      Stories with owner, by regex
-    -p, --project [id|name] Stories in project
+    -p, --project [id|name] Stories in project id/name, by regex
+    -E, --epic [id|name]    Stories in epic id/name, by regex
     -s, --state [id|name]   Stories in workflow state id/name, by regex
     -S, --save [name]       Save search configuration as workspace
     -t, --text [name]       Stories with text in name, by regex
@@ -73,6 +74,7 @@ $ club find -o 'josh' -s 'Review'
 #1480 Create Thinga-ma-bob
   Type:    feature/3
   Label:   #512 client_web
+  Epic:    #5 Things to do
   Project: #14 Customers
   Owners:  Josh (josh)
   State:   #500000020 Code Review
@@ -95,6 +97,7 @@ Templating variables:
 %o      Print owners of story
 %l      Print labels on story
 %u      Print URL of story
+%E      Print epic of story
 %p      Print project of story
 %y      Print story type
 %e      Print story estimate

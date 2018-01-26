@@ -15,6 +15,7 @@ program
     .option('-o, --owner [name]', 'Stories with owner, by regex', '')
     .option('-p, --project [id]', 'Stories in project', '')
     .option('-s, --state [id|name]', 'Stories in workflow state id/name, by regex', '')
+    .option('-E, --epic [id|name]', 'Stories in epic id/name, by regex', '')
     .option('-S, --save [name]', 'Save search configuration as workspace')
     .option('-t, --text [name]', 'Stories with text in name, by regex', '')
     .option('-u, --updated [operator][date]', 'Stories updated within criteria (oprateor is one of <|>|=)', '')
@@ -43,6 +44,7 @@ const main = async () => {
             owner:      program.owner    || undefined,
             project:    program.project  || undefined,
             state:      program.state    || undefined,
+            epic:       program.epic     || undefined,
             text:       program.text     || undefined,
             type:       program.type     || undefined,
             updated:    program.updated  || undefined,

@@ -4,13 +4,15 @@ const log     = console.log;
 var wfs       = [];
 var projects  = [];
 var members   = [];
+var epics     = [];
 var wf        = { states: [] };
 
 const listStories = async (program) => {
-    [ wfs, members, projects ] = await Promise.all([
+    [ wfs, members, projects, epics ] = await Promise.all([
         client.listWorkflows(),
         client.listMembers(),
-        client.listProjects()
+        client.listProjects(),
+        client.listEpics(),
     ]);
     wf = wfs[0];    // TODO: this is always getting the default workflow
     let regexProject = new RegExp(program.project, 'i');
@@ -40,10 +42,12 @@ const filterStories = (program, projects) => { return (stories, index) => {
     let regexOwner = new RegExp(program.owner, 'i');
     let regexText = new RegExp(program.text, 'i');
     let regexType = new RegExp(program.type, 'i');
+    let regexEpic = new RegExp(program.epic, 'i');
     const filtered = stories.map(story => {
         story.project = project;
         story.state = wf.states
             .filter(s => s.id === story.workflow_state_id)[0];
+        story.epic = epics.filter(s => s.id === story.epic_id)[0];
         story.owners = members.filter(m => {
             return story.owner_ids.indexOf(m.id) > -1;
         });
@@ -59,6 +63,10 @@ const filterStories = (program, projects) => { return (stories, index) => {
         }
         if (!(s.workflow_state_id + ' ' + (s.state || {}).name)
             .match(regexState)) {
+            return false;
+        }
+        if (!(s.epic_id + ' ' + (s.epic || {}).name)
+            .match(regexEpic)) {
             return false;
         }
         if (program.owner) {
@@ -88,10 +96,11 @@ const filterStories = (program, projects) => { return (stories, index) => {
 const printStory = (program) => { return (story) => {
     const defaultFormat = `#%i %t
     \tType:   \t%y/%e
-    \tLabels: \t%l
     \tProject:\t%p
+    \tEpic:   \t%E
     \tOwners: \t%o
     \tState:  \t%s
+    \tLabels: \t%l
     \tURL:    \t%u
     \tCreated:\t%c\tUpdated: %u
     \tArchived:\t%a
@@ -110,6 +119,7 @@ const printStory = (program) => { return (story) => {
         .replace(/%y/, story.story_type)
         .replace(/%e/, story.estimate || '_')
         .replace(/%l/, labels.join(', ') || '_')
+        .replace(/%E/, chalk.bold(`#${story.epic_id}`) + ` ${(story.epic || {}).name}`)
         .replace(/%p/, chalk.bold(`#${story.project.id}`) + ` ${story.project.name}`)
         .replace(/%o/, owners.join(', ') || '_')
         .replace(/%s/, chalk.bold(`#${story.workflow_state_id} `) + story.state.name)
