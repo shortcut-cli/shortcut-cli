@@ -64,6 +64,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     -t, --text [name]       Stories with text in name, by regex
     -y, --type [name]       Stories of type, by regex
     -f, --format [template] Format each story output by template
+    -r, --sort [field]      Sort stories by field (accessor[:asc|desc][,next])
     -h, --help              output usage information
 ~~~
 
@@ -107,6 +108,10 @@ Templating variables:
 ~~~
 
 Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and `\n` (newline) literals in the formatting string. Otherwise, you can actually just type a newline character.
+
+#### Story Output Sorting
+
+The default sorting for stories found is `state.position:asc,id:asc`, which translates to "sort by associated state position ascending, then by story id ascending within the same state."
 
 ### Story
 
