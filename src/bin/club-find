@@ -60,6 +60,7 @@ const main = async () => {
             owner:      program.owner    || undefined,
             project:    program.project  || undefined,
             state:      program.state    || undefined,
+            sort:       program.sort     || undefined,
             epic:       program.epic     || undefined,
             text:       program.text     || undefined,
             type:       program.type     || undefined,
