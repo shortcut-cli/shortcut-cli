@@ -24,7 +24,8 @@ const listStories = async (program) => {
     return stories.map(filterStories(program, filteredProjects))
         .reduce((a, b) => {
             return a.concat(b);
-        }, []);
+        }, [])
+        .sort(sortStories(program));
 };
 const fetchStories = async (project) => {
     return client.listStories(project.id);
@@ -92,6 +93,38 @@ const filterStories = (program, projects) => { return (stories, index) => {
     });
     return filtered;
 };};
+const sortStories = (program) => {
+    const fields = program.sort
+        .split(',')
+        .map(s => {
+            return s.split(':')
+                .map(ss => ss.split('.'));
+        });
+    const pluck = (acc, val) => {
+        if (acc[val] === undefined)
+            return {};
+        return acc[val];
+    };
+    return (a, b) => {
+        return fields.reduce((acc, field) => {
+            if (acc !== 0)
+                return acc;
+            const ap = field[0].reduce(pluck, a);
+            const bp = field[0].reduce(pluck, b);
+            if (ap === bp)
+                return 0;
+            const direction = (field[1] || [''])[0].match(/des/i) ? 1 : -1;
+            if (ap > bp) {
+                if (direction > 0)
+                    return -1;
+            } else {
+                if (direction < 0)
+                    return -1;
+            }
+            return 1;
+        }, 0);
+    };
+};
 
 const printStory = (program) => { return (story) => {
     const defaultFormat = `#%i %t
