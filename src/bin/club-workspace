@@ -3,6 +3,7 @@ const configure    = require('../lib/configure.js');
 const storyLib     = require('../lib/stories.js');
 const config       = configure.loadConfig();
 const log          = console.log;
+const find         = require('./club-find');
 var program        = require('commander');
 
 program
@@ -41,19 +42,19 @@ const main = async () => {
             log('Please run:');
             log('  club find [options] --save', name);
             log('to create it.');
-        } else {
-            if (!program.quiet){
-                log('Loading workspace %s:', name, toArgs(workspace));
-                log();
-            }
-            let stories = [];
-            try {
-                stories = await storyLib.listStories(workspace);
-            } catch (e) {
-                log('Error fetching stories:', e);
-            }
-            stories.map(storyLib.printStory(workspace));
+            return;
         }
+        if (!program.quiet){
+            log('Loading workspace %s:', name, toArgs(workspace));
+            log();
+        }
+        let stories = [];
+        try {
+            stories = await storyLib.listStories(workspace);
+        } catch (e) {
+            log('Error fetching stories:', e);
+        }
+        stories.map(storyLib.printStory(workspace));
     }
 };
 main();

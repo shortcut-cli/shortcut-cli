@@ -6,7 +6,7 @@ const spin      = new Spinner('Finding... %s ');
 const log       = console.log;
 var program     = require('commander');
 
-program
+module.exports = program = program
     .description('Search through clubouse stories')
     .option('-a, --archived',
         'Include archived Stories')
@@ -36,8 +36,7 @@ program
         'Sort stories by field (accessor[:asc|desc][,next])',
         'state.position:asc,id:asc')
     .option('-f, --format [template]',
-        'Format each story output by template', '')
-    .parse(process.argv);
+        'Format each story output by template', '');
 spin.setSpinnerString(27);
 
 const main = async () => {
@@ -76,4 +75,7 @@ const main = async () => {
     return;
 };
 
-main();
+if (require.main === module) {
+    program.parse(process.argv);
+    main();
+}
