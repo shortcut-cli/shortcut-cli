@@ -94,7 +94,7 @@ const filterStories = (program, projects) => { return (stories, index) => {
     return filtered;
 };};
 const sortStories = (program) => {
-    const fields = program.sort
+    const fields = (program.sort || '')
         .split(',')
         .map(s => {
             return s.split(':')
