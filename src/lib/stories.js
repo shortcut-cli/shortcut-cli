@@ -117,12 +117,11 @@ const sortStories = (program) => {
             if (ap > bp) {
                 if (direction > 0)
                     return -1;
-                return 1;
             } else {
                 if (direction < 0)
                     return -1;
-                return 1;
             }
+            return 1;
         }, 0);
     };
 };
