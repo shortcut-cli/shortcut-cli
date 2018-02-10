@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const { exec }     = require('child_process');
 const configure    = require('../lib/configure.js');
 const storyLib     = require('../lib/stories.js');
 const config       = configure.loadConfig();
@@ -51,36 +50,23 @@ const main = async () => {
         log('to create it.');
         return;
     }
-    const additionalArgs = program.rawArgs.slice(2)
-        .filter(a => a !== name)
-        .join(' ');
-    if (additionalArgs.length) {
-        if (!program.quiet){
-            log('Loading %s workspace (with alterations)', name);
-            log();
-        }
-        const args = toArgs(workspace) + ' ' + additionalArgs;
-        exec('club find ' + args, (err, stdout, stderr) => {
-            if (err || stderr) {
-                log('Error:');
-                log(err || stderr);
-                return;
-            }
-            log(stdout);
-        });
-        return;
-    }
+    const found = find.parse(process.argv);
+    const findOpts = found.options.map(o => o.name());
+    const additionalArgs = findOpts.reduce((acc, val) => {
+        acc[val] = found[val] || acc[val] || found[val];
+        return acc;
+    }, workspace);
     if (!program.quiet){
         log('Loading %s workspace', name);
         log();
     }
     let stories = [];
     try {
-        stories = await storyLib.listStories(workspace);
+        stories = await storyLib.listStories(additionalArgs);
     } catch (e) {
         log('Error fetching stories:', e);
     }
-    stories.map(storyLib.printStory(workspace));
+    stories.map(storyLib.printStory(additionalArgs));
 };
 main();
 
