@@ -5,13 +5,21 @@ const pkg = require('../../package');
 const configFile = path.resolve(os.homedir(), '.' + pkg.name, 'config.json');
 
 const loadConfig = () => {
+    const envToken = process.env.CLUBHOUSE_API_TOKEN;
     if (fs.existsSync(configFile)) {
         try {
-            return JSON.parse(fs.readFileSync(configFile, 'utf8'));
+            const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+            if (envToken) {
+                return Object.assign({}, config, { token: envToken });
+            }
+            return config;
         } catch (e) {
             console.error(e);
             return false;
         }
+    }
+    if (envToken) {
+        return { token: envToken };
     }
     return false;
 };

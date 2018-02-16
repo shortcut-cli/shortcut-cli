@@ -279,6 +279,11 @@ $ club install
     -h, --help     output usage information
 ~~~
 
+You may also provide a clubhouse API token via environment variable `CLUBHOUSE_API_TOKEN`.
+~~~sh
+$ CLUBHOUSE_API_TOKEN=foobar club story 3300
+~~~
+
 ## Acknowledgments
 
 - [Repository for this code](https://github.com/andjosh/clubhouse-cli)
