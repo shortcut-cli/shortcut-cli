@@ -1,4 +1,5 @@
 const chalk   = require('chalk');
+const debug   = require('debug')('club');
 const client  = require('./client.js');
 const log     = console.log;
 var wfs       = [];
@@ -8,19 +9,23 @@ var epics     = [];
 var wf        = { states: [] };
 
 const listStories = async (program) => {
+    debug('request workflows, members, projects, epics');
     [ wfs, members, projects, epics ] = await Promise.all([
         client.listWorkflows(),
         client.listMembers(),
         client.listProjects(),
         client.listEpics(),
     ]);
+    debug('response workflows, members, projects, epics');
     wf = wfs[0];    // TODO: this is always getting the default workflow
     let regexProject = new RegExp(program.project, 'i');
     const filteredProjects = projects
         .filter(p => {
             return !!(p.id + p.name).match(regexProject);
         });
+    debug('filtering projects');
     var stories = await Promise.all(filteredProjects.map(fetchStories));
+    debug('filtering stories');
     return stories.map(filterStories(program, filteredProjects))
         .reduce((a, b) => {
             return a.concat(b);
@@ -28,6 +33,7 @@ const listStories = async (program) => {
         .sort(sortStories(program));
 };
 const fetchStories = async (project) => {
+    debug('request stories for project', project.id);
     return client.listStories(project.id);
 };
 const filterStories = (program, projects) => { return (stories, index) => {
@@ -105,6 +111,7 @@ const sortStories = (program) => {
             return {};
         return acc[val];
     };
+    debug('sorting stories');
     return (a, b) => {
         return fields.reduce((acc, field) => {
             if (acc !== 0)
