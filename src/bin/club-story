@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 const chalk    = require('chalk');
 const debug    = require('debug')('club');
 const Spinner  = require('cli-spinner').Spinner;
@@ -28,6 +28,7 @@ program
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-t, --title [text]', 'Update title/name of story', '')
     .option('-y, --type [name]', 'Update type of story', '')
+    .option('--from-git', 'Fetch story parsed by ID from current git branch')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -102,7 +103,22 @@ const main = async () => {
     }
     const hasUpdate = Object.keys(update).length > 0;
     debug('constructed story update');
-    program.args.map(async (id) => {
+    let gitID = [];
+    if (program.fromGit) {
+        debug('fetching story ID from git');
+        let branch = execSync('git branch').toString('utf-8');
+        if (branch.match(/\*.*[0-9]+/)) {
+            debug('parsing story ID from git branch:', branch);
+            let id = parseInt(branch.match(/\*.*/)[0].match(/[0-9]+/)[0], 10);
+            debug('parsed story ID from git branch:', id);
+            if (id) {
+                gitID.push(id);
+            }
+        } else {
+            debug('no ID found in branch:', branch);
+        }
+    }
+    program.args.concat(gitID).map(async (id) => {
         let story;
         try {
             if (program.comment) {
@@ -148,7 +164,7 @@ const main = async () => {
         if (story) {
             printStory(story);
             if (program.open)
-                exec('open ' + storyURL(story));
+                execSync('open ' + storyURL(story));
         }
     });
     if (!program.idonly)
