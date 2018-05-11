@@ -135,6 +135,7 @@ The default sorting for stories found is `state.position:asc,id:asc`, which tran
     -t, --title [text]       Update title of story
     -y, --type [name]        Set type of story
     --from-git               Fetch story parsed by ID in current git branch
+    --git-branch             Create and checkout git branch from story (<type>-<id>-<slug>)
     -h, --help               output usage information
 ~~~
 
