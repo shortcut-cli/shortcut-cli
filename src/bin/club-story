@@ -29,6 +29,7 @@ program
     .option('-t, --title [text]', 'Update title/name of story', '')
     .option('-y, --type [name]', 'Update type of story', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
+    .option('--git-branch', 'Create git branch from story slug <type>-<id>-<title>')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -165,6 +166,15 @@ const main = async () => {
             printStory(story);
             if (program.open)
                 execSync('open ' + storyURL(story));
+        }
+        if (story && program.gitBranch) {
+            let slug = story.name.toLowerCase()
+                .replace(/\s/g, '-')
+                .replace(/[^a-z0-9-]/g, '')
+                .slice(0, 30);
+            let branch = `${story.story_type}-${story.id}-${slug}`;
+            debug('checking out git branch');
+            execSync('git checkout -b ' + branch);
         }
     });
     if (!program.idonly)
