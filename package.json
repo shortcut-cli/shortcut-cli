@@ -4,7 +4,7 @@
   "description": "A command line tool for viewing, creating and updating clubhouse.io stories",
   "main": "index.js",
   "engines": {
-    "node": ">= 7.*"
+    "node": ">= 7.6.*"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
