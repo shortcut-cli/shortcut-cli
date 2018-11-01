@@ -162,7 +162,7 @@ const printStory = (program) => { return (story) => {
         .replace(/%E/, chalk.bold(`#${story.epic_id}`) + ` ${(story.epic || {}).name}`)
         .replace(/%p/, chalk.bold(`#${story.project.id}`) + ` ${story.project.name}`)
         .replace(/%o/, owners.join(', ') || '_')
-        .replace(/%s/, chalk.bold(`#${story.workflow_state_id} `) + story.state.name)
+        .replace(/%s/, chalk.bold(`#${story.workflow_state_id} `) + `${(story.state || {}).name}`)
         .replace(/%u/, `https://app.clubhouse.io/story/${story.id}`)
         .replace(/%c/, story.created_at)
         .replace(/%u/, story.updated_at != story.created_at ? story.updated_at : '_')
