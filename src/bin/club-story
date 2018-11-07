@@ -192,7 +192,7 @@ const main = async () => {
 
 const downloadFiles = (story) => {
     story.files.map(file => {
-        const filePath = path.join(program.downloadDir);
+        const filePath = path.join(program.downloadDir, file.name);
         log(chalk.bold('Downloading file to: ') + filePath);
         return fetch(fileURL(file)).then(res => res.body.pipe(fs.createWriteStream(filePath)));
     });
