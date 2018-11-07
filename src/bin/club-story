@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 const { execSync } = require('child_process');
+const fetch = require('node-fetch');
+const path = require('path')
+const fs = require('fs');
 const chalk    = require('chalk');
 const debug    = require('debug')('club');
 const Spinner  = require('cli-spinner').Spinner;
@@ -21,6 +24,8 @@ program
     .option('-E, --epic [id|name]', 'Set epic of story')
     .option('-c, --comment [text]', 'Add comment to story', '')
     .option('-d, --description [text]', 'Update description of story', '')
+    .option('-D, --download', 'Download all attached files', '')
+    .option('--download-dir [path]', 'Directory to download files to', '')
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('-o, --owners [id|name]', 'Update owners of story, comma-separated', '')
@@ -167,6 +172,9 @@ const main = async () => {
             if (program.open)
                 execSync('open ' + storyURL(story));
         }
+        if (program.download || program.downloadDir) {
+            downloadFiles(story);
+        }
         if (story && program.gitBranch) {
             let slug = story.name.toLowerCase()
                 .replace(/\s/g, '-')
@@ -182,9 +190,21 @@ const main = async () => {
     return;
 };
 
+const downloadFiles = (story) => {
+    story.files.map(file => {
+        const filePath = path.join(program.downloadDir ? program.downloadDir : '.', file.name);
+        log(chalk.bold('Downloading file to: ') + filePath);
+        return fetch(fileUrl(file)).then(res => res.body.pipe(fs.createWriteStream(filePath)));
+    });
+};
+
 const storyURL = (story) => {
     return `https://app.clubhouse.io/story/${story.id}`;
 };
+
+function fileUrl(file) {
+    return `${file.url}?token=${client.requestFactory.token}`;
+}
 
 const printStory = (story) => {
     if (program.idonly) {
@@ -233,7 +253,7 @@ const printStory = (story) => {
         return c;
     });
     story.files.map(c => {
-        log(chalk.bold('File:') + `     ${c.url}?token=${client.requestFactory.token}`);
+        log(chalk.bold('File:') + `     ${fileUrl(c)}`);
         log(chalk.bold('          name:') + `  ${c.name}`);
         return c;
     });
