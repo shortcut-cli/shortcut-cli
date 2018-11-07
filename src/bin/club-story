@@ -4,6 +4,7 @@ const chalk    = require('chalk');
 const debug    = require('debug')('club');
 const Spinner  = require('cli-spinner').Spinner;
 const client   = require('../lib/client.js');
+const storyLib  = require('../lib/stories.js');
 const spin     = new Spinner('Loading... %s ');
 const log      = console.log;
 var program    = require('commander');
@@ -30,6 +31,7 @@ program
     .option('-y, --type [name]', 'Update type of story', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
     .option('--git-branch', 'Create git branch from story slug <type>-<id>-<title>')
+    .option('-f, --format [template]', 'Format the story output by template', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -189,6 +191,9 @@ const storyURL = (story) => {
 const printStory = (story) => {
     if (program.idonly) {
         return log(story.id);
+    }
+    if (program.format) {
+        return storyLib.printStory(program)(story);
     }
     const labels = story.labels.map(l => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
