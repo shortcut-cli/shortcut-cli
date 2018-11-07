@@ -128,6 +128,7 @@ The default sorting for stories found is `state.position:asc,id:asc`, which tran
     -e, --estimate [number]  Update estimate of story
     -d, --description [text] Update description of story
     -E, --epic [id|name]     Update epic of story
+    -f, --format [template]  Format story output by template
     -l, --label [id|name]    Update story with labels, comma-separated
     -c, --comment [text]     Add comment to story
     -o, --owner [id|name]    Update owners of story, comma-separated

@@ -31,8 +31,7 @@ program
     .option('-y, --type [name]', 'Update type of story', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
     .option('--git-branch', 'Create git branch from story slug <type>-<id>-<title>')
-    .option('-f, --format [template]',
-            'Format each story output by template', '')
+    .option('-f, --format [template]', 'Format the story output by template', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
