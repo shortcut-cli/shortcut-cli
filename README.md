@@ -295,3 +295,7 @@ $ CLUBHOUSE_API_TOKEN=foobar club story 3300
 - [NPM registry for this code](https://www.npmjs.com/package/clubhouse-cli)
 - [Clubhouse API](http://clubhouse.io/api/rest/v2/)
 - Official [clubhouse-lib](https://github.com/clubhouse/clubhouse-lib)
+
+## Contributors
+- [andjosh](https://github.com/andjosh)
+- [j-martin](https://github.com/j-martin)
