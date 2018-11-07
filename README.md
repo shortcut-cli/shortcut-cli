@@ -127,6 +127,8 @@ The default sorting for stories found is `state.position:asc,id:asc`, which tran
     -s, --state [id|name]    Update workflow state of story
     -e, --estimate [number]  Update estimate of story
     -d, --description [text] Update description of story
+    -D, --download           Download all attached files
+    --download-dir [path]    Directory to download files to
     -E, --epic [id|name]     Update epic of story
     -f, --format [template]  Format story output by template
     -l, --label [id|name]    Update story with labels, comma-separated
