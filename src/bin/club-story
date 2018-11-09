@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 const { execSync } = require('child_process');
 const fetch = require('node-fetch');
-const path = require('path')
+const path = require('path');
 const fs = require('fs');
 const chalk    = require('chalk');
 const debug    = require('debug')('club');
-const Spinner  = require('cli-spinner').Spinner;
 const client   = require('../lib/client.js');
 const storyLib  = require('../lib/stories.js');
-const spin     = new Spinner('Loading... %s ');
+const spin     = require('../lib/spinner.js')();
 const log      = console.log;
 var program    = require('commander');
 var wfs       = [];
@@ -37,11 +36,13 @@ program
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
     .option('--git-branch', 'Create git branch from story slug <type>-<id>-<title>')
     .option('-f, --format [template]', 'Format the story output by template', '')
+    .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
 const main = async () => {
-    if (!program.idonly)
+    const isQuiet = (program.idonly || program.quiet);
+    if (!isQuiet)
         spin.start();
     try {
         debug('request workflows, members, projects, epics');
@@ -187,9 +188,8 @@ const main = async () => {
             execSync('git checkout -b ' + branch);
         }
     });
-    if (!program.idonly)
+    if (!isQuiet)
         spin.stop(true);
-    return;
 };
 
 const downloadFiles = (story) => {

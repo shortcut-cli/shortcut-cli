@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 const { exec } = require('child_process');
 const chalk    = require('chalk');
-const Spinner  = require('cli-spinner').Spinner;
 const client   = require('../lib/client.js');
-const spin     = new Spinner('Loading... %s ');
+const spin     = require('../lib/spinner.js')();
 const log      = console.log;
 var program    = require('commander');
 var wfs       = [];

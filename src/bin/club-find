@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-const Spinner   = require('cli-spinner').Spinner;
+const spin      = require('../lib/spinner.js')('Finding... %s ');
 const configure = require('../lib/configure.js');
 const storyLib  = require('../lib/stories.js');
-const spin      = new Spinner('Finding... %s ');
 const log       = console.log;
 var program     = require('commander');
 

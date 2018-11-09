@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-const client = require('../lib/client.js');
+const client  = require('../lib/client.js');
 const chalk   = require('chalk');
-const Spinner = require('cli-spinner').Spinner;
-const spin    = new Spinner('Loading... %s ');
+const spin    = require('../lib/spinner.js')();
 const log     = console.log;
-var program = require('commander');
+var program   = require('commander');
 
 program
     .description('Display workflows/states available for stories')
