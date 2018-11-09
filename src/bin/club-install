@@ -12,16 +12,27 @@ program
     .parse(process.argv);
 
 if (!extant || program.force) {
-    log('API Token (https://app.clubhouse.io/tubi/settings/account/api-tokens): ');
+    const schema = {
+        properties: {
+            mentionName: {
+                message: 'Mention Name -> https://app.clubhouse.io/xxxx/settings/account/ : ',
+                required: true
+            },
+            token: {
+                message: 'API Token -> https://app.clubhouse.io/xxxx/settings/account/api-tokens : ',
+                required: true
+            }
+        }
+    };
     prompt.start({ message: 'clubhouse' });
-    prompt.get(['token'], (err, result) => {
+    prompt.get(schema, (err, result) => {
         if (err) return log(err);
-        log('Saving token...');
-        const success = configure.saveConfig({ token: result.token });
+        log('Saving config...');
+        const success = configure.saveConfig(result);
         if (success) {
-            log('Saved token');
+            log('Saved config');
         } else {
-            log('Error saving token');
+            log('Error saving config');
         }
     });
 } else if (extant) {

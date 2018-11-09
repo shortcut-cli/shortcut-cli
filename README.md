@@ -140,6 +140,7 @@ The default sorting for stories found is `state.position:asc,id:asc`, which tran
     -y, --type [name]        Set type of story
     --from-git               Fetch story parsed by ID in current git branch
     --git-branch             Create and checkout git branch from story (<type>-<id>-<slug>)
+    --git-branch-standard    Create git branch from story slug <mention-name>/ch<id>/<title> as required by the Git integration: https://bit.ly/2RKO1FF
     -h, --help               output usage information
 ~~~
 

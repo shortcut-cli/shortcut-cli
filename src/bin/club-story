@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const path = require('path');
 const fs = require('fs');
 const chalk    = require('chalk');
+const config = require('../lib/configure.js').loadConfig();
 const debug    = require('debug')('club');
 const client   = require('../lib/client.js');
 const storyLib  = require('../lib/stories.js');
@@ -35,6 +36,9 @@ program
     .option('-y, --type [name]', 'Update type of story', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
     .option('--git-branch', 'Create git branch from story slug <type>-<id>-<title>')
+    .option('--git-branch-standard',
+        'Create git branch from story slug <mention-name>/ch<id>/<title> ' +
+        'as required by the Git integration: https://bit.ly/2RKO1FF')
     .option('-f, --format [template]', 'Format the story output by template', '')
     .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .parse(process.argv);
@@ -186,13 +190,14 @@ const main = async () => {
             downloadFiles(story);
         }
         if (story && program.gitBranch) {
-            let slug = story.name.toLowerCase()
-                .replace(/\s/g, '-')
-                .replace(/[^a-z0-9-]/g, '')
-                .slice(0, 30);
-            let branch = `${story.story_type}-${story.id}-${slug}`;
-            debug('checking out git branch');
-            execSync('git checkout -b ' + branch);
+            createBranchFromStory(`${story.story_type}-${story.id}-`, story.name);
+        }
+        if (story && program.gitBranchStandard) {
+            if (!config.mentionName) {
+                console.error(
+                    'Please run: "club install --force" to add your mention name to the config.');
+            }
+            createBranchFromStory(`${config.mentionName}/ch${story.id}/`, story.name);
         }
     });
     stopSpinner();
@@ -211,13 +216,20 @@ const downloadFiles = (story) => {
     });
 };
 
+const createBranchFromStory = (prefix, title) => {
+    let slug = title.toLowerCase()
+        .replace(/\s/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .slice(0, 30);
+    debug('checking out git branch');
+    execSync('git checkout -b ' + `${prefix}${slug}`);
+};
+
 const storyURL = (story) => {
     return `https://app.clubhouse.io/story/${story.id}`;
 };
 
-function fileURL(file) {
-    return `${file.url}?token=${client.requestFactory.token}`;
-}
+const fileURL = file => `${file.url}?token=${client.requestFactory.token}`;
 
 const printStory = (story) => {
     if (program.idonly) {
