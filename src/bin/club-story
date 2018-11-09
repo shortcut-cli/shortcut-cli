@@ -41,8 +41,7 @@ program
 spin.setSpinnerString(27);
 
 const main = async () => {
-    const isQuiet = (program.idonly || program.quiet);
-    if (!isQuiet)
+    if (!(program.idonly || program.quiet))
         spin.start();
     try {
         debug('request workflows, members, projects, epics');
@@ -124,7 +123,9 @@ const main = async () => {
                 gitID.push(id);
             }
         } else {
-            debug('no ID found in branch:', branch);
+            stopSpinner();
+            console.error('No ID found in branch');
+            process.exit(2);
         }
     }
     program.args.concat(gitID).map(async (id) => {
@@ -136,14 +137,18 @@ const main = async () => {
                 debug('response comment create');
             }
         } catch (e) {
+            stopSpinner();
             log('Error creating comment', id);
+            process.exit(3);
         }
         try {
             debug('request story');
             story = await client.getStory(id);
             debug('response story');
         } catch (e) {
-            log('Error fetching story', id);
+            stopSpinner();
+            console.error('Error fetching story', id);
+            process.exit(4);
         }
         try {
             if (hasUpdate) {
@@ -153,7 +158,9 @@ const main = async () => {
                 story = Object.assign({}, story, changed);
             }
         } catch (e) {
-            log('Error updating story', id);
+            stopSpinner();
+            console.error('Error updating story', id);
+            process.exit(5);
         }
         if (story) {
             debug('hydrating story');
@@ -188,7 +195,11 @@ const main = async () => {
             execSync('git checkout -b ' + branch);
         }
     });
-    if (!isQuiet)
+    stopSpinner();
+};
+
+const stopSpinner = () => {
+    if (!(program.idonly || program.quiet))
         spin.stop(true);
 };
 
