@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 const client = require('../lib/client.js');
 const chalk   = require('chalk');
-const Spinner = require('cli-spinner').Spinner;
-const spin    = new Spinner('Loading... %s ');
+const spinner  = require('../lib/spinner.js');
+const spin     = spinner('Loading... %s ');
 const log     = console.log;
 var program = require('commander');
 

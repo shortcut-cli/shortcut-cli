@@ -135,6 +135,7 @@ The default sorting for stories found is `state.position:asc,id:asc`, which tran
     -c, --comment [text]     Add comment to story
     -o, --owner [id|name]    Update owners of story, comma-separated
     -O, --open               Open story in browser
+    -q, --quiet              Print only story output, no loading dialog
     -t, --title [text]       Update title of story
     -y, --type [name]        Set type of story
     --from-git               Fetch story parsed by ID in current git branch
