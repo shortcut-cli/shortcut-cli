@@ -51,7 +51,7 @@ const removeWorkspace = (name) => {
     const extant = loadConfig();
     delete extant.workspaces[name];
     return saveConfig(Object.assign({}, extant));
-}
+};
 
 module.exports = {
     loadConfig,
