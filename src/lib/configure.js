@@ -38,6 +38,11 @@ const saveConfig = (opt) => {
     }
 };
 
+const updateConfig = (opt) => {
+    const extant = loadConfig() || {};
+    return saveConfig(Object.assign({}, extant, opt));
+};
+
 const saveWorkspace = (name, workspace) => {
     const extant = loadConfig();
     let workspaces = extant.workspaces || {};
@@ -56,6 +61,7 @@ const removeWorkspace = (name) => {
 module.exports = {
     loadConfig,
     saveConfig,
+    updateConfig,
     saveWorkspace,
     removeWorkspace,
 };

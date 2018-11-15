@@ -28,7 +28,7 @@ if (!extant || program.force) {
     prompt.get(schema, (err, result) => {
         if (err) return log(err);
         log('Saving config...');
-        const success = configure.saveConfig(result);
+        const success = configure.updateConfig(result);
         if (success) {
             log('Saved config');
         } else {
