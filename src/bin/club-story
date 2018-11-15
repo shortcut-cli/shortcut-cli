@@ -37,8 +37,8 @@ program
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
     .option('--git-branch', 'Create git branch from story slug <type>-<id>-<title>')
     .option('--git-branch-standard',
-        'Create git branch from story slug <mention-name>/ch<id>/<title> ' +
-        'as required by the Git integration: https://bit.ly/2RKO1FF')
+        'Create git branch from story slug <mention-name>/ch<id>/<title>\n' +
+        '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
     .option('-f, --format [template]', 'Format the story output by template', '')
     .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .parse(process.argv);
@@ -108,7 +108,9 @@ const main = async () => {
             update.labels = labels.filter(m => {
                 return !!`${m.id} ${m.name}`
                     .match(labelMatch);
-            }).map(m => { return { name: m.name }; });
+            }).map(m => {
+                return { name: m.name };
+            });
         } catch (e) {
             log('Failed to fetch labels to attach.');
         }
@@ -194,8 +196,10 @@ const main = async () => {
         }
         if (story && program.gitBranchStandard) {
             if (!config.mentionName) {
+                stopSpinner()
                 console.error(
                     'Please run: "club install --force" to add your mention name to the config.');
+                process.exit(10);
             }
             createBranchFromStory(`${config.mentionName}/ch${story.id}/`, story.name);
         }
@@ -221,8 +225,9 @@ const createBranchFromStory = (prefix, title) => {
         .replace(/\s/g, '-')
         .replace(/[^a-z0-9-]/g, '')
         .slice(0, 30);
-    debug('checking out git branch');
-    execSync('git checkout -b ' + `${prefix}${slug}`);
+    const branch = `${prefix}${slug}`;
+    debug('checking out git branch: ' + branch);
+    execSync('git checkout -b ' + branch);
 };
 
 const storyURL = (story) => {

@@ -7,7 +7,7 @@ var program     = require('commander');
 
 program
     .version(require('../../package').version)
-    .description('Install access token for clubhouse API')
+    .description('Install access token and other settings for the Clubhouse API')
     .option('-f, --force', 'Force install/reinstall')
     .parse(process.argv);
 
@@ -15,11 +15,11 @@ if (!extant || program.force) {
     const schema = {
         properties: {
             mentionName: {
-                message: 'Mention Name -> https://app.clubhouse.io/xxxx/settings/account/ : ',
+                message: 'Mention Name -> https://app.clubhouse.io/xxxx/settings/account/',
                 required: true
             },
             token: {
-                message: 'API Token -> https://app.clubhouse.io/xxxx/settings/account/api-tokens : ',
+                message: 'API Token -> https://app.clubhouse.io/xxxx/settings/account/api-tokens',
                 required: true
             }
         }
