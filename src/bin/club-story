@@ -35,9 +35,8 @@ program
     .option('-t, --title [text]', 'Update title/name of story', '')
     .option('-y, --type [name]', 'Update type of story', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
-    .option('--git-branch', 'Create git branch from story slug <type>-<id>-<title>')
-    .option('--git-branch-standard',
-        'Create git branch from story slug <mention-name>/ch<id>/<title>\n' +
+    .option('--git-branch',
+        'Create git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
         '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
     .option('-f, --format [template]', 'Format the story output by template', '')
     .option('-q, --quiet', 'Print only story output, no loading dialog', '')
@@ -192,16 +191,13 @@ const main = async () => {
             downloadFiles(story);
         }
         if (story && program.gitBranch) {
-            createBranchFromStory(`${story.story_type}-${story.id}-`, story.name);
-        }
-        if (story && program.gitBranchStandard) {
             if (!config.mentionName) {
                 stopSpinner()
                 console.error(
                     'Please run: "club install --force" to add your mention name to the config.');
                 process.exit(10);
             }
-            createBranchFromStory(`${config.mentionName}/ch${story.id}/`, story.name);
+            createBranchFromStory(`${config.mentionName}/ch${story.id}/${story.story_type}-`, story.name);
         }
     });
     stopSpinner();
