@@ -10,6 +10,7 @@ const client   = require('../lib/client.js');
 const storyLib  = require('../lib/stories.js');
 const spin     = require('../lib/spinner.js')();
 const log      = console.log;
+const logError = console.error;
 var program    = require('commander');
 var wfs       = [];
 var epics     = [];
@@ -129,7 +130,7 @@ const main = async () => {
             }
         } else {
             stopSpinner();
-            console.error('No ID found in branch');
+            logError('No ID found in branch');
             process.exit(2);
         }
     }
@@ -152,7 +153,7 @@ const main = async () => {
             debug('response story');
         } catch (e) {
             stopSpinner();
-            console.error('Error fetching story', id);
+            logError('Error fetching story', id);
             process.exit(4);
         }
         try {
@@ -164,7 +165,7 @@ const main = async () => {
             }
         } catch (e) {
             stopSpinner();
-            console.error('Error updating story', id);
+            logError('Error updating story', id);
             process.exit(5);
         }
         if (story) {
@@ -192,9 +193,10 @@ const main = async () => {
         }
         if (story && program.gitBranch) {
             if (!config.mentionName) {
-                stopSpinner()
-                console.error(
-                    'Please run: "club install --force" to add your mention name to the config.');
+                stopSpinner();
+                createBranchFromStory(`${story.story_type}-${story.id}-`, story.name); // TODO: Remove this deprecation in next release
+                logError('Error creating story branch in Clubhouse format');
+                logError('Please run: "club install --force" to add your mention name to the config.');
                 process.exit(10);
             }
             createBranchFromStory(`${config.mentionName}/ch${story.id}/${story.story_type}-`, story.name);
