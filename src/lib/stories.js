@@ -1,6 +1,8 @@
-const chalk   = require('chalk');
-const debug   = require('debug')('club');
-const client  = require('./client.js');
+const { execSync } = require('child_process');
+const chalk        = require('chalk');
+const debug        = require('debug')('club');
+const client       = require('./client.js');
+const config       = require('../lib/configure.js').loadConfig();
 const log     = console.log;
 var wfs       = [];
 var projects  = [];
@@ -189,8 +191,19 @@ const parseDateComparator = (arg) => {
     };
 };
 
+const checkoutStoryBranch = (story, prefix) => {
+    prefix = prefix || `${config.mentionName}/ch${story.id}/${story.story_type}-`;
+    let slug = story.name.toLowerCase()
+        .replace(/\s/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .slice(0, 30);
+    const branch = `${prefix}${slug}`;
+    debug('checking out git branch: ' + branch);
+    execSync('git checkout -b ' + branch);
+};
 
 module.exports = {
     listStories,
     printStory,
+    checkoutStoryBranch,
 };

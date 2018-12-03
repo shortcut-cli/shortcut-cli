@@ -3,6 +3,7 @@ const { exec } = require('child_process');
 const chalk    = require('chalk');
 const client   = require('../lib/client.js');
 const spin     = require('../lib/spinner.js')();
+const storyLib = require('../lib/stories.js');
 const log      = console.log;
 var program    = require('commander');
 var wfs       = [];
@@ -17,6 +18,9 @@ program
     .option('-d, --description [text]', 'Set description of story', '')
     .option('-e, --estimate [number]', 'Set estimate of story')
     .option('-E, --epic [id|name]', 'Set epic of story')
+    .option('--git-branch',
+        'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
+        '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
     .option('-I, --idonly', 'Print only ID of story result')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('-o, --owners [id|name]', 'Set owners of story, comma-separated', '')
@@ -116,8 +120,12 @@ const main = async () => {
             return story.owner_ids.indexOf(m.id) > -1;
         });
         printStory(story);
-        if (program.open)
+        if (program.gitBranch) {
+            storyLib.checkoutStoryBranch(story);
+        }
+        if (program.open) {
             exec('open ' + storyURL(story));
+        }
     }
 };
 

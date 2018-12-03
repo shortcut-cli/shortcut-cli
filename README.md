@@ -139,7 +139,7 @@ The default sorting for stories found is `state.position:asc,id:asc`, which tran
     -t, --title [text]       Update title of story
     -y, --type [name]        Set type of story
     --from-git               Fetch story parsed by ID in current git branch
-    --git-branch             Create git branch from story slug <mention-name>/ch<id>/<type>-<title> 
+    --git-branch             Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title> 
                                as required by the Git integration: https://bit.ly/2RKO1FF
     -h, --help               output usage information
 ~~~
@@ -182,6 +182,8 @@ Comment: This is a commend
     -s, --state [id|name]     Set workflow state of story
     -y, --type [name]         Set type of story, default: feature
     -h, --help                output usage information
+    --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title> 
+                              as required by the Git integration: https://bit.ly/2RKO1FF
 ~~~
 
 ### Workspace
