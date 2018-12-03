@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 const { execSync } = require('child_process');
-const fetch = require('node-fetch');
-const path = require('path');
-const fs = require('fs');
-const chalk    = require('chalk');
-const config = require('../lib/configure.js').loadConfig();
-const debug    = require('debug')('club');
-const client   = require('../lib/client.js');
-const storyLib  = require('../lib/stories.js');
-const spin     = require('../lib/spinner.js')();
+const fetch        = require('node-fetch');
+const path         = require('path');
+const fs           = require('fs');
+const chalk        = require('chalk');
+const config       = require('../lib/configure.js').loadConfig();
+const debug        = require('debug')('club');
+const client       = require('../lib/client.js');
+const storyLib     = require('../lib/stories.js');
+const spin         = require('../lib/spinner.js')();
 const log      = console.log;
 const logError = console.error;
 var program    = require('commander');
@@ -22,25 +22,25 @@ program
     .usage('[options] <id>')
     .description('Update and/or display story details')
     .option('-a, --archived', 'Update story as archived')
-    .option('-e, --estimate [number]', 'Update estimate of story', '')
-    .option('-E, --epic [id|name]', 'Set epic of story')
     .option('-c, --comment [text]', 'Add comment to story', '')
     .option('-d, --description [text]', 'Update description of story', '')
     .option('-D, --download', 'Download all attached files', '')
     .option('--download-dir [path]', 'Directory to download files to', '.')
+    .option('-e, --estimate [number]', 'Update estimate of story', '')
+    .option('-E, --epic [id|name]', 'Set epic of story')
+    .option('-f, --format [template]', 'Format the story output by template', '')
+    .option('--from-git', 'Fetch story parsed by ID from current git branch')
+    .option('--git-branch',
+        'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
+        '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('-o, --owners [id|name]', 'Update owners of story, comma-separated', '')
     .option('-O, --open', 'Open story in browser')
+    .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-t, --title [text]', 'Update title/name of story', '')
     .option('-y, --type [name]', 'Update type of story', '')
-    .option('--from-git', 'Fetch story parsed by ID from current git branch')
-    .option('--git-branch',
-        'Create git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
-        '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
-    .option('-f, --format [template]', 'Format the story output by template', '')
-    .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
 
@@ -194,12 +194,12 @@ const main = async () => {
         if (story && program.gitBranch) {
             if (!config.mentionName) {
                 stopSpinner();
-                createBranchFromStory(`${story.story_type}-${story.id}-`, story.name); // TODO: Remove this deprecation in next release
+                storyLib.checkoutStoryBranch(story, `${story.story_type}-${story.id}-`); // TODO: Remove this deprecation in next release
                 logError('Error creating story branch in Clubhouse format');
                 logError('Please run: "club install --force" to add your mention name to the config.');
                 process.exit(10);
             }
-            createBranchFromStory(`${config.mentionName}/ch${story.id}/${story.story_type}-`, story.name);
+            storyLib.checkoutStoryBranch(story);
         }
     });
     stopSpinner();
@@ -216,16 +216,6 @@ const downloadFiles = (story) => {
         log(chalk.bold('Downloading file to: ') + filePath);
         return fetch(fileURL(file)).then(res => res.body.pipe(fs.createWriteStream(filePath)));
     });
-};
-
-const createBranchFromStory = (prefix, title) => {
-    let slug = title.toLowerCase()
-        .replace(/\s/g, '-')
-        .replace(/[^a-z0-9-]/g, '')
-        .slice(0, 30);
-    const branch = `${prefix}${slug}`;
-    debug('checking out git branch: ' + branch);
-    execSync('git checkout -b ' + branch);
 };
 
 const storyURL = (story) => {
