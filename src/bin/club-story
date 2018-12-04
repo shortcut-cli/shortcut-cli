@@ -118,7 +118,7 @@ const main = async () => {
     const hasUpdate = Object.keys(update).length > 0;
     debug('constructed story update');
     let gitID = [];
-    if (program.fromGit) {
+    if (program.fromGit || !program.args.length) {
         debug('fetching story ID from git');
         let branch = execSync('git branch').toString('utf-8');
         if (branch.match(/\*.*[0-9]+/)) {
