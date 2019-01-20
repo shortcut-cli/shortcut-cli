@@ -44,6 +44,7 @@ program
     .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-t, --title [text]', 'Update title/name of story', '')
+    .option('--task [text]', 'Create new task on story')
     .option('-y, --type [name]', 'Update type of story', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
@@ -153,6 +154,17 @@ const main = async () => {
         } catch (e) {
             stopSpinner();
             log('Error creating comment', id);
+            process.exit(3);
+        }
+        try {
+            if (program.task) {
+                debug('request task create');
+                await client.createTask(id, { description: program.task });
+                debug('response task create');
+            }
+        } catch (e) {
+            stopSpinner();
+            log('Error creating task', id);
             process.exit(3);
         }
         try {

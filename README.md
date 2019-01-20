@@ -144,6 +144,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     -O, --open                Open story in browser
     -q, --quiet               Print only story output, no loading dialog
     -t, --title [text]        Update title of story
+    --task [text]             Create new task on story
     -y, --type [name]         Set type of story
     -h, --help                output usage information
 ~~~
