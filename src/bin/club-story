@@ -35,6 +35,10 @@ program
         '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
+    .option('--move-after [id]', 'Move story to position below story ID')
+    .option('--move-before [id]', 'Move story to position above story ID')
+    .option('--move-down [n]', 'Move story position downward by n stories')
+    .option('--move-up [n]', 'Move story position upward by n stories')
     .option('-o, --owners [id|name]', 'Update owners of story, comma-separated', '')
     .option('-O, --open', 'Open story in browser')
     .option('-q, --quiet', 'Print only story output, no loading dialog', '')
@@ -115,8 +119,12 @@ const main = async () => {
             log('Failed to fetch labels to attach.');
         }
     }
-    const hasUpdate = Object.keys(update).length > 0;
-    debug('constructed story update');
+    const hasPositionUpdate = program.moveAfter !== undefined
+        || program.moveBefore !== undefined
+        || program.moveDown !== undefined
+        || program.moveUp !== undefined;
+    const hasUpdate = Object.keys(update).length > 0 || hasPositionUpdate;
+    debug('constructed story update', update);
     let gitID = [];
     if (program.fromGit || !program.args.length) {
         debug('fetching story ID from git');
@@ -158,6 +166,25 @@ const main = async () => {
         }
         try {
             if (hasUpdate) {
+                if (hasPositionUpdate) {
+                    debug('calculating move up/down');
+                    let siblings = await storyLib.listStories({
+                        state: story.workflow_state_id.toString(),
+                        sort:  'state.position:asc,position:asc',
+                    });
+                    let siblingIds = siblings.map(s => s.id);
+                    let storyIndex = siblingIds.indexOf(~~id);
+                    if (program.moveAfter) {
+                        update.after_id = ~~program.moveAfter;
+                    } else if (program.moveBefore) {
+                        update.before_id = ~~program.moveBefore;
+                    } else if (program.moveUp) {
+                        update.before_id = siblingIds[Math.max(0, storyIndex - (~~program.moveUp || 1))];
+                    } else if (program.moveDown) {
+                        update.after_id = siblingIds[Math.min(siblings.length - 1, storyIndex + (~~program.moveDown || 1))];
+                    }
+                    debug('constructed story position update', update);
+                }
                 debug('request story update');
                 let changed = await client.updateStory(id, update);
                 debug('response story update');

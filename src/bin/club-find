@@ -33,7 +33,7 @@ module.exports = program = program
         'Stories of type, by regex', '')
     .option('-r, --sort [field]',
         'Sort stories by field (accessor[:asc|desc][,next])',
-        'state.position:asc,id:asc')
+        'state.position:asc,position:asc')
     .option('-f, --format [template]',
         'Format each story output by template', '');
 spin.setSpinnerString(27);
