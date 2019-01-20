@@ -196,7 +196,8 @@ const checkoutStoryBranch = (story, prefix) => {
     let slug = story.name.toLowerCase()
         .replace(/\s/g, '-')
         .replace(/[^a-z0-9-]/g, '')
-        .slice(0, 30);
+        .slice(0, 30)
+        .replace(/-$/, '');
     const branch = `${prefix}${slug}`;
     debug('checking out git branch: ' + branch);
     execSync('git checkout -b ' + branch);
