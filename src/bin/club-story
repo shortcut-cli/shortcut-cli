@@ -45,6 +45,7 @@ program
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-t, --title [text]', 'Update title/name of story', '')
     .option('--task [text]', 'Create new task on story')
+    .option('--task-complete [text]', 'Toggle completion of task on story matching text')
     .option('-y, --type [name]', 'Update type of story', '')
     .parse(process.argv);
 spin.setSpinnerString(27);
@@ -177,6 +178,26 @@ const main = async () => {
             process.exit(4);
         }
         try {
+            if (program.taskComplete) {
+                debug('calculating task(s) to complete');
+                const descMatch = new RegExp(program.taskComplete, 'i');
+                let tasks = story.tasks.filter(t => t.description.match(descMatch));
+                let updatedTaskIds = tasks.map(t => t.id);
+                debug('request tasks complete', updatedTaskIds);
+                await Promise.all(tasks.map(t => client.updateTask(id, t.id, { complete: !t.complete })));
+                debug('response tasks complete');
+                story.tasks = story.tasks.map(t => {
+                    if (updatedTaskIds.indexOf(t.id) > -1)
+                        t.complete = !t.complete;
+                    return t;
+                });
+            }
+        } catch (e) {
+            stopSpinner();
+            log('Error updating tasks', e);
+            process.exit(3);
+        }
+        try {
             if (hasUpdate) {
                 if (hasPositionUpdate) {
                     debug('calculating move up/down');
@@ -301,7 +322,7 @@ const printStory = (story) => {
         log(chalk.bold('Completed: ') + chalk.bold(story.completed_at));
     }
     story.tasks.map(c => {
-        log(chalk.bold('Task:     ') + (c.completed ? '[X]' : '[ ]')
+        log(chalk.bold('Task:     ') + (c.complete ? '[X]' : '[ ]')
             + ' ' + formatLong(c.description));
         return c;
     });
