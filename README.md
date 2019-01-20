@@ -111,7 +111,7 @@ Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and 
 
 #### Story Output Sorting
 
-The default sorting for stories found is `state.position:asc,id:asc`, which translates to "sort by associated state position ascending, then by story id ascending within the same state."
+The default sorting for stories found is `state.position:asc,position:asc`, which translates to "sort by associated state position ascending, then by story position ascending within the same state."
 
 ### Story
 
@@ -123,25 +123,29 @@ The default sorting for stories found is `state.position:asc,id:asc`, which tran
 
   Options:
 
-    -I, --idonly             Print only ID of story results
-    -s, --state [id|name]    Update workflow state of story
-    -e, --estimate [number]  Update estimate of story
-    -d, --description [text] Update description of story
-    -D, --download           Download all attached files
-    --download-dir [path]    Directory to download files to
-    -E, --epic [id|name]     Update epic of story
-    -f, --format [template]  Format story output by template
-    -l, --label [id|name]    Update story with labels, comma-separated
-    -c, --comment [text]     Add comment to story
-    -o, --owner [id|name]    Update owners of story, comma-separated
-    -O, --open               Open story in browser
-    -q, --quiet              Print only story output, no loading dialog
-    -t, --title [text]       Update title of story
-    -y, --type [name]        Set type of story
-    --from-git               Fetch story parsed by ID in current git branch
-    --git-branch             Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title> 
-                               as required by the Git integration: https://bit.ly/2RKO1FF
-    -h, --help               output usage information
+    -I, --idonly              Print only ID of story results
+    -s, --state [id|name]     Update workflow state of story
+    -e, --estimate [number]   Update estimate of story
+    -d, --description [text]  Update description of story
+    -D, --download            Download all attached files
+    --download-dir [path]     Directory to download files to
+    -E, --epic [id|name]      Update epic of story
+    -f, --format [template]   Format story output by template
+    --from-git                Fetch story parsed by ID in current git branch
+    --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title> 
+                                as required by the Git integration: https://bit.ly/2RKO1FF
+    -l, --label [id|name]     Update story with labels, comma-separated
+    --move-after [id]         Move story to position below story ID
+    --move-before [id]        Move story to position above story ID
+    --move-down [n]           Move story position downward by n stories
+    --move-up [n]             Move story position upward by n stories
+    -c, --comment [text]      Add comment to story
+    -o, --owners [id|name]    Update owners of story, comma-separated
+    -O, --open                Open story in browser
+    -q, --quiet               Print only story output, no loading dialog
+    -t, --title [text]        Update title of story
+    -y, --type [name]         Set type of story
+    -h, --help                output usage information
 ~~~
 
 Example output:
