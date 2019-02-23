@@ -15,19 +15,8 @@ const listStories = async (program) => {
     ]);
     debug('response workflows, members, projects, epics');
 
-    let stories;
-    if (program.args.length) {
-        debug('using the search endpoint');
-        stories = await searchStories(program);
-    } else {
-        debug('filtering projects');
-        let regexProject = new RegExp(program.project, 'i');
-        const filteredProjects = Object.values(projectsById)
-            .filter(p => !!(p.id + p.name).match(regexProject));
-        stories = await Promise.all(filteredProjects.map(fetchStories))
-            .then(projectStories =>
-                projectStories.reduce((acc, stories) => acc.concat(stories), []));
-    }
+    const stories = await fetchStories(program, projectsById);
+
     debug('filtering stories');
     return filterStories({ program, stories, projectsById, statesById, membersById, epicsById })
         .sort(sortStories(program));
@@ -39,29 +28,32 @@ const fetchStates = () => client.listWorkflows()
 const mapByItemId = items => items
     .reduce((obj, item) => ({ ...obj, [item.id]: item }), {});
 
-const fetchStories = async (project) => {
-    debug('request stories for project', project.id);
-    return client.listStories(project.id);
+const fetchStories = async (program, projectsById) => {
+    if (program.args.length) {
+        debug('using the search endpoint');
+        return searchStories(program);
+    }
+
+    debug('filtering projects');
+    let regexProject = new RegExp(program.project, 'i');
+    const projectIds = Object.values(projectsById)
+        .filter(p => !!(p.id + p.name).match(regexProject))
+
+    debug('request all stories for project(s)', projectIds.map(p => p.name).join(", "));
+    return Promise.all(projectIds.map(p => client.listStories(p.id)))
+        .then(projectStories =>
+            projectStories.reduce((acc, stories) => acc.concat(stories), []));
 };
 
-const searchStories = async (program) => new Promise((resolve, reject) => {
-        let stories = [];
-
-        const processResult = result => {
-            stories = stories.concat(result.data);
-            if (result.next) {
-                client.getResource(result.next)
-                    .then(processResult)
-                    .catch(reject);
-            } else {
-                resolve(stories);
-            }
-        };
-
-        client.searchStories(program.args.join(' '))
-            .then(processResult)
-            .catch(reject);
-    });
+const searchStories = async (program) => {
+    let result = await client.searchStories(program.args.join(' '));
+    let stories = result.data;
+    while (result.next) {
+        result = await client.getResource(result.next);
+        stories = stories.concat(result.data);
+    }
+    return stories;
+};
 
 const filterStories = ({ program, stories, projectsById, statesById, membersById, epicsById }) => {
     let created_at = false;
