@@ -3,48 +3,48 @@ const chalk        = require('chalk');
 const debug        = require('debug')('club');
 const client       = require('./client.js');
 const config       = require('../lib/configure.js').loadConfig();
-const log     = console.log;
-let wfs = [];
-let projects = [];
-let members = [];
-let epics = [];
-let wf = { states: [] };
+const log = console.log;
 
 const listStories = async (program) => {
     debug('request workflows, members, projects, epics');
-    [ wfs, members, projects, epics ] = await Promise.all([
-        client.listWorkflows(),
-        client.listMembers(),
-        client.listProjects(),
-        client.listEpics(),
+    let [projectsById, statesById, membersById, epicsById] = await Promise.all([
+        client.listProjects().then(mapByItemId),
+        fetchStates().then(mapByItemId),
+        client.listMembers().then(mapByItemId),
+        client.listEpics().then(mapByItemId),
     ]);
     debug('response workflows, members, projects, epics');
-    wf = wfs[0];    // TODO: this is always getting the default workflow
 
     let stories;
     if (program.args.length) {
+        debug('using the search endpoint');
         stories = await searchStories(program);
     } else {
         debug('filtering projects');
         let regexProject = new RegExp(program.project, 'i');
-        const filteredProjects = projects
+        const filteredProjects = Object.values(projectsById)
             .filter(p => !!(p.id + p.name).match(regexProject));
         stories = await Promise.all(filteredProjects.map(fetchStories))
-            .then(f => f.reduce((acc, arr) => acc.concat(arr), []));
+            .then(projectStories =>
+                projectStories.reduce((acc, stories) => acc.concat(stories), []));
     }
     debug('filtering stories');
-    const projectsById = projects.reduce((o, project) => ({ ...o, [project.id]: project }), {});
-    return filterStories(program, projectsById, stories)
+    return filterStories({ program, stories, projectsById, statesById, membersById, epicsById })
         .sort(sortStories(program));
 };
+
+const fetchStates = () => client.listWorkflows()
+    .then(wfs => wfs.reduce((states, wf) => states.concat(wf.states), []));
+
+const mapByItemId = items => items
+    .reduce((obj, item) => ({ ...obj, [item.id]: item }), {});
 
 const fetchStories = async (project) => {
     debug('request stories for project', project.id);
     return client.listStories(project.id);
 };
 
-const searchStories = async (program) => {
-    return new Promise((resolve, reject) => {
+const searchStories = async (program) => new Promise((resolve, reject) => {
         let stories = [];
 
         const processResult = result => {
@@ -62,9 +62,8 @@ const searchStories = async (program) => {
             .then(processResult)
             .catch(reject);
     });
-};
 
-const filterStories = (program, projectsById, stories) => {
+const filterStories = ({ program, stories, projectsById, statesById, membersById, epicsById }) => {
     let created_at = false;
     if (program.created)
         created_at = parseDateComparator(program.created);
@@ -80,10 +79,9 @@ const filterStories = (program, projectsById, stories) => {
 
     return stories.map(story => {
         story.project = projectsById[story.project_id];
-        story.state = wf.states
-            .filter(s => s.id === story.workflow_state_id)[0];
-        story.epic = epics.filter(s => s.id === story.epic_id)[0];
-        story.owners = members.filter(m => story.owner_ids.indexOf(m.id) > -1);
+        story.state = statesById[story.workflow_state_id];
+        story.epic = epicsById[story.epic_id];
+        story.owners = story.owner_ids.map(id => membersById[id]);
         return story;
     }).filter(s => {
         if (!program.archived && s.archived) {
