@@ -4,11 +4,11 @@ const debug        = require('debug')('club');
 const client       = require('./client.js');
 const config       = require('../lib/configure.js').loadConfig();
 const log     = console.log;
-var wfs       = [];
-var projects  = [];
-var members   = [];
-var epics     = [];
-var wf        = { states: [] };
+let wfs = [];
+let projects = [];
+let members = [];
+let epics = [];
+let wf = { states: [] };
 
 const listStories = async (program) => {
     debug('request workflows, members, projects, epics');
@@ -20,26 +20,51 @@ const listStories = async (program) => {
     ]);
     debug('response workflows, members, projects, epics');
     wf = wfs[0];    // TODO: this is always getting the default workflow
-    let regexProject = new RegExp(program.project, 'i');
-    const filteredProjects = projects
-        .filter(p => {
-            return !!(p.id + p.name).match(regexProject);
-        });
-    debug('filtering projects');
-    var stories = await Promise.all(filteredProjects.map(fetchStories));
+
+    let stories;
+    if (program.args.length) {
+        stories = await searchStories(program);
+    } else {
+        debug('filtering projects');
+        let regexProject = new RegExp(program.project, 'i');
+        const filteredProjects = projects
+            .filter(p => !!(p.id + p.name).match(regexProject));
+        stories = await Promise.all(filteredProjects.map(fetchStories))
+            .then(f => f.reduce((acc, arr) => acc.concat(arr), []));
+    }
     debug('filtering stories');
-    return stories.map(filterStories(program, filteredProjects))
-        .reduce((a, b) => {
-            return a.concat(b);
-        }, [])
+    const projectsById = projects.reduce((o, project) => ({ ...o, [project.id]: project }), {});
+    return filterStories(program, projectsById, stories)
         .sort(sortStories(program));
 };
+
 const fetchStories = async (project) => {
     debug('request stories for project', project.id);
     return client.listStories(project.id);
 };
-const filterStories = (program, projects) => { return (stories, index) => {
-    const project = projects[index];
+
+const searchStories = async (program) => {
+    return new Promise((resolve, reject) => {
+        let stories = [];
+
+        const processResult = result => {
+            stories = stories.concat(result.data);
+            if (result.next) {
+                client.getResource(result.next)
+                    .then(processResult)
+                    .catch(reject);
+            } else {
+                resolve(stories);
+            }
+        };
+
+        client.searchStories(program.args.join(' '))
+            .then(processResult)
+            .catch(reject);
+    });
+};
+
+const filterStories = (program, projectsById, stories) => {
     let created_at = false;
     if (program.created)
         created_at = parseDateComparator(program.created);
@@ -52,14 +77,13 @@ const filterStories = (program, projects) => { return (stories, index) => {
     let regexText = new RegExp(program.text, 'i');
     let regexType = new RegExp(program.type, 'i');
     let regexEpic = new RegExp(program.epic, 'i');
-    const filtered = stories.map(story => {
-        story.project = project;
+
+    return stories.map(story => {
+        story.project = projectsById[story.project_id];
         story.state = wf.states
             .filter(s => s.id === story.workflow_state_id)[0];
         story.epic = epics.filter(s => s.id === story.epic_id)[0];
-        story.owners = members.filter(m => {
-            return story.owner_ids.indexOf(m.id) > -1;
-        });
+        story.owners = members.filter(m => story.owner_ids.indexOf(m.id) > -1);
         return story;
     }).filter(s => {
         if (!program.archived && s.archived) {
@@ -99,8 +123,8 @@ const filterStories = (program, projects) => { return (stories, index) => {
         }
         return true;
     });
-    return filtered;
-};};
+};
+
 const sortStories = (program) => {
     const fields = (program.sort || '')
         .split(',')
@@ -167,7 +191,7 @@ const printStory = (program) => { return (story) => {
         .replace(/%s/, chalk.bold(`#${story.workflow_state_id} `) + `${(story.state || {}).name}`)
         .replace(/%u/, `https://app.clubhouse.io/story/${story.id}`)
         .replace(/%c/, story.created_at)
-        .replace(/%u/, story.updated_at != story.created_at ? story.updated_at : '_')
+        .replace(/%u/, story.updated_at !== story.created_at ? story.updated_at : '_')
         .replace(/%a/, story.archived)
     );
     return story;
@@ -186,7 +210,7 @@ const parseDateComparator = (arg) => {
         case '=':
         default:
             return new Date(date.slice(0, match[0].length)).getTime()
-                == parsedDate.getTime();
+                === parsedDate.getTime();
         }
     };
 };
@@ -206,5 +230,5 @@ const checkoutStoryBranch = (story, prefix) => {
 module.exports = {
     listStories,
     printStory,
-    checkoutStoryBranch,
+    checkoutStoryBranch
 };
