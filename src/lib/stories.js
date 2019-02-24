@@ -175,7 +175,7 @@ const printStory = (program) => { return (story) => {
         .replace(/%y/, story.story_type)
         .replace(/%e/, story.estimate || '_')
         .replace(/%l/, labels.join(', ') || '_')
-        .replace(/%E/, chalk.bold(`#${story.epic_id}`) + ` ${(story.epic || {}).name}`)
+        .replace(/%E/, story.epic_id ? chalk.bold(`#${story.epic_id}`) + ` ${(story.epic || {}).name}` : '_')
         .replace(/%p/, chalk.bold(`#${story.project.id}`) + ` ${story.project.name}`)
         .replace(/%o/, owners.join(', ') || '_')
         .replace(/%s/, chalk.bold(`#${story.workflow_state_id} `) + `${(story.state || {}).name}`)
