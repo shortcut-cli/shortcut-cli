@@ -165,9 +165,9 @@ const printStory = (program) => { return (story) => {
     const labels = story.labels.map(l => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
     });
-    const owners = story.owners.map(o => {
-        return `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}` + ')');
-    });
+    const owners = story.owners.map(o =>
+        `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}`) + ')');
+
     log(format
         .replace(/%i/, chalk.blue.bold(`${story.id}`))
         .replace(/%t/, chalk.blue(`${story.name}`))
