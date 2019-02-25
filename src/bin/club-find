@@ -46,10 +46,10 @@ module.exports = program = program
 spin.setSpinnerString(27);
 
 const main = async () => {
-    if (program.args.length) {
-        log('Using search story API since search operators were passed ...');
-    }
     if (!program.quiet)
+        if (program.args.length) {
+            log('Using search story API since search operators were passed ...');
+        }
         spin.start();
     let stories = [];
     try {
