@@ -29,7 +29,7 @@ const mapByItemId = items => items
     .reduce((obj, item) => ({ ...obj, [item.id]: item }), {});
 
 const fetchStories = async (program, projectsById) => {
-    if (program.args.length) {
+    if ((program.args || []).length) {
         debug('using the search endpoint');
         return searchStories(program);
     }

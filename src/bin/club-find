@@ -53,11 +53,12 @@ const getWorkspaceOptions = (program) => {
 };
 
 const main = async () => {
-    if (!program.quiet)
+    if (!program.quiet) {
         if (program.args.length) {
             log('Using search story API since search operators were passed ...');
         }
         spin.start();
+    }
     let stories = [];
     try {
         stories = await storyLib.listStories(program);
