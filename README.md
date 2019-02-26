@@ -46,26 +46,34 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
 ### Search
 
 ~~~
-  Usage: club find [options]
+  Usage: club-find [options] [SEARCH OPERATORS]
 
-  Search through clubouse stories
+  Search through clubhouse stories. Arguments (non-flag/options) will
+  be passed to Clubhouse story search API as search operators. Note that passing search
+  operators and options (e.g. --owner yourself) will use the options as extra filtering
+  in the client.
+
+  Refer to https://help.clubhouse.io/hc/en-us/articles/360000046646-Search-Operators
+  for more details about search operators.
 
 
   Options:
 
-    -a, --archived          Include archived Stories
-    -q, --quiet             Print only story output, no loading dialog
-    -l, --label [id|name]   Stories with label id/name, by regex
-    -o, --owner [name]      Stories with owner, by regex
-    -p, --project [id|name] Stories in project id/name, by regex
-    -E, --epic [id|name]    Stories in epic id/name, by regex
-    -s, --state [id|name]   Stories in workflow state id/name, by regex
-    -S, --save [name]       Save search configuration as workspace
-    -t, --text [name]       Stories with text in name, by regex
-    -y, --type [name]       Stories of type, by regex
-    -f, --format [template] Format each story output by template
-    -r, --sort [field]      Sort stories by field (accessor[:asc|desc][,next])
-    -h, --help              output usage information
+    -a, --archived                  Include archived Stories
+    -c, --created [operator][date]  Stories created within criteria (operator is one of <|>|=)
+    -q, --quiet                     Print only story output, no loading dialog
+    -l, --label [id|name]           Stories with label id/name, by regex
+    -o, --owner [name]              Stories with owner, by regex
+    -p, --project [id]              Stories in project
+    -s, --state [id|name]           Stories in workflow state id/name, by regex
+    -E, --epic [id|name]            Stories in epic id/name, by regex
+    -S, --save [name]               Save search configuration as workspace
+    -t, --text [name]               Stories with text in name, by regex
+    -u, --updated [operator][date]  Stories updated within criteria (operator is one of <|>|=)
+    -y, --type [name]               Stories of type, by regex
+    -r, --sort [field]              Sort stories by field (accessor[:asc|desc][,next])
+    -f, --format [template]         Format each story output by template
+    -h, --help                      output usage information
 ~~~
 
 Example output

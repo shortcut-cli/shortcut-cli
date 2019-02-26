@@ -3,43 +3,59 @@ const chalk        = require('chalk');
 const debug        = require('debug')('club');
 const client       = require('./client.js');
 const config       = require('../lib/configure.js').loadConfig();
-const log     = console.log;
-var wfs       = [];
-var projects  = [];
-var members   = [];
-var epics     = [];
-var wf        = { states: [] };
+const log = console.log;
 
 const listStories = async (program) => {
     debug('request workflows, members, projects, epics');
-    [ wfs, members, projects, epics ] = await Promise.all([
-        client.listWorkflows(),
-        client.listMembers(),
-        client.listProjects(),
-        client.listEpics(),
+    let [projectsById, statesById, membersById, epicsById] = await Promise.all([
+        client.listProjects().then(mapByItemId),
+        fetchStates().then(mapByItemId),
+        client.listMembers().then(mapByItemId),
+        client.listEpics().then(mapByItemId),
     ]);
     debug('response workflows, members, projects, epics');
-    wf = wfs[0];    // TODO: this is always getting the default workflow
-    let regexProject = new RegExp(program.project, 'i');
-    const filteredProjects = projects
-        .filter(p => {
-            return !!(p.id + p.name).match(regexProject);
-        });
-    debug('filtering projects');
-    var stories = await Promise.all(filteredProjects.map(fetchStories));
+
+    const stories = await fetchStories(program, projectsById);
+
     debug('filtering stories');
-    return stories.map(filterStories(program, filteredProjects))
-        .reduce((a, b) => {
-            return a.concat(b);
-        }, [])
+    return filterStories({ program, stories, projectsById, statesById, membersById, epicsById })
         .sort(sortStories(program));
 };
-const fetchStories = async (project) => {
-    debug('request stories for project', project.id);
-    return client.listStories(project.id);
+
+const fetchStates = () => client.listWorkflows()
+    .then(wfs => wfs.reduce((states, wf) => states.concat(wf.states), []));
+
+const mapByItemId = items => items
+    .reduce((obj, item) => ({ ...obj, [item.id]: item }), {});
+
+const fetchStories = async (program, projectsById) => {
+    if ((program.args || []).length) {
+        debug('using the search endpoint');
+        return searchStories(program);
+    }
+
+    debug('filtering projects');
+    let regexProject = new RegExp(program.project, 'i');
+    const projectIds = Object.values(projectsById)
+        .filter(p => !!(p.id + p.name).match(regexProject))
+
+    debug('request all stories for project(s)', projectIds.map(p => p.name).join(", "));
+    return Promise.all(projectIds.map(p => client.listStories(p.id)))
+        .then(projectStories =>
+            projectStories.reduce((acc, stories) => acc.concat(stories), []));
 };
-const filterStories = (program, projects) => { return (stories, index) => {
-    const project = projects[index];
+
+const searchStories = async (program) => {
+    let result = await client.searchStories(program.args.join(' '));
+    let stories = result.data;
+    while (result.next) {
+        result = await client.getResource(result.next);
+        stories = stories.concat(result.data);
+    }
+    return stories;
+};
+
+const filterStories = ({ program, stories, projectsById, statesById, membersById, epicsById }) => {
     let created_at = false;
     if (program.created)
         created_at = parseDateComparator(program.created);
@@ -52,14 +68,12 @@ const filterStories = (program, projects) => { return (stories, index) => {
     let regexText = new RegExp(program.text, 'i');
     let regexType = new RegExp(program.type, 'i');
     let regexEpic = new RegExp(program.epic, 'i');
-    const filtered = stories.map(story => {
-        story.project = project;
-        story.state = wf.states
-            .filter(s => s.id === story.workflow_state_id)[0];
-        story.epic = epics.filter(s => s.id === story.epic_id)[0];
-        story.owners = members.filter(m => {
-            return story.owner_ids.indexOf(m.id) > -1;
-        });
+
+    return stories.map(story => {
+        story.project = projectsById[story.project_id];
+        story.state = statesById[story.workflow_state_id];
+        story.epic = epicsById[story.epic_id];
+        story.owners = story.owner_ids.map(id => membersById[id]);
         return story;
     }).filter(s => {
         if (!program.archived && s.archived) {
@@ -99,8 +113,8 @@ const filterStories = (program, projects) => { return (stories, index) => {
         }
         return true;
     });
-    return filtered;
-};};
+};
+
 const sortStories = (program) => {
     const fields = (program.sort || '')
         .split(',')
@@ -151,9 +165,9 @@ const printStory = (program) => { return (story) => {
     const labels = story.labels.map(l => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
     });
-    const owners = story.owners.map(o => {
-        return `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}` + ')');
-    });
+    const owners = story.owners.map(o =>
+        `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}`) + ')');
+
     log(format
         .replace(/%i/, chalk.blue.bold(`${story.id}`))
         .replace(/%t/, chalk.blue(`${story.name}`))
@@ -161,13 +175,13 @@ const printStory = (program) => { return (story) => {
         .replace(/%y/, story.story_type)
         .replace(/%e/, story.estimate || '_')
         .replace(/%l/, labels.join(', ') || '_')
-        .replace(/%E/, chalk.bold(`#${story.epic_id}`) + ` ${(story.epic || {}).name}`)
+        .replace(/%E/, story.epic_id ? chalk.bold(`#${story.epic_id}`) + ` ${(story.epic || {}).name}` : '_')
         .replace(/%p/, chalk.bold(`#${story.project.id}`) + ` ${story.project.name}`)
         .replace(/%o/, owners.join(', ') || '_')
         .replace(/%s/, chalk.bold(`#${story.workflow_state_id} `) + `${(story.state || {}).name}`)
         .replace(/%u/, `https://app.clubhouse.io/story/${story.id}`)
         .replace(/%c/, story.created_at)
-        .replace(/%u/, story.updated_at != story.created_at ? story.updated_at : '_')
+        .replace(/%u/, story.updated_at !== story.created_at ? story.updated_at : '_')
         .replace(/%a/, story.archived)
     );
     return story;
@@ -186,7 +200,7 @@ const parseDateComparator = (arg) => {
         case '=':
         default:
             return new Date(date.slice(0, match[0].length)).getTime()
-                == parsedDate.getTime();
+                === parsedDate.getTime();
         }
     };
 };
@@ -206,5 +220,5 @@ const checkoutStoryBranch = (story, prefix) => {
 module.exports = {
     listStories,
     printStory,
-    checkoutStoryBranch,
+    checkoutStoryBranch
 };
