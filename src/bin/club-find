@@ -45,6 +45,13 @@ module.exports = program = program
         'Format each story output by template', '');
 spin.setSpinnerString(27);
 
+const getWorkspaceOptions = (program) => {
+    const blacklistedKeys = ['Command', 'commands', 'Option', 'options', 'rawArgs', 'save'];
+    return Object.entries(program)
+        .filter(([key]) => !(blacklistedKeys.includes(key) || key.startsWith('_')))
+        .reduce((obj, [key, val]) => Object.assign(obj, { [key]: val }), {});
+};
+
 const main = async () => {
     if (!program.quiet)
         if (program.args.length) {
@@ -59,27 +66,16 @@ const main = async () => {
     }
     if (!program.quiet)
         spin.stop(true);
+
     stories.map(storyLib.printStory(program));
-    if (program.save) {
-        const name = program.save === true ? 'default' : program.save;
-        const success = configure.saveWorkspace(name, {
-            archived:   program.archived || undefined,
-            label:      program.label    || undefined,
-            owner:      program.owner    || undefined,
-            project:    program.project  || undefined,
-            state:      program.state    || undefined,
-            sort:       program.sort     || undefined,
-            epic:       program.epic     || undefined,
-            text:       program.text     || undefined,
-            type:       program.type     || undefined,
-            updated:    program.updated  || undefined,
-            created:    program.created  || undefined,
-            quiet:      program.quiet    || undefined,
-            format:     program.format   || undefined,
-        });
-        if (success) {
-            log('Saved query as %s workspace', name);
-        }
+
+    if (!program.save) {
+        return;
+    }
+
+    const name = program.save === true ? 'default' : program.save;
+    if (configure.saveWorkspace(name, getWorkspaceOptions(program))) {
+        log('Saved query as %s workspace', name);
     }
 };
 
