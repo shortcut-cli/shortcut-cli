@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `story --git-branch-short` to create a branch without the story type.
 ### Changed
 ### Deprecated
 ### Removed
@@ -14,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
+
+## [1.14.0] - 2019-02-28
+### Added
+- Support `story --git-branch-short` to create a branch without the story type.
 
 ## [1.13.0] - 2019-02-25
 ### Added
