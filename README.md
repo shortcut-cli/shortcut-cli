@@ -142,6 +142,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     --from-git                Fetch story parsed by ID in current git branch
     --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title> 
                                 as required by the Git integration: https://bit.ly/2RKO1FF
+    --git-branch-short        Checkout git branch from story slug <mention-name>/ch<id>/<title>
     -l, --label [id|name]     Update story with labels, comma-separated
     --move-after [id]         Move story to position below story ID
     --move-before [id]        Move story to position above story ID

@@ -33,6 +33,8 @@ program
     .option('--git-branch',
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
         '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
+    .option('--git-branch-short',
+        'Checkout git branch from story slug <mention-name>/ch<id>/<title>')
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('--move-after [id]', 'Move story to position below story ID')
@@ -260,6 +262,8 @@ const main = async () => {
                 process.exit(10);
             }
             storyLib.checkoutStoryBranch(story);
+        } else if (story && program.gitBranchShort) {
+            storyLib.checkoutStoryBranch(story, `${config.mentionName}/ch${story.id}/`);
         }
     });
     stopSpinner();
