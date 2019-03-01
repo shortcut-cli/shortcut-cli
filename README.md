@@ -32,7 +32,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
   Commands:
 
     install         install and configure API access
-    find            find stories with optional query
+    search          search stories with optional query
     members         list members
     story           view or manipulate a story or stories
     create          create a story
@@ -79,7 +79,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
 Example output
 
 ~~~
-$ club find -o 'josh' -s 'Review'
+$ club search -o 'josh' -s 'Review'
 #1480 Create Thinga-ma-bob
   Type:    feature/3
   Label:   #512 client_web
@@ -90,7 +90,7 @@ $ club find -o 'josh' -s 'Review'
   URL:     https://app.clubhouse.io/story/1480
 
 # Custom formatting is an option
-$ club find -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
+$ club search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
 1480    #500000020 Code Review  Create Thinga-ma-bob
     Josh (josh)
 ~~~
@@ -140,7 +140,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     -E, --epic [id|name]      Update epic of story
     -f, --format [template]   Format story output by template
     --from-git                Fetch story parsed by ID in current git branch
-    --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title> 
+    --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
                                 as required by the Git integration: https://bit.ly/2RKO1FF
     -l, --label [id|name]     Update story with labels, comma-separated
     --move-after [id]         Move story to position below story ID
@@ -196,7 +196,7 @@ Comment: This is a commend
     -s, --state [id|name]     Set workflow state of story
     -y, --type [name]         Set type of story, default: feature
     -h, --help                output usage information
-    --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title> 
+    --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
                               as required by the Git integration: https://bit.ly/2RKO1FF
 ~~~
 

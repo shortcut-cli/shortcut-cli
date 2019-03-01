@@ -3,7 +3,7 @@ const configure    = require('../lib/configure.js');
 const storyLib     = require('../lib/stories.js');
 const config       = configure.loadConfig();
 const log          = console.log;
-const find         = require('./club-find');
+const search       = require('./club-search');
 var program        = require('commander');
 
 program
@@ -22,7 +22,7 @@ const main = async () => {
     } else if (!config.workspaces) {
         log('No workspace saved.');
         log('Please run:');
-        log('  club find [options] --save');
+        log('  club search [options] --save');
         log('to create your first one.');
         return;
     } else if (program.list) {
@@ -46,11 +46,11 @@ const main = async () => {
     if (!workspace) {
         log('No workspace saved with name', name);
         log('Please run:');
-        log('  club find [options] --save', name);
+        log('  club search [options] --save', name);
         log('to create it.');
         return;
     }
-    const found = find.parse(process.argv);
+    const found = search.parse(process.argv);
     const findOpts = found.options.map(o => o.name());
     const additionalArgs = findOpts.reduce((acc, val) => {
         acc[val] = found[val] || acc[val] || found[val];
