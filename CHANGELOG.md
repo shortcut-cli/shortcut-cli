@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added shorthand / aliases for commands see `club --help`.
 ### Changed
-- Renamed `club find` to `club search`. 
+- Renamed `club find` to `club search`.
 ### Deprecated
 ### Removed
 ### Fixed
