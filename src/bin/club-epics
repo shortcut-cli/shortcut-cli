@@ -3,9 +3,7 @@ const client  = require('../lib/client.js');
 const chalk   = require('chalk');
 const spin    = require('../lib/spinner.js')();
 const log     = console.log;
-var program = require('commander');
-
-program
+const program = require('commander')
     .description('Display epics available for stories')
     .option('-a, --archived', 'List only epics including archived', '')
     .option('-c, --completed', 'List only epics that have been completed', '')

@@ -3,9 +3,7 @@ const prompt    = require('prompt');
 const configure = require('../lib/configure.js');
 const extant    = configure.loadConfig();
 const log       = console.log;
-var program     = require('commander');
-
-program
+const program     = require('commander')
     .version(require('../../package').version)
     .description('Install access token and other settings for the Clubhouse API')
     .option('-f, --force', 'Force install/reinstall')

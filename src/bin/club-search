@@ -3,9 +3,7 @@ const spin      = require('../lib/spinner.js')('Finding... %s ');
 const configure = require('../lib/configure.js');
 const storyLib  = require('../lib/stories.js');
 const log       = console.log;
-let program = require('commander');
-
-module.exports = program = program
+const program = require('commander')
     .description(`Search through clubhouse stories. Arguments (non-flag/options) will
   be passed to Clubhouse story search API as search operators. Note that passing search
   operators and options (e.g. --owner yourself) will use the options as extra filtering

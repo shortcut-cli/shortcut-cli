@@ -4,9 +4,7 @@ const storyLib     = require('../lib/stories.js');
 const config       = configure.loadConfig();
 const log          = console.log;
 const search       = require('./club-search');
-var program        = require('commander');
-
-program
+const program        = require('commander')
     .description('List stories matching saved workspace query')
     .option('-l, --list', 'List saved workspaces')
     .option('-q, --quiet', 'Print only workspace story output, no loading dialog', '')
@@ -57,7 +55,7 @@ const main = async () => {
         return acc;
     }, workspace);
     if (!program.quiet){
-        log('Loading %s workspace', name);
+        log('Loading %s workspace ...', name);
         log();
     }
     let stories = [];
@@ -66,13 +64,8 @@ const main = async () => {
     } catch (e) {
         log('Error fetching stories:', e);
     }
-    stories.map(storyLib.printStory(additionalArgs));
+    stories.map(storyLib.printFormattedStory(additionalArgs));
 };
 main();
 
-function toArgs(obj) {
-    return Object.keys(obj)
-        .map(k => {
-            return `--${k} '${obj[k]}'`;
-        }).join(' ');
-}
+const toArgs = obj => Object.keys(obj).map(k => `--${k} '${obj[k]}'`).join(' ');
