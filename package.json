@@ -7,7 +7,9 @@
     "node": ">= 7.6.*"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test:format",
+    "test:format": "prettier --list-different 'src/**/*.js'",
+    "format": "prettier --write 'src/**/*.js'"
   },
   "bin": {
     "club": "./src/bin/club"
@@ -42,6 +44,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1"
+    "eslint-plugin-standard": "^3.0.1",
+    "prettier": "^1.16.4"
   }
 }
