@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added shorthand / aliases for commands see `club --help`.
 ### Changed
 - Renamed `club find` to `club search`.
+- Extracting duplicated code to story lib.
+- Cleaned up the initialization of command.
 ### Deprecated
 ### Removed
 ### Fixed
