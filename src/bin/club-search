@@ -43,7 +43,6 @@ module.exports = program = program
         'state.position:asc,position:asc')
     .option('-f, --format [template]',
         'Format each story output by template', '');
-spin.setSpinnerString(27);
 
 const getWorkspaceOptions = (program) => {
     const blacklistedKeys = ['Command', 'commands', 'Option', 'options', 'rawArgs', 'save'];

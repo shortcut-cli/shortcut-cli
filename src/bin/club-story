@@ -50,7 +50,6 @@ program
     .option('--task-complete [text]', 'Toggle completion of task on story matching text')
     .option('-y, --type [name]', 'Update type of story', '')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
     if (!(program.idonly || program.quiet))

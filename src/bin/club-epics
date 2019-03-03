@@ -13,7 +13,6 @@ program
     .option('-t, --title [query]', 'List epics with name/title containing query', '')
     .option('-s, --started', 'List epics that have been started', '')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
     spin.start();

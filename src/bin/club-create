@@ -30,7 +30,6 @@ program
     .option('-s, --state [id|name]', 'Set workflow state of story', '')
     .option('-y, --type [name]', 'Set type of story, default: feature', 'feature')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
     if (!program.idonly)

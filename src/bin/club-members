@@ -11,7 +11,6 @@ program
     .option('-s, --search [query]', 'List members with name containing query', '')
     .option('-d, --disabled', 'List members including disabled', '')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
     spin.start();

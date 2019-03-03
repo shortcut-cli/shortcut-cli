@@ -11,7 +11,6 @@ program
     .option('-d, --detailed', 'List more details for each project', '')
     .option('-t, --title [query]', 'List projects with name/title containing query', '')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
     spin.start();

@@ -9,7 +9,6 @@ program
     .description('Display workflows/states available for stories')
     .option('-s, --search [query]', 'List states containing query', '')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
     spin.start();
