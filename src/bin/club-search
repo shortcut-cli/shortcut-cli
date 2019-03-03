@@ -50,6 +50,7 @@ const getWorkspaceOptions = (program) => {
 };
 
 const main = async () => {
+    program.parse(process.argv);
     if (!program.quiet) {
         if (!program.args.length) {
             log('Fetching all stories for search since no search operators were passed ...');
@@ -78,8 +79,10 @@ const main = async () => {
 };
 
 if (require.main === module) {
-    program.parse(process.argv);
     main();
 }
 
-module.exports = program;
+module.exports = {
+    program,
+    main
+};

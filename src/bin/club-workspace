@@ -48,7 +48,7 @@ const main = async () => {
         log('to create it.');
         return;
     }
-    const found = search.parse(process.argv);
+    const found = search.program.parse(process.argv);
     const findOpts = found.options.map(o => o.name());
     const additionalArgs = findOpts.reduce((acc, val) => {
         acc[val] = found[val] || acc[val] || found[val];
