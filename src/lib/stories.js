@@ -249,7 +249,7 @@ const printFormattedStory = (program) => {
 //TODO: Add workspace name in URL to avoid extra redirect.
 const storyURL = (story) => `https://app.clubhouse.io/story/${story.id}`;
 
-const printDetailedStory = (story) => {
+const printDetailedStory = (story, entities) => {
     const labels = story.labels.map(l => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
     });
@@ -286,7 +286,7 @@ const printDetailedStory = (story) => {
         return c;
     });
     story.comments.map(c => {
-        const author = members.filter(m => m.id === c.author_id)[0]
+        const author = entities.membersById[c.author_id]
             || { profile: {} };
         log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
         log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
@@ -332,6 +332,8 @@ const checkoutStoryBranch = (story, prefix) => {
     execSync('git checkout -b ' + branch);
 };
 
+const fileURL = file => `${file.url}?token=${client.requestFactory.token}`;
+
 module.exports = {
     listStories,
     printFormattedStory,
@@ -343,5 +345,6 @@ module.exports = {
     findState,
     findEpic,
     findOwnerIds,
-    findLabelNames
+    findLabelNames,
+    fileURL
 };

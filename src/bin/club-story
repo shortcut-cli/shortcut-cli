@@ -193,7 +193,7 @@ const main = async () => {
         if (!program.idonly)
             spin.stop(true);
         if (story) {
-            printStory(story);
+            printStory(story, entities);
             if (program.open)
                 execSync('open ' + storyURL(story));
         }
@@ -225,20 +225,18 @@ const downloadFiles = (story) => {
     story.files.map(file => {
         const filePath = path.join(program.downloadDir, file.name);
         log(chalk.bold('Downloading file to: ') + filePath);
-        return fetch(fileURL(file)).then(res => res.body.pipe(fs.createWriteStream(filePath)));
+        return fetch(storyLib.fileURL(file)).then(res => res.body.pipe(fs.createWriteStream(filePath)));
     });
 };
 
-const fileURL = file => `${file.url}?token=${client.requestFactory.token}`;
-
-const printStory = (story) => {
+const printStory = (story, entities) => {
     if (program.idonly) {
         return log(story.id);
     }
     if (program.format) {
         return storyLib.printFormattedStory(program)(story);
     }
-    storyLib.printDetailedStory(story);
+    storyLib.printDetailedStory(story, entities);
 };
 
 main();
