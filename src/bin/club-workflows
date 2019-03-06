@@ -3,13 +3,10 @@ const client  = require('../lib/client.js');
 const chalk   = require('chalk');
 const spin    = require('../lib/spinner.js')();
 const log     = console.log;
-var program   = require('commander');
-
-program
+const program = require('commander')
     .description('Display workflows/states available for stories')
     .option('-s, --search [query]', 'List states containing query', '')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
     spin.start();

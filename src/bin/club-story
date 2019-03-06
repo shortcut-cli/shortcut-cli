@@ -11,14 +11,7 @@ const storyLib     = require('../lib/stories.js');
 const spin         = require('../lib/spinner.js')();
 const log      = console.log;
 const logError = console.error;
-var program    = require('commander');
-var wfs       = [];
-var epics     = [];
-var members   = [];
-var projects  = [];
-var wf        = { states: [] };
-
-program
+const program = require('commander')
     .usage('[options] <id>')
     .description('Update and/or display story details')
     .option('-a, --archived', 'Update story as archived')
@@ -50,35 +43,18 @@ program
     .option('--task-complete [text]', 'Toggle completion of task on story matching text')
     .option('-y, --type [name]', 'Update type of story', '')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
+    const entities = await storyLib.fetchEntities();
     if (!(program.idonly || program.quiet))
         spin.start();
-    try {
-        debug('request workflows, members, projects, epics');
-        [ wfs, members, projects, epics ] = await Promise.all([
-            client.listWorkflows(),
-            client.listMembers(),
-            client.listProjects(),
-            client.listEpics(),
-        ]);
-        debug('response workflows, members, projects, epics');
-        wf = wfs[0];    // TODO: this is always getting the default workflow
-    } catch (e) {
-        log('Error fetching workflows');
-    }
     debug('constructing story update');
     let update = {};
     if (program.archived) {
         update.archived = true;
     }
     if (program.state) {
-        const stateMatch = new RegExp(program.state, 'i');
-        const newState = wf.states.filter(s => {
-            return !!`${s.id} ${s.name}`.match(stateMatch);
-        })[0];
-        update.workflow_state_id = (newState || {}).id;
+        update.workflow_state_id = (storyLib.findState(entities, program.state) || {}).id;
     }
     if (program.estimate) {
         update.estimate = parseInt(program.estimate, 10);
@@ -96,32 +72,13 @@ const main = async () => {
         })[0];
     }
     if (program.owners) {
-        const ownerMatch = new RegExp(program.owners.split(',').join('|'), 'i');
-        update.owner_ids = members.filter(m => {
-            return !!`${m.id} ${m.profile.name} ${m.profile.mention_name}`
-                .match(ownerMatch);
-        }).map(m => m.id);
+        update.owner_ids = storyLib.findOwnerIds(entities, program.owners);
     }
     if (program.epic) {
-        const epicMatch = new RegExp(program.epic, 'i');
-        const epic = epics.filter(s => {
-            return !!`${s.id} ${s.name}`.match(epicMatch);
-        })[0];
-        update.epic_id = (epic || {}).id;
+        update.epic_id = (storyLib.findEpic(entities, program.epic) || {}).id;
     }
     if (program.label) {
-        const labelMatch = new RegExp(program.label.split(',').join('|'), 'i');
-        try {
-            const labels = await client.listResource('labels');
-            update.labels = labels.filter(m => {
-                return !!`${m.id} ${m.name}`
-                    .match(labelMatch);
-            }).map(m => {
-                return { name: m.name };
-            });
-        } catch (e) {
-            log('Failed to fetch labels to attach.');
-        }
+        update.labels = storyLib.findLabelNames(entities, program.label)
     }
     const hasPositionUpdate = program.moveAfter !== undefined
         || program.moveBefore !== undefined
@@ -231,22 +188,12 @@ const main = async () => {
             process.exit(5);
         }
         if (story) {
-            debug('hydrating story');
-            story.state = wf.states
-                .filter(s => s.id === story.workflow_state_id)[0];
-            story.epic = epics
-                .filter(s => s.id === story.epic_id)[0];
-            story.project = projects
-                .filter(s => s.id === story.project_id)[0];
-            story.owners = members.filter(m => {
-                return story.owner_ids.indexOf(m.id) > -1;
-            });
-            debug('hydrated story');
+            story = storyLib.hydrateStory(entities, story);
         }
         if (!program.idonly)
             spin.stop(true);
         if (story) {
-            printStory(story);
+            printStory(story, entities);
             if (program.open)
                 execSync('open ' + storyURL(story));
         }
@@ -278,77 +225,18 @@ const downloadFiles = (story) => {
     story.files.map(file => {
         const filePath = path.join(program.downloadDir, file.name);
         log(chalk.bold('Downloading file to: ') + filePath);
-        return fetch(fileURL(file)).then(res => res.body.pipe(fs.createWriteStream(filePath)));
+        return fetch(storyLib.fileURL(file)).then(res => res.body.pipe(fs.createWriteStream(filePath)));
     });
 };
 
-const storyURL = (story) => {
-    return `https://app.clubhouse.io/story/${story.id}`;
-};
-
-const fileURL = file => `${file.url}?token=${client.requestFactory.token}`;
-
-const printStory = (story) => {
+const printStory = (story, entities) => {
     if (program.idonly) {
         return log(story.id);
     }
     if (program.format) {
-        return storyLib.printStory(program)(story);
+        return storyLib.printFormattedStory(program)(story);
     }
-    const labels = story.labels.map(l => {
-        return chalk.bold(`#${l.id}`) + ` ${l.name}`;
-    });
-    const owners = story.owners.map(o => {
-        return `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}` + ')');
-    });
-
-    log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
-    log(chalk.bold('Desc:') + `     ${formatLong(story.description || '_')}`);
-    log(chalk.bold('Owners:') + `   ${owners.join(', ') || '_'}`);
-    log(chalk.bold('Type:') + `     ${story.story_type}/${story.estimate || '_'}`);
-    log(chalk.bold('Label:') + `    ${labels.join(', ') || '_'}`);
-    log(chalk.bold('Project:') + chalk.bold(`  #${story.project_id} `) + story.project.name);
-    if (story.epic) {
-        log(chalk.bold('Epic:') + chalk.bold(`     #${story.epic_id} `) + story.epic.name);
-    } else {
-        log(chalk.bold('Epic:') + '     _');
-    }
-    log(chalk.bold('State:') + chalk.bold(`    #${story.workflow_state_id} `) + story.state.name);
-    log(chalk.bold('Created:') + `  ${story.created_at}`);
-    if (story.created_at != story.updated_at) {
-        log(chalk.bold('Updated:') + `  ${story.updated_at}`);
-    }
-    log(chalk.bold('URL:') + `      ${storyURL(story)}`);
-    if (story.archived) {
-        log(chalk.bold('Archived: ') + chalk.bold(story.archived));
-    }
-    if (story.completed) {
-        log(chalk.bold('Completed: ') + chalk.bold(story.completed_at));
-    }
-    story.tasks.map(c => {
-        log(chalk.bold('Task:     ') + (c.complete ? '[X]' : '[ ]')
-            + ' ' + formatLong(c.description));
-        return c;
-    });
-    story.comments.map(c => {
-        const author = members.filter(m => m.id === c.author_id)[0]
-            || { profile: {} };
-        log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
-        log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
-        return c;
-    });
-    story.files.map(c => {
-        log(chalk.bold('File:') + `     ${fileURL(c)}`);
-        log(chalk.bold('          name:') + `  ${c.name}`);
-        return c;
-    });
-    log();
-    return story;
-};
-
-const formatLong = (str) => {
-    return str.split('\n')
-        .join('\n         ');
+    storyLib.printDetailedStory(story, entities);
 };
 
 main();

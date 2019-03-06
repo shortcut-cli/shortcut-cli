@@ -3,15 +3,12 @@ const client = require('../lib/client.js');
 const chalk   = require('chalk');
 const spin     = require('../lib/spinner.js')();
 const log     = console.log;
-var program = require('commander');
-
-program
+const program = require('commander')
     .description('Display projects available for stories')
     .option('-a, --archived', 'List only projects including archived', '')
     .option('-d, --detailed', 'List more details for each project', '')
     .option('-t, --title [query]', 'List projects with name/title containing query', '')
     .parse(process.argv);
-spin.setSpinnerString(27);
 
 const main = async () => {
     spin.start();

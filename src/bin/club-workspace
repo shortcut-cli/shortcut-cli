@@ -3,10 +3,8 @@ const configure    = require('../lib/configure.js');
 const storyLib     = require('../lib/stories.js');
 const config       = configure.loadConfig();
 const log          = console.log;
-const find         = require('./club-find');
-var program        = require('commander');
-
-program
+const search       = require('./club-search');
+const program        = require('commander')
     .description('List stories matching saved workspace query')
     .option('-l, --list', 'List saved workspaces')
     .option('-q, --quiet', 'Print only workspace story output, no loading dialog', '')
@@ -22,7 +20,7 @@ const main = async () => {
     } else if (!config.workspaces) {
         log('No workspace saved.');
         log('Please run:');
-        log('  club find [options] --save');
+        log('  club search [options] --save');
         log('to create your first one.');
         return;
     } else if (program.list) {
@@ -46,18 +44,18 @@ const main = async () => {
     if (!workspace) {
         log('No workspace saved with name', name);
         log('Please run:');
-        log('  club find [options] --save', name);
+        log('  club search [options] --save', name);
         log('to create it.');
         return;
     }
-    const found = find.parse(process.argv);
+    const found = search.program.parse(process.argv);
     const findOpts = found.options.map(o => o.name());
     const additionalArgs = findOpts.reduce((acc, val) => {
         acc[val] = found[val] || acc[val] || found[val];
         return acc;
     }, workspace);
     if (!program.quiet){
-        log('Loading %s workspace', name);
+        log('Loading %s workspace ...', name);
         log();
     }
     let stories = [];
@@ -66,13 +64,8 @@ const main = async () => {
     } catch (e) {
         log('Error fetching stories:', e);
     }
-    stories.map(storyLib.printStory(additionalArgs));
+    stories.map(storyLib.printFormattedStory(additionalArgs));
 };
 main();
 
-function toArgs(obj) {
-    return Object.keys(obj)
-        .map(k => {
-            return `--${k} '${obj[k]}'`;
-        }).join(' ');
-}
+const toArgs = obj => Object.keys(obj).map(k => `--${k} '${obj[k]}'`).join(' ');

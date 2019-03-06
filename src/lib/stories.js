@@ -5,25 +5,36 @@ const client       = require('./client.js');
 const config       = require('../lib/configure.js').loadConfig();
 const log = console.log;
 
-const listStories = async (program) => {
-    debug('request workflows, members, projects, epics');
-    let [projectsById, statesById, membersById, epicsById] = await Promise.all([
+async function fetchEntities() {
+    let [projectsById, statesById, membersById, epicsById, labels] = await Promise.all([
         client.listProjects().then(mapByItemId),
-        fetchStates().then(mapByItemId),
+        client.listWorkflows()
+            .then(wfs => wfs.reduce((states, wf) => states.concat(wf.states), []))
+            .then(mapByItemId),
         client.listMembers().then(mapByItemId),
         client.listEpics().then(mapByItemId),
-    ]);
-    debug('response workflows, members, projects, epics');
+        client.listResource('labels'),
 
-    const stories = await fetchStories(program, projectsById);
+    ]).catch(err => {
+        log(`Error fetching workflows: ${err}`);
+        process.exit(2)
+    });
+
+    debug('response workflows, members, projects, epics');
+    return { projectsById, statesById, membersById, epicsById, labels }
+}
+
+const listStories = async (program) => {
+    debug('request workflows, members, projects, epics');
+    const entities = await fetchEntities();
+
+    const stories = await fetchStories(program, entities.projectsById);
 
     debug('filtering stories');
-    return filterStories({ program, stories, projectsById, statesById, membersById, epicsById })
+    return filterStories(program, stories, entities)
         .sort(sortStories(program));
 };
 
-const fetchStates = () => client.listWorkflows()
-    .then(wfs => wfs.reduce((states, wf) => states.concat(wf.states), []));
 
 const mapByItemId = items => items
     .reduce((obj, item) => ({ ...obj, [item.id]: item }), {});
@@ -55,7 +66,60 @@ const searchStories = async (program) => {
     return stories;
 };
 
-const filterStories = ({ program, stories, projectsById, statesById, membersById, epicsById }) => {
+const hydrateStory = (entities, story) => {
+    debug('hydrating story');
+    story.project = entities.projectsById[story.project_id];
+    story.state = entities.statesById[story.workflow_state_id];
+    story.epic = entities.epicsById[story.epic_id];
+    story.owners = story.owner_ids.map(id => entities.membersById[id]);
+    debug('hydrated story');
+    return story;
+};
+
+const findProject = (entities, project) => {
+    if (entities.projectsById[project]) {
+        return entities.statesById[project];
+    }
+    const projectMatch = new RegExp(project, 'i');
+    return Object.values(entities.projectsById).filter(s => !!s.name.match(projectMatch))[0];
+};
+
+const findState = (entities, state) => {
+    if (entities.statesById[state]) {
+        return entities.statesById[state];
+    }
+    const stateMatch = new RegExp(state, 'i');
+    // Since the name of a state may be duplicated, it would be
+    // much safer to search for states of the current story workflow.
+    // That will take a bit of refactoring.
+    return Object.values(entities.statesById)
+        .filter(s => !!s.name.match(stateMatch))[0];
+};
+
+const findEpic = (entities, epicName) => {
+    if (entities.epicsById[epicName]) {
+        return entities.epicsById[epicName];
+    }
+    const epicMatch = new RegExp(epicName, 'i');
+    return Object.values(entities.epicsById)
+        .filter(s => s.name.match(epicMatch))[0];
+};
+
+const findOwnerIds = (entities, owners) => {
+    const ownerMatch = new RegExp(owners.split(',').join('|'), 'i');
+    return Object.values(entities.membersById).filter(m =>
+        !!`${m.id} ${m.profile.name} ${m.profile.mention_name}`
+            .match(ownerMatch)).map(m => m.id);
+};
+
+const findLabelNames = (entities, label) => {
+    const labelMatch = new RegExp(label.split(',').join('|'), 'i');
+    return entities.labels
+        .filter(m => !!`${m.id} ${m.name}`.match(labelMatch))
+        .map(m => ({ name: m.name }));
+};
+
+const filterStories = (program, stories, entities) => {
     let created_at = false;
     if (program.created)
         created_at = parseDateComparator(program.created);
@@ -69,13 +133,7 @@ const filterStories = ({ program, stories, projectsById, statesById, membersById
     let regexType = new RegExp(program.type, 'i');
     let regexEpic = new RegExp(program.epic, 'i');
 
-    return stories.map(story => {
-        story.project = projectsById[story.project_id];
-        story.state = statesById[story.workflow_state_id];
-        story.epic = epicsById[story.epic_id];
-        story.owners = story.owner_ids.map(id => membersById[id]);
-        return story;
-    }).filter(s => {
+    return stories.map(story => hydrateStory(entities, story)).filter(s => {
         if (!program.archived && s.archived) {
             return false;
         }
@@ -149,7 +207,8 @@ const sortStories = (program) => {
     };
 };
 
-const printStory = (program) => { return (story) => {
+const printFormattedStory = (program) => {
+    return (story) => {
     const defaultFormat = `#%i %t
     \tType:   \t%y/%e
     \tProject:\t%p
@@ -187,6 +246,62 @@ const printStory = (program) => { return (story) => {
     return story;
 };};
 
+//TODO: Add workspace name in URL to avoid extra redirect.
+const storyURL = (story) => `https://app.clubhouse.io/story/${story.id}`;
+
+const printDetailedStory = (story, entities) => {
+    const labels = story.labels.map(l => {
+        return chalk.bold(`#${l.id}`) + ` ${l.name}`;
+    });
+    const owners = story.owners.map(o => {
+        return `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}` + ')');
+    });
+
+    log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
+    log(chalk.bold('Desc:') + `     ${formatLong(story.description || '_')}`);
+    log(chalk.bold('Owners:') + `   ${owners.join(', ') || '_'}`);
+    log(chalk.bold('Type:') + `     ${story.story_type}/${story.estimate || '_'}`);
+    log(chalk.bold('Label:') + `    ${labels.join(', ') || '_'}`);
+    log(chalk.bold('Project:') + chalk.bold(`  #${story.project_id} `) + story.project.name);
+    if (story.epic) {
+        log(chalk.bold('Epic:') + chalk.bold(`     #${story.epic_id} `) + story.epic.name);
+    } else {
+        log(chalk.bold('Epic:') + '     _');
+    }
+    log(chalk.bold('State:') + chalk.bold(`    #${story.workflow_state_id} `) + story.state.name);
+    log(chalk.bold('Created:') + `  ${story.created_at}`);
+    if (story.created_at !== story.updated_at) {
+        log(chalk.bold('Updated:') + `  ${story.updated_at}`);
+    }
+    log(chalk.bold('URL:') + `      ${storyURL(story)}`);
+    if (story.archived) {
+        log(chalk.bold('Archived: ') + chalk.bold(story.archived));
+    }
+    if (story.completed) {
+        log(chalk.bold('Completed: ') + chalk.bold(story.completed_at));
+    }
+    story.tasks.map(c => {
+        log(chalk.bold('Task:     ') + (c.complete ? '[X]' : '[ ]')
+            + ' ' + formatLong(c.description));
+        return c;
+    });
+    story.comments.map(c => {
+        const author = entities.membersById[c.author_id]
+            || { profile: {} };
+        log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
+        log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
+        return c;
+    });
+    story.files.map(c => {
+        log(chalk.bold('File:') + `     ${fileURL(c)}`);
+        log(chalk.bold('          name:') + `  ${c.name}`);
+        return c;
+    });
+    log();
+};
+
+const formatLong = str => str.split('\n').join('\n         ');
+
 const parseDateComparator = (arg) => {
     const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 30 } };
     const parsedDate = new Date(arg.slice(match.index));
@@ -217,8 +332,19 @@ const checkoutStoryBranch = (story, prefix) => {
     execSync('git checkout -b ' + branch);
 };
 
+const fileURL = file => `${file.url}?token=${client.requestFactory.token}`;
+
 module.exports = {
     listStories,
-    printStory,
-    checkoutStoryBranch
+    printFormattedStory,
+    printDetailedStory,
+    checkoutStoryBranch,
+    fetchEntities,
+    hydrateStory,
+    findProject,
+    findState,
+    findEpic,
+    findOwnerIds,
+    findLabelNames,
+    fileURL
 };
