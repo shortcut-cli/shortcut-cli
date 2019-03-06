@@ -6,18 +6,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added shorthand / aliases for commands see `club --help`.
-- Added code formatting with prettier.
 ### Changed
-- Renamed `club find` to `club search`. `club find` will still work.
-- Extracting duplicated code to story lib.
-- Cleaned up the initialization of command.
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
 
 ---
+
+## [1.15.0] - 2019-03-06
+### Added
+- Added shorthand / aliases for commands see `club --help`.
+- Added code formatting with prettier.
+
+### Changed
+- Renamed `club find` to `club search`.
+- Extracted duplicated code to story lib.
+- Cleaned up the initialization of commands.
+
+### Deprecated
+-  `club find` has been deprecated in favor of `club search`.
 
 ## [1.14.0] - 2019-02-28
 ### Added
