@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 const client = require('../lib/client.js');
-const chalk   = require('chalk');
-const spinner  = require('../lib/spinner.js');
-const spin     = spinner('Loading... %s ');
-const log     = console.log;
+const chalk = require('chalk');
+const spinner = require('../lib/spinner.js');
+const spin = spinner('Loading... %s ');
+const log = console.log;
 const program = require('commander')
     .description('Display members available for stories')
     .option('-s, --search [query]', 'List members with name containing query', '')
@@ -15,21 +15,22 @@ const main = async () => {
     const members = await client.listMembers();
     spin.stop(true);
     const ownerMatch = new RegExp(program.search, 'i');
-    members.filter(o => {
-        return !!`${o.profile.name} ${o.profile.mention_name}`
-            .match(ownerMatch);
-    }).map(printMember);
+    members
+        .filter(o => {
+            return !!`${o.profile.name} ${o.profile.mention_name}`.match(ownerMatch);
+        })
+        .map(printMember);
 };
 
-const printMember = (member) => {
+const printMember = member => {
     if (member.disabled && !program.disabled) return;
     log(chalk.bold(`#${member.id}`));
-    log(chalk.bold('Name:          ') + (` ${member.profile.name}`));
-    log(chalk.bold('Mention Name:  ') + (` ${member.profile.mention_name}`));
-    log(chalk.bold('Role:          ') + (` ${member.role}`));
-    log(chalk.bold('Email:         ') + (` ${member.profile.email_address}`));
+    log(chalk.bold('Name:          ') + ` ${member.profile.name}`);
+    log(chalk.bold('Mention Name:  ') + ` ${member.profile.mention_name}`);
+    log(chalk.bold('Role:          ') + ` ${member.role}`);
+    log(chalk.bold('Email:         ') + ` ${member.profile.email_address}`);
     if (member.disabled) {
-        log(chalk.bold('Disabled:      ') + (` ${member.disabled}`));
+        log(chalk.bold('Disabled:      ') + ` ${member.disabled}`);
     }
     log();
 };

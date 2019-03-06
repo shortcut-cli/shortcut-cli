@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-const client  = require('../lib/client.js');
-const chalk   = require('chalk');
-const spin    = require('../lib/spinner.js')();
-const log     = console.log;
+const client = require('../lib/client.js');
+const chalk = require('chalk');
+const spin = require('../lib/spinner.js')();
+const log = console.log;
 const program = require('commander')
     .description('Display epics available for stories')
     .option('-a, --archived', 'List only epics including archived', '')
@@ -17,34 +17,38 @@ const main = async () => {
     const epics = await client.listEpics();
     spin.stop(true);
     const textMatch = new RegExp(program.title, 'i');
-    epics.filter(o => {
-        return !!`${o.name} ${o.name}`
-            .match(textMatch);
-    }).map(printItem);
+    epics
+        .filter(o => {
+            return !!`${o.name} ${o.name}`.match(textMatch);
+        })
+        .map(printItem);
 };
 
-const printItem = (epic) => {
+const printItem = epic => {
     if (epic.archived && !program.archived) return;
     if (!epic.started && program.started) return;
     if (!epic.completed && program.completed) return;
     log(chalk.bold(`#${epic.id}`) + chalk.blue(` ${epic.name}`));
-    log(chalk.bold('State:         ') + (` ${epic.state}`));
-    log(chalk.bold('Deadline:      ') + (` ${epic.deadline || '_'}`));
-    log(chalk.bold('Points:        ') + (` ${epic.stats.num_points}`));
-    log(chalk.bold('Points Started:') + (` ${epic.stats.num_points_started}`));
-    log(chalk.bold('Points Done:   ') + (` ${epic.stats.num_points_done}`));
-    log(chalk.bold('Completion:    ') + (` ${Math.round(epic.stats.num_points_done / (epic.stats.num_points || 1) * 100)}%`));
+    log(chalk.bold('State:         ') + ` ${epic.state}`);
+    log(chalk.bold('Deadline:      ') + ` ${epic.deadline || '_'}`);
+    log(chalk.bold('Points:        ') + ` ${epic.stats.num_points}`);
+    log(chalk.bold('Points Started:') + ` ${epic.stats.num_points_started}`);
+    log(chalk.bold('Points Done:   ') + ` ${epic.stats.num_points_done}`);
+    log(
+        chalk.bold('Completion:    ') +
+            ` ${Math.round((epic.stats.num_points_done / (epic.stats.num_points || 1)) * 100)}%`
+    );
     if (epic.archived) {
-        log(chalk.bold('Archived:      ') + (` ${epic.archived}`));
+        log(chalk.bold('Archived:      ') + ` ${epic.archived}`);
     }
     if (epic.started) {
-        log(chalk.bold('Started:       ') + (` ${epic.started_at}`));
+        log(chalk.bold('Started:       ') + ` ${epic.started_at}`);
     }
     if (epic.completed) {
-        log(chalk.bold('Completed:     ') + (` ${epic.completed_at}`));
+        log(chalk.bold('Completed:     ') + ` ${epic.completed_at}`);
     }
     if (program.detailed) {
-        log(chalk.bold('Description:    ') + (` ${epic.description}`));
+        log(chalk.bold('Description:    ') + ` ${epic.description}`);
     }
     log();
 };

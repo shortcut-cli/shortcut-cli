@@ -24,7 +24,7 @@ const loadConfig = () => {
     return false;
 };
 
-const saveConfig = (opt) => {
+const saveConfig = opt => {
     const dir = path.dirname(configFile);
     try {
         if (!fs.existsSync(dir)) {
@@ -38,7 +38,7 @@ const saveConfig = (opt) => {
     }
 };
 
-const updateConfig = (opt) => {
+const updateConfig = opt => {
     const extant = loadConfig() || {};
     return saveConfig(Object.assign({}, extant, opt));
 };
@@ -47,12 +47,14 @@ const saveWorkspace = (name, workspace) => {
     const extant = loadConfig();
     let workspaces = extant.workspaces || {};
     workspaces[name] = workspace;
-    return saveConfig(Object.assign({}, extant, {
-        workspaces
-    }));
-}
+    return saveConfig(
+        Object.assign({}, extant, {
+            workspaces,
+        })
+    );
+};
 
-const removeWorkspace = (name) => {
+const removeWorkspace = name => {
     const extant = loadConfig();
     delete extant.workspaces[name];
     return saveConfig(Object.assign({}, extant));

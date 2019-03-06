@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 const { execSync } = require('child_process');
-const fetch        = require('node-fetch');
-const path         = require('path');
-const fs           = require('fs');
-const chalk        = require('chalk');
-const config       = require('../lib/configure.js').loadConfig();
-const debug        = require('debug')('club');
-const client       = require('../lib/client.js');
-const storyLib     = require('../lib/stories.js');
-const spin         = require('../lib/spinner.js')();
-const log      = console.log;
+const fetch = require('node-fetch');
+const path = require('path');
+const fs = require('fs');
+const chalk = require('chalk');
+const config = require('../lib/configure.js').loadConfig();
+const debug = require('debug')('club');
+const client = require('../lib/client.js');
+const storyLib = require('../lib/stories.js');
+const spin = require('../lib/spinner.js')();
+const log = console.log;
 const logError = console.error;
 const program = require('commander')
     .usage('[options] <id>')
@@ -23,11 +23,15 @@ const program = require('commander')
     .option('-E, --epic [id|name]', 'Set epic of story')
     .option('-f, --format [template]', 'Format the story output by template', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
-    .option('--git-branch',
+    .option(
+        '--git-branch',
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
-        '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
-    .option('--git-branch-short',
-        'Checkout git branch from story slug <mention-name>/ch<id>/<title>')
+            '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
+    )
+    .option(
+        '--git-branch-short',
+        'Checkout git branch from story slug <mention-name>/ch<id>/<title>'
+    )
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('--move-after [id]', 'Move story to position below story ID')
@@ -46,8 +50,7 @@ const program = require('commander')
 
 const main = async () => {
     const entities = await storyLib.fetchEntities();
-    if (!(program.idonly || program.quiet))
-        spin.start();
+    if (!(program.idonly || program.quiet)) spin.start();
     debug('constructing story update');
     let update = {};
     if (program.archived) {
@@ -78,12 +81,13 @@ const main = async () => {
         update.epic_id = (storyLib.findEpic(entities, program.epic) || {}).id;
     }
     if (program.label) {
-        update.labels = storyLib.findLabelNames(entities, program.label)
+        update.labels = storyLib.findLabelNames(entities, program.label);
     }
-    const hasPositionUpdate = program.moveAfter !== undefined
-        || program.moveBefore !== undefined
-        || program.moveDown !== undefined
-        || program.moveUp !== undefined;
+    const hasPositionUpdate =
+        program.moveAfter !== undefined ||
+        program.moveBefore !== undefined ||
+        program.moveDown !== undefined ||
+        program.moveUp !== undefined;
     const hasUpdate = Object.keys(update).length > 0 || hasPositionUpdate;
     debug('constructed story update', update);
     let gitID = [];
@@ -103,7 +107,7 @@ const main = async () => {
             process.exit(2);
         }
     }
-    program.args.concat(gitID).map(async (id) => {
+    program.args.concat(gitID).map(async id => {
         let story;
         try {
             if (program.comment) {
@@ -143,11 +147,12 @@ const main = async () => {
                 let tasks = story.tasks.filter(t => t.description.match(descMatch));
                 let updatedTaskIds = tasks.map(t => t.id);
                 debug('request tasks complete', updatedTaskIds);
-                await Promise.all(tasks.map(t => client.updateTask(id, t.id, { complete: !t.complete })));
+                await Promise.all(
+                    tasks.map(t => client.updateTask(id, t.id, { complete: !t.complete }))
+                );
                 debug('response tasks complete');
                 story.tasks = story.tasks.map(t => {
-                    if (updatedTaskIds.indexOf(t.id) > -1)
-                        t.complete = !t.complete;
+                    if (updatedTaskIds.indexOf(t.id) > -1) t.complete = !t.complete;
                     return t;
                 });
             }
@@ -162,7 +167,7 @@ const main = async () => {
                     debug('calculating move up/down');
                     let siblings = await storyLib.listStories({
                         state: story.workflow_state_id.toString(),
-                        sort:  'state.position:asc,position:asc',
+                        sort: 'state.position:asc,position:asc',
                     });
                     let siblingIds = siblings.map(s => s.id);
                     let storyIndex = siblingIds.indexOf(~~id);
@@ -171,9 +176,16 @@ const main = async () => {
                     } else if (program.moveBefore) {
                         update.before_id = ~~program.moveBefore;
                     } else if (program.moveUp) {
-                        update.before_id = siblingIds[Math.max(0, storyIndex - (~~program.moveUp || 1))];
+                        update.before_id =
+                            siblingIds[Math.max(0, storyIndex - (~~program.moveUp || 1))];
                     } else if (program.moveDown) {
-                        update.after_id = siblingIds[Math.min(siblings.length - 1, storyIndex + (~~program.moveDown || 1))];
+                        update.after_id =
+                            siblingIds[
+                                Math.min(
+                                    siblings.length - 1,
+                                    storyIndex + (~~program.moveDown || 1)
+                                )
+                            ];
                     }
                     debug('constructed story position update', update);
                 }
@@ -190,12 +202,10 @@ const main = async () => {
         if (story) {
             story = storyLib.hydrateStory(entities, story);
         }
-        if (!program.idonly)
-            spin.stop(true);
+        if (!program.idonly) spin.stop(true);
         if (story) {
             printStory(story, entities);
-            if (program.open)
-                execSync('open ' + storyURL(story));
+            if (program.open) execSync('open ' + storyURL(story));
         }
         if (program.download) {
             downloadFiles(story);
@@ -205,7 +215,9 @@ const main = async () => {
                 stopSpinner();
                 storyLib.checkoutStoryBranch(story, `${story.story_type}-${story.id}-`); // TODO: Remove this deprecation in next release
                 logError('Error creating story branch in Clubhouse format');
-                logError('Please run: "club install --force" to add your mention name to the config.');
+                logError(
+                    'Please run: "club install --force" to add your mention name to the config.'
+                );
                 process.exit(10);
             }
             storyLib.checkoutStoryBranch(story);
@@ -217,15 +229,16 @@ const main = async () => {
 };
 
 const stopSpinner = () => {
-    if (!(program.idonly || program.quiet))
-        spin.stop(true);
+    if (!(program.idonly || program.quiet)) spin.stop(true);
 };
 
-const downloadFiles = (story) => {
+const downloadFiles = story => {
     story.files.map(file => {
         const filePath = path.join(program.downloadDir, file.name);
         log(chalk.bold('Downloading file to: ') + filePath);
-        return fetch(storyLib.fileURL(file)).then(res => res.body.pipe(fs.createWriteStream(filePath)));
+        return fetch(storyLib.fileURL(file)).then(res =>
+            res.body.pipe(fs.createWriteStream(filePath))
+        );
     });
 };
 

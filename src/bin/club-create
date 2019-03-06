@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 const { exec } = require('child_process');
-const client   = require('../lib/client.js');
-const spin     = require('../lib/spinner.js')();
+const client = require('../lib/client.js');
+const spin = require('../lib/spinner.js')();
 const storyLib = require('../lib/stories.js');
-const log      = console.log;
+const log = console.log;
 const program = require('commander')
     .usage('[options]')
     .description('create a story with provided details')
     .option('-d, --description [text]', 'Set description of story', '')
     .option('-e, --estimate [number]', 'Set estimate of story')
     .option('-E, --epic [id|name]', 'Set epic of story')
-    .option('--git-branch',
+    .option(
+        '--git-branch',
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
-        '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF')
+            '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
+    )
     .option('-I, --idonly', 'Print only ID of story result')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('-o, --owners [id|name]', 'Set owners of story, comma-separated', '')
@@ -25,13 +27,12 @@ const program = require('commander')
 
 const main = async () => {
     const entities = await storyLib.fetchEntities();
-    if (!program.idonly)
-        spin.start();
+    if (!program.idonly) spin.start();
     let update = {
-        name:          program.title,
-        story_type:    program.type,
-        description:   program.description,
-        estimate:      program.estimate || undefined
+        name: program.title,
+        story_type: program.type,
+        description: program.description,
+        estimate: program.estimate || undefined,
     };
     if (program.project) {
         update.project_id = (storyLib.findProject(entities, program.project) || {}).id;
@@ -53,18 +54,16 @@ const main = async () => {
     }
     let story = false;
     if (!update.name || !update.project_id) {
-        if (!program.idonly)
-            spin.stop(true);
+        if (!program.idonly) spin.stop(true);
         log('Must provide --title and --project');
     } else {
         try {
             story = await client.createStory(update);
-        } catch(e) {
+        } catch (e) {
             log('Error creating story');
         }
     }
-    if (!program.idonly)
-        spin.stop(true);
+    if (!program.idonly) spin.stop(true);
     if (story) {
         story = storyLib.hydrateStory(entities, story);
         storyLib.printDetailedStory(story);

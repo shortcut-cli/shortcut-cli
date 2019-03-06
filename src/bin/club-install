@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-const prompt    = require('prompt');
+const prompt = require('prompt');
 const configure = require('../lib/configure.js');
-const extant    = configure.loadConfig();
-const log       = console.log;
-const program     = require('commander')
+const extant = configure.loadConfig();
+const log = console.log;
+const program = require('commander')
     .version(require('../../package').version)
     .description('Install access token and other settings for the Clubhouse API')
     .option('-f, --force', 'Force install/reinstall')
@@ -14,13 +14,13 @@ if (!extant || program.force) {
         properties: {
             mentionName: {
                 message: 'Mention Name -> https://app.clubhouse.io/xxxx/settings/account/',
-                required: true
+                required: true,
             },
             token: {
                 message: 'API Token -> https://app.clubhouse.io/xxxx/settings/account/api-tokens',
-                required: true
-            }
-        }
+                required: true,
+            },
+        },
     };
     prompt.start({ message: 'clubhouse' });
     prompt.get(schema, (err, result) => {

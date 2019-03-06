@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-const configure    = require('../lib/configure.js');
-const storyLib     = require('../lib/stories.js');
-const config       = configure.loadConfig();
-const log          = console.log;
-const search       = require('./club-search');
-const program        = require('commander')
+const configure = require('../lib/configure.js');
+const storyLib = require('../lib/stories.js');
+const config = configure.loadConfig();
+const log = console.log;
+const search = require('./club-search');
+const program = require('commander')
     .description('List stories matching saved workspace query')
     .option('-l, --list', 'List saved workspaces')
     .option('-q, --quiet', 'Print only workspace story output, no loading dialog', '')
@@ -25,10 +25,9 @@ const main = async () => {
         return;
     } else if (program.list) {
         log('Workspaces:');
-        Object.keys(config.workspaces)
-            .map(w => {
-                log(' ', w + ':', toArgs(config.workspaces[w]));
-            });
+        Object.keys(config.workspaces).map(w => {
+            log(' ', w + ':', toArgs(config.workspaces[w]));
+        });
         return;
     } else if (program.unset) {
         const success = configure.removeWorkspace(program.unset);
@@ -54,7 +53,7 @@ const main = async () => {
         acc[val] = found[val] || acc[val] || found[val];
         return acc;
     }, workspace);
-    if (!program.quiet){
+    if (!program.quiet) {
         log('Loading %s workspace ...', name);
         log();
     }
@@ -68,4 +67,7 @@ const main = async () => {
 };
 main();
 
-const toArgs = obj => Object.keys(obj).map(k => `--${k} '${obj[k]}'`).join(' ');
+const toArgs = obj =>
+    Object.keys(obj)
+        .map(k => `--${k} '${obj[k]}'`)
+        .join(' ');
