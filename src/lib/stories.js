@@ -345,4 +345,5 @@ module.exports = {
     findOwnerIds,
     findLabelNames,
     fileURL,
+    storyURL,
 };

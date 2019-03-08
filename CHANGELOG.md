@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.15.1] - 2019-03-08
+### Fixed
+- Fix reference to non-imported function.
+
 ## [1.15.0] - 2019-03-06
 ### Added
 - Added shorthand / aliases for commands see `club --help`.

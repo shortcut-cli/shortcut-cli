@@ -205,7 +205,7 @@ const main = async () => {
         if (!program.idonly) spin.stop(true);
         if (story) {
             printStory(story, entities);
-            if (program.open) execSync('open ' + storyURL(story));
+            if (program.open) execSync('open ' + storyLib.storyURL(story));
         }
         if (program.download) {
             downloadFiles(story);
