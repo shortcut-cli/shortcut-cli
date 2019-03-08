@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-const client  = require('../lib/client.js');
-const chalk   = require('chalk');
-const spin    = require('../lib/spinner.js')();
-const log     = console.log;
+const client = require('../lib/client.js');
+const chalk = require('chalk');
+const spin = require('../lib/spinner.js')();
+const log = console.log;
 const program = require('commander')
     .description('Display workflows/states available for stories')
     .option('-s, --search [query]', 'List states containing query', '')
@@ -15,17 +15,17 @@ const main = async () => {
     wfs.map(printWf);
 };
 
-const printWf = (wf) => {
-    log(chalk.bold(`#${wf.id}`) + (` ${wf.name}`));
+const printWf = wf => {
+    log(chalk.bold(`#${wf.id}`) + ` ${wf.name}`);
     log('    == States:');
     wf.states.map(printWfState);
 };
-const printWfState = (state) => {
+const printWfState = state => {
     if (!state.name.match(new RegExp(program.search, 'i'))) {
         return;
     }
     log(chalk.bold(`    #${state.id}`) + ` ${state.name}`);
-    log(           `         Type:   \t${state.type}`);
-    log(           `         Stories:\t${state.num_stories}`);
+    log(`         Type:   \t${state.type}`);
+    log(`         Stories:\t${state.num_stories}`);
 };
 main();
