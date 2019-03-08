@@ -5,7 +5,7 @@ const spinner = (text) => {
         stream: process.stderr
     });
     spin.setSpinnerString(27);
-    return spin
+    return spin;
 };
 
 module.exports = spinner;

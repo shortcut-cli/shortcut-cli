@@ -195,7 +195,7 @@ const main = async () => {
         if (story) {
             printStory(story, entities);
             if (program.open)
-                execSync('open ' + storyURL(story));
+                execSync('open ' + storyLib.storyURL(story));
         }
         if (program.download) {
             downloadFiles(story);

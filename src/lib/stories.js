@@ -346,5 +346,6 @@ module.exports = {
     findEpic,
     findOwnerIds,
     findLabelNames,
-    fileURL
+    fileURL,
+    storyURL,
 };

@@ -50,7 +50,7 @@ const saveWorkspace = (name, workspace) => {
     return saveConfig(Object.assign({}, extant, {
         workspaces
     }));
-}
+};
 
 const removeWorkspace = (name) => {
     const extant = loadConfig();
