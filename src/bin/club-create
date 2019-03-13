@@ -71,7 +71,7 @@ const main = async () => {
             storyLib.checkoutStoryBranch(story);
         }
         if (program.open) {
-            exec('open ' + storyURL(story));
+            exec('open ' + storyLib.storyURL(story));
         }
     }
 };
