@@ -91,7 +91,7 @@ $ club search -o 'josh' -s 'Review'
 
 # Custom formatting is an option
 $ club search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
-1480    #500000020 Code Review  Create Thinga-ma-bob
+1480    Code Review (#500000020)  Create Thinga-ma-bob
     Josh (josh)
 ~~~
 
