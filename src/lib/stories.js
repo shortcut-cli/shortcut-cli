@@ -206,9 +206,7 @@ const printFormattedStory = program => {
     `;
         const format = program.format || defaultFormat;
         const labels = story.labels.map(l => ` ${l.name} (#${l.id})`);
-        const owners = story.owners.map(
-            o => `${o.profile.name} (${o.profile.mention_name})`
-        );
+        const owners = story.owners.map(o => `${o.profile.name} (${o.profile.mention_name})`);
 
         log(
             format
@@ -220,9 +218,7 @@ const printFormattedStory = program => {
                 .replace(/%l/, labels.join(', ') || '_')
                 .replace(
                     /%E/,
-                    story.epic_id
-                        ? ` ${(story.epic || {}).name} (#${story.epic_id})`
-                        : '_'
+                    story.epic_id ? ` ${(story.epic || {}).name} (#${story.epic_id})` : '_'
                 )
                 .replace(/%p/, ` ${story.project.name} (#${story.project.id})`)
                 .replace(/%o/, owners.join(', ') || '_')
