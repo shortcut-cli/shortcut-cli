@@ -207,9 +207,11 @@ const printFormattedStory = program => {
         const format = program.format || defaultFormat;
         const labels = story.labels.map(l => ` ${l.name} (#${l.id})`);
         const owners = story.owners.map(o => `${o.profile.name} (${o.profile.mention_name})`);
-
+        const url = `https://app.clubhouse.io/story/${story.id}`;
+        const project = ` ${story.project.name} (#${story.project.id})`;
         log(
             format
+                .replace(/%j/, JSON.stringify({ ...story, url }, null, 2))
                 .replace(/%i/, chalk.blue.bold(`${story.id}`))
                 .replace(/%t/, chalk.blue(`${story.name}`))
                 .replace(/%d/, story.description || '')
@@ -218,12 +220,12 @@ const printFormattedStory = program => {
                 .replace(/%l/, labels.join(', ') || '_')
                 .replace(
                     /%E/,
-                    story.epic_id ? ` ${(story.epic || {}).name} (#${story.epic_id})` : '_'
+                    story.epic_id ? `${(story.epic || {}).name} (#${story.epic_id})` : '_'
                 )
-                .replace(/%p/, ` ${story.project.name} (#${story.project.id})`)
+                .replace(/%p/, project)
                 .replace(/%o/, owners.join(', ') || '_')
                 .replace(/%s/, `${(story.state || {}).name} (#${story.workflow_state_id})`)
-                .replace(/%u/, `https://app.clubhouse.io/story/${story.id}`)
+                .replace(/%u/, url)
                 .replace(/%c/, story.created_at)
                 .replace(/%u/, story.updated_at !== story.created_at ? story.updated_at : '_')
                 .replace(/%a/, story.archived)

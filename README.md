@@ -115,6 +115,7 @@ Templating variables:
 %s      Print story state
 %c      Print story creation timestamp
 %u      Print story updated timestamp (if different from created)
+%j      Print full story as formatted JSON
 ~~~
 
 Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and `\n` (newline) literals in the formatting string. Otherwise, you can actually just type a newline character.
