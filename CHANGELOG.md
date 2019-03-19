@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Running tests on CircleCI.
 ### Changed
 ### Deprecated
 ### Removed
@@ -14,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
+
+## [1.17.0] - 2019-03-19
+### Added
+- Running tests on CircleCI.
+- Allow for full JSON output in story format.
 
 ## [1.16.1] - 2019-03-13
 ### Fixed
