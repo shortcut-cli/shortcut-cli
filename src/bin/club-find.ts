@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-require('./club-search').main();
+import { main } from './club-search';
+
+main();

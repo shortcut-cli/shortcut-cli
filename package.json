@@ -6,13 +6,19 @@
   "engines": {
     "node": ">= 7.6.*"
   },
+  "files": [
+    "build"
+  ],
   "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node -r source-map-support/register build/bin/club.js",
     "test": "npm run test:format",
-    "test:format": "prettier --list-different 'src/**/{club*,*.js}'",
-    "format": "prettier --write 'src/**/{club*,*.js}'"
+    "test:format": "prettier --list-different 'src/**/*.ts'",
+    "format": "prettier --write 'src/**/*.ts'"
   },
   "bin": {
-    "club": "./src/bin/club"
+    "club": "./build/bin/club.js"
   },
   "repository": {
     "type": "git",
@@ -29,14 +35,19 @@
   },
   "homepage": "https://github.com/andjosh/clubhouse-cli#readme",
   "dependencies": {
-    "chalk": "^2.1.0",
+    "chalk": "^2.2.0",
     "cli-spinner": "^0.2.6",
-    "clubhouse-lib": "0.5.0",
-    "commander": "^2.11.0",
+    "clubhouse-lib": "0.6.0",
+    "commander": "^2.12.0",
     "debug": "^3.1.0",
     "prompt": "^1.0.0"
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/cli-spinner": "^0.2.0",
+    "@types/debug": "^4.1.2",
+    "@types/node": "^11.11.4",
+    "@types/node-fetch": "^2.1.7",
     "babel-eslint": "^8.0.1",
     "eslint": "^4.10.0",
     "eslint-config-standard": "^10.2.1",
@@ -45,6 +56,8 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "prettier": "^1.16.4"
+    "prettier": "^1.16.4",
+    "source-map-support": "^0.5.11",
+    "typescript": "^3.4.5"
   }
 }

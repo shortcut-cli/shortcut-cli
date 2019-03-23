@@ -63,3 +63,6 @@ typings/
 # IntelliJ
 .idea/
 *.iml
+
+# Typescript
+build/

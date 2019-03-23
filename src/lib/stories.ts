@@ -1,16 +1,42 @@
-const { execSync } = require('child_process');
-const chalk = require('chalk');
-const debug = require('debug')('club');
-const client = require('./client.js');
-const config = require('../lib/configure.js').loadConfig();
+import { loadConfig } from './configure';
+
+import client from './client';
+
+import chalk from 'chalk';
+
+import { execSync } from 'child_process';
+
+import debugging from 'debug';
+import { Epic, File, Label, Member, Project, Story, Workflow, WorkflowState } from 'clubhouse-lib';
+
+const debug = debugging('club');
+const config = loadConfig();
 const log = console.log;
 
-async function fetchEntities() {
+export interface Entities {
+    projectsById?: { [key: string]: Project };
+    statesById?: { [key: string]: WorkflowState };
+    membersById?: { [key: string]: Member };
+    epicsById?: { [key: string]: Epic };
+    labels?: Label[];
+}
+
+/**
+ * Augmented story to be displayed
+ */
+export interface StoryHydrated extends Story {
+    epic?: Epic;
+    project?: Project;
+    state?: WorkflowState;
+    owners?: Member[];
+}
+
+async function fetchEntities(): Promise<Entities> {
     let [projectsById, statesById, membersById, epicsById, labels] = await Promise.all([
         client.listProjects().then(mapByItemId),
         client
             .listWorkflows()
-            .then(wfs => wfs.reduce((states, wf) => states.concat(wf.states), []))
+            .then((wfs: Workflow[]) => wfs.reduce((states, wf) => states.concat(wf.states), []))
             .then(mapByItemId),
         client.listMembers().then(mapByItemId),
         client.listEpics().then(mapByItemId),
@@ -24,19 +50,21 @@ async function fetchEntities() {
     return { projectsById, statesById, membersById, epicsById, labels };
 }
 
-const listStories = async program => {
+const listStories = async (program: any) => {
     debug('request workflows, members, projects, epics');
     const entities = await fetchEntities();
 
-    const stories = await fetchStories(program, entities.projectsById);
+    const stories = await fetchStories(program, entities);
 
     debug('filtering stories');
     return filterStories(program, stories, entities).sort(sortStories(program));
 };
 
-const mapByItemId = items => items.reduce((obj, item) => ({ ...obj, [item.id]: item }), {});
+// TODO: Use proper generics
+const mapByItemId = (items: any[]) =>
+    items.reduce((obj, item) => ({ ...obj, [item.id]: item }), {});
 
-const fetchStories = async (program, projectsById) => {
+const fetchStories = async (program: any, entities: Entities) => {
     if ((program.args || []).length) {
         debug('using the search endpoint');
         return searchStories(program);
@@ -44,7 +72,7 @@ const fetchStories = async (program, projectsById) => {
 
     debug('filtering projects');
     let regexProject = new RegExp(program.project, 'i');
-    const projectIds = Object.values(projectsById).filter(
+    const projectIds = Object.values(entities.projectsById).filter(
         p => !!(p.id + p.name).match(regexProject)
     );
 
@@ -54,7 +82,7 @@ const fetchStories = async (program, projectsById) => {
     );
 };
 
-const searchStories = async program => {
+const searchStories = async (program: any) => {
     let result = await client.searchStories(program.args.join(' '));
     let stories = result.data;
     while (result.next) {
@@ -64,62 +92,70 @@ const searchStories = async program => {
     return stories;
 };
 
-const hydrateStory = (entities, story) => {
+const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
+    entities: Entities,
+    story: Story
+) => {
     debug('hydrating story');
-    story.project = entities.projectsById[story.project_id];
-    story.state = entities.statesById[story.workflow_state_id];
-    story.epic = entities.epicsById[story.epic_id];
-    story.owners = story.owner_ids.map(id => entities.membersById[id]);
+    const augmented = story as StoryHydrated;
+    augmented.project = entities.projectsById[story.project_id];
+    augmented.state = entities.statesById[story.workflow_state_id];
+    augmented.epic = entities.epicsById[story.epic_id];
+    augmented.owners = story.owner_ids.map(id => entities.membersById[id]);
     debug('hydrated story');
-    return story;
+    return augmented;
 };
 
-const findProject = (entities, project) => {
+const findProject = (entities: Entities, project: number | string) => {
     if (entities.projectsById[project]) {
         return entities.statesById[project];
     }
-    const projectMatch = new RegExp(project, 'i');
+    const projectMatch = new RegExp(`${project}`, 'i');
     return Object.values(entities.projectsById).filter(s => !!s.name.match(projectMatch))[0];
 };
 
-const findState = (entities, state) => {
+const findState = (entities: Entities, state: string | number) => {
     if (entities.statesById[state]) {
         return entities.statesById[state];
     }
-    const stateMatch = new RegExp(state, 'i');
+    const stateMatch = new RegExp(`${state}`, 'i');
     // Since the name of a state may be duplicated, it would be
     // much safer to search for states of the current story workflow.
     // That will take a bit of refactoring.
     return Object.values(entities.statesById).filter(s => !!s.name.match(stateMatch))[0];
 };
 
-const findEpic = (entities, epicName) => {
+const findEpic = (entities: Entities, epicName: string | number) => {
     if (entities.epicsById[epicName]) {
         return entities.epicsById[epicName];
     }
-    const epicMatch = new RegExp(epicName, 'i');
+    const epicMatch = new RegExp(`${epicName}`, 'i');
     return Object.values(entities.epicsById).filter(s => s.name.match(epicMatch))[0];
 };
 
-const findOwnerIds = (entities, owners) => {
+const findOwnerIds = (entities: Entities, owners: string) => {
     const ownerMatch = new RegExp(owners.split(',').join('|'), 'i');
     return Object.values(entities.membersById)
         .filter(m => !!`${m.id} ${m.profile.name} ${m.profile.mention_name}`.match(ownerMatch))
         .map(m => m.id);
 };
 
-const findLabelNames = (entities, label) => {
+const findLabelNames = (entities: Entities, label: string) => {
     const labelMatch = new RegExp(label.split(',').join('|'), 'i');
     return entities.labels
         .filter(m => !!`${m.id} ${m.name}`.match(labelMatch))
-        .map(m => ({ name: m.name }));
+        .map(m => ({ name: m.name } as Label));
 };
 
-const filterStories = (program, stories, entities) => {
-    let created_at = false;
-    if (program.created) created_at = parseDateComparator(program.created);
-    let updated_at = false;
-    if (program.updated) updated_at = parseDateComparator(program.updated);
+const filterStories = (program: any, stories: Story[], entities: Entities) => {
+    let created_at: any;
+    if (program.created) {
+        created_at = parseDateComparator(program.created);
+    }
+    let updated_at: any;
+    if (program.updated) {
+        updated_at = parseDateComparator(program.updated);
+    }
     let regexLabel = new RegExp(program.label, 'i');
     let regexState = new RegExp(program.state, 'i');
     let regexOwner = new RegExp(program.owner, 'i');
@@ -128,7 +164,7 @@ const filterStories = (program, stories, entities) => {
     let regexEpic = new RegExp(program.epic, 'i');
 
     return stories
-        .map(story => hydrateStory(entities, story))
+        .map((story: Story) => hydrateStory(entities, story))
         .filter(s => {
             if (!program.archived && s.archived) {
                 return false;
@@ -136,10 +172,14 @@ const filterStories = (program, stories, entities) => {
             if (!(s.labels.map(l => `${l.id},${l.name}`).join(',') + '').match(regexLabel)) {
                 return false;
             }
-            if (!(s.workflow_state_id + ' ' + (s.state || {}).name).match(regexState)) {
+            if (
+                !(s.workflow_state_id + ' ' + (s.state || ({} as WorkflowState)).name).match(
+                    regexState
+                )
+            ) {
                 return false;
             }
-            if (!(s.epic_id + ' ' + (s.epic || {}).name).match(regexEpic)) {
+            if (!(s.epic_id + ' ' + (s.epic || ({} as Epic)).name).match(regexEpic)) {
                 return false;
             }
             if (program.owner) {
@@ -158,24 +198,21 @@ const filterStories = (program, stories, entities) => {
             if (created_at && !created_at(s.created_at)) {
                 return false;
             }
-            if (updated_at && !updated_at(s.updated_at)) {
-                return false;
-            }
-            return true;
+            return !(updated_at && !updated_at(s.updated_at));
         });
 };
 
-const sortStories = program => {
-    const fields = (program.sort || '').split(',').map(s => {
+const sortStories = (program: any) => {
+    const fields = (program.sort || '').split(',').map((s: string) => {
         return s.split(':').map(ss => ss.split('.'));
     });
-    const pluck = (acc, val) => {
+    const pluck = (acc: any, val: any) => {
         if (acc[val] === undefined) return {};
         return acc[val];
     };
     debug('sorting stories');
-    return (a, b) => {
-        return fields.reduce((acc, field) => {
+    return (a: Story, b: Story) => {
+        return fields.reduce((acc: any, field: any) => {
             if (acc !== 0) return acc;
             const ap = field[0].reduce(pluck, a);
             const bp = field[0].reduce(pluck, b);
@@ -191,8 +228,8 @@ const sortStories = program => {
     };
 };
 
-const printFormattedStory = program => {
-    return story => {
+const printFormattedStory = (program: any) => {
+    return (story: StoryHydrated) => {
         const defaultFormat = `#%i %t
     \tType:   \t%y/%e
     \tProject:\t%p
@@ -205,8 +242,10 @@ const printFormattedStory = program => {
     \tArchived:\t%a
     `;
         const format = program.format || defaultFormat;
-        const labels = story.labels.map(l => ` ${l.name} (#${l.id})`);
-        const owners = story.owners.map(o => `${o.profile.name} (${o.profile.mention_name})`);
+        const labels = story.labels.map((l: Label) => ` ${l.name} (#${l.id})`);
+        const owners = story.owners.map(
+            (o: Member) => `${o.profile.name} (${o.profile.mention_name})`
+        );
         const url = `https://app.clubhouse.io/story/${story.id}`;
         const project = ` ${story.project.name} (#${story.project.id})`;
         log(
@@ -216,28 +255,31 @@ const printFormattedStory = program => {
                 .replace(/%t/, chalk.blue(`${story.name}`))
                 .replace(/%d/, story.description || '')
                 .replace(/%y/, story.story_type)
-                .replace(/%e/, story.estimate || '_')
+                .replace(/%e/, `${story.estimate || '_'}`)
                 .replace(/%l/, labels.join(', ') || '_')
                 .replace(
                     /%E/,
-                    story.epic_id ? `${(story.epic || {}).name} (#${story.epic_id})` : '_'
+                    story.epic_id ? `${(story.epic || ({} as Epic)).name} (#${story.epic_id})` : '_'
                 )
                 .replace(/%p/, project)
                 .replace(/%o/, owners.join(', ') || '_')
-                .replace(/%s/, `${(story.state || {}).name} (#${story.workflow_state_id})`)
+                .replace(
+                    /%s/,
+                    `${(story.state || ({} as WorkflowState)).name} (#${story.workflow_state_id})`
+                )
                 .replace(/%u/, url)
-                .replace(/%c/, story.created_at)
-                .replace(/%u/, story.updated_at !== story.created_at ? story.updated_at : '_')
-                .replace(/%a/, story.archived)
+                .replace(/%c/, `${story.created_at}`)
+                .replace(/%u/, `${story.updated_at !== story.created_at ? story.updated_at : '_'}`)
+                .replace(/%a/, `${story.archived}`)
         );
         return story;
     };
 };
 
 //TODO: Add workspace name in URL to avoid extra redirect.
-const storyURL = story => `https://app.clubhouse.io/story/${story.id}`;
+const storyURL = (story: Story) => `https://app.clubhouse.io/story/${story.id}`;
 
-const printDetailedStory = (story, entities) => {
+const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     const labels = story.labels.map(l => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
     });
@@ -263,22 +305,22 @@ const printDetailedStory = (story, entities) => {
     }
     log(chalk.bold('URL:') + `      ${storyURL(story)}`);
     if (story.archived) {
-        log(chalk.bold('Archived: ') + chalk.bold(story.archived));
+        log(chalk.bold('Archived: ') + chalk.bold(`${story.archived}`));
     }
     if (story.completed) {
-        log(chalk.bold('Completed: ') + chalk.bold(story.completed_at));
+        log(chalk.bold('Completed: ') + chalk.bold(`${story.completed_at}`));
     }
     story.tasks.map(c => {
         log(
             chalk.bold('Task:     ') +
-                (c.complete ? '[X]' : '[ ]') +
+                (c.completed ? '[X]' : '[ ]') +
                 ' ' +
                 formatLong(c.description)
         );
         return c;
     });
     story.comments.map(c => {
-        const author = entities.membersById[c.author_id] || { profile: {} };
+        const author = entities.membersById[c.author_id];
         log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
         log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
         return c;
@@ -291,9 +333,9 @@ const printDetailedStory = (story, entities) => {
     log();
 };
 
-const formatLong = str => str.split('\n').join('\n         ');
+const formatLong = (str: string) => str.split('\n').join('\n         ');
 
-const parseDateComparator = arg => {
+const parseDateComparator: (arg: string) => (date: string) => boolean = arg => {
     const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 30 } };
     const parsedDate = new Date(arg.slice(match.index));
     const comparator = arg.slice(0, match.index);
@@ -310,7 +352,7 @@ const parseDateComparator = arg => {
     };
 };
 
-const checkoutStoryBranch = (story, prefix) => {
+const checkoutStoryBranch = (story: StoryHydrated, prefix: string = '') => {
     prefix = prefix || `${config.mentionName}/ch${story.id}/${story.story_type}-`;
     let slug = story.name
         .toLowerCase()
@@ -323,9 +365,10 @@ const checkoutStoryBranch = (story, prefix) => {
     execSync('git checkout -b ' + branch);
 };
 
-const fileURL = file => `${file.url}?token=${client.requestFactory.token}`;
+// @ts-ignore
+const fileURL = (file: File) => `${file.url}?token=${client.requestFactory.token}`;
 
-module.exports = {
+export default {
     listStories,
     printFormattedStory,
     printDetailedStory,

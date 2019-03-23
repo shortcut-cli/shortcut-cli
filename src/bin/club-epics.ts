@@ -1,9 +1,15 @@
 #!/usr/bin/env node
-const client = require('../lib/client.js');
-const chalk = require('chalk');
-const spin = require('../lib/spinner.js')();
+import client from '../lib/client';
+import * as commander from 'commander';
+import chalk from 'chalk';
+
+import { Epic } from 'clubhouse-lib';
+import spinner from '../lib/spinner';
+
 const log = console.log;
-const program = require('commander')
+const spin = spinner();
+
+const program = commander
     .description('Display epics available for stories')
     .option('-a, --archived', 'List only epics including archived', '')
     .option('-c, --completed', 'List only epics that have been completed', '')
@@ -17,14 +23,10 @@ const main = async () => {
     const epics = await client.listEpics();
     spin.stop(true);
     const textMatch = new RegExp(program.title, 'i');
-    epics
-        .filter(o => {
-            return !!`${o.name} ${o.name}`.match(textMatch);
-        })
-        .map(printItem);
+    epics.filter((epic: Epic) => !!`${epic.name} ${epic.name}`.match(textMatch)).map(printItem);
 };
 
-const printItem = epic => {
+const printItem = (epic: Epic) => {
     if (epic.archived && !program.archived) return;
     if (!epic.started && program.started) return;
     if (!epic.completed && program.completed) return;

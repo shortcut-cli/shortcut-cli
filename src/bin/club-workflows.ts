@@ -1,9 +1,16 @@
 #!/usr/bin/env node
-const client = require('../lib/client.js');
-const chalk = require('chalk');
-const spin = require('../lib/spinner.js')();
+import chalk from 'chalk';
+
+import * as commander from 'commander';
+import client from '../lib/client';
+
+import spinner from '../lib/spinner';
+import { Workflow, WorkflowState } from 'clubhouse-lib';
+
+const spin = spinner();
 const log = console.log;
-const program = require('commander')
+
+const program = commander
     .description('Display workflows/states available for stories')
     .option('-s, --search [query]', 'List states containing query', '')
     .parse(process.argv);
@@ -15,12 +22,13 @@ const main = async () => {
     wfs.map(printWf);
 };
 
-const printWf = wf => {
+const printWf = (wf: Workflow) => {
     log(chalk.bold(`#${wf.id}`) + ` ${wf.name}`);
     log('    == States:');
     wf.states.map(printWfState);
 };
-const printWfState = state => {
+
+const printWfState = (state: WorkflowState) => {
     if (!state.name.match(new RegExp(program.search, 'i'))) {
         return;
     }
@@ -28,4 +36,5 @@ const printWfState = state => {
     log(`         Type:   \t${state.type}`);
     log(`         Stories:\t${state.num_stories}`);
 };
+
 main();

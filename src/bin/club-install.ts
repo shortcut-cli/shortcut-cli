@@ -1,9 +1,15 @@
 #!/usr/bin/env node
-const prompt = require('prompt');
-const configure = require('../lib/configure.js');
+
+// @ts-ignore
+import prompt from 'prompt';
+
+import configure from '../lib/configure';
+
 const extant = configure.loadConfig();
 const log = console.log;
-const program = require('commander')
+
+import * as commander from 'commander';
+const program = commander
     .version(require('../../package').version)
     .description('Install access token and other settings for the Clubhouse API')
     .option('-f, --force', 'Force install/reinstall')
@@ -23,7 +29,7 @@ if (!extant || program.force) {
         },
     };
     prompt.start({ message: 'clubhouse' });
-    prompt.get(schema, (err, result) => {
+    prompt.get(schema, (err: Error, result: any) => {
         if (err) return log(err);
         log('Saving config...');
         const success = configure.updateConfig(result);

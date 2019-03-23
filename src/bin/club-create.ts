@@ -1,10 +1,17 @@
 #!/usr/bin/env node
-const { exec } = require('child_process');
-const client = require('../lib/client.js');
-const spin = require('../lib/spinner.js')();
-const storyLib = require('../lib/stories.js');
+import storyLib, { StoryHydrated } from '../lib/stories';
+
+import { exec } from 'child_process';
+
+import client from '../lib/client';
+
+import { Epic, Project, Story, WorkflowState } from 'clubhouse-lib';
+import spinner from '../lib/spinner';
+import * as commander from 'commander';
+
+const spin = spinner();
 const log = console.log;
-const program = require('commander')
+const program = commander
     .usage('[options]')
     .description('create a story with provided details')
     .option('-d, --description [text]', 'Set description of story', '')
@@ -31,17 +38,19 @@ const main = async () => {
     let update = {
         name: program.title,
         story_type: program.type,
-        description: program.description,
+        description: `${program.description}`,
         estimate: program.estimate || undefined,
-    };
+    } as Story;
     if (program.project) {
-        update.project_id = (storyLib.findProject(entities, program.project) || {}).id;
+        update.project_id = (storyLib.findProject(entities, program.project) || ({} as Project)).id;
     }
     if (program.state) {
-        update.workflow_state_id = (storyLib.findState(entities, program.state) || {}).id;
+        update.workflow_state_id = (
+            storyLib.findState(entities, program.state) || ({} as WorkflowState)
+        ).id;
     }
     if (program.epic) {
-        update.epic_id = (storyLib.findEpic(entities, program.epic) || {}).id;
+        update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
     }
     if (program.estimate) {
         update.estimate = parseInt(program.estimate, 10);
@@ -52,7 +61,7 @@ const main = async () => {
     if (program.label) {
         update.labels = storyLib.findLabelNames(entities, program.label);
     }
-    let story = false;
+    let story: StoryHydrated;
     if (!update.name || !update.project_id) {
         if (!program.idonly) spin.stop(true);
         log('Must provide --title and --project');

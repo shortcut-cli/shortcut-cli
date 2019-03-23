@@ -1,10 +1,11 @@
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
-const pkg = require('../../package');
-const configFile = path.resolve(os.homedir(), '.' + pkg.name, 'config.json');
+import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
 
-const loadConfig = () => {
+//TODO: Move to XDG_CONFIG
+const configFile = path.resolve(os.homedir(), '.clubhouse-cli', 'config.json');
+
+export const loadConfig = () => {
     const envToken = process.env.CLUBHOUSE_API_TOKEN;
     if (fs.existsSync(configFile)) {
         try {
@@ -24,7 +25,7 @@ const loadConfig = () => {
     return false;
 };
 
-const saveConfig = opt => {
+const saveConfig = (opt: any) => {
     const dir = path.dirname(configFile);
     try {
         if (!fs.existsSync(dir)) {
@@ -38,12 +39,12 @@ const saveConfig = opt => {
     }
 };
 
-const updateConfig = opt => {
+const updateConfig = (opt: any) => {
     const extant = loadConfig() || {};
     return saveConfig(Object.assign({}, extant, opt));
 };
 
-const saveWorkspace = (name, workspace) => {
+const saveWorkspace = (name: string, workspace: any) => {
     const extant = loadConfig();
     let workspaces = extant.workspaces || {};
     workspaces[name] = workspace;
@@ -54,15 +55,14 @@ const saveWorkspace = (name, workspace) => {
     );
 };
 
-const removeWorkspace = name => {
+const removeWorkspace = (name: string) => {
     const extant = loadConfig();
     delete extant.workspaces[name];
     return saveConfig(Object.assign({}, extant));
 };
 
-module.exports = {
+export default {
     loadConfig,
-    saveConfig,
     updateConfig,
     saveWorkspace,
     removeWorkspace,
