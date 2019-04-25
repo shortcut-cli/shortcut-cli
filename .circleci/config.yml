@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:7.10
+      - image: circleci/node:8.16.0
     working_directory: ~/repo
     steps:
       - checkout
@@ -10,11 +10,11 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
           name: Installing Dependencies
-          command: npm install
+          command: npm ci
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
       - run:
           name: Running Tests
-          command: npm test
+          command: npm run ci
