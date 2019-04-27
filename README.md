@@ -15,6 +15,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     - [Workflows](#workflows)
     - [Projects](#projects)
     - [Install](#install)
+    - [Developement](#developement)
 - [Acknowledgments](#acknowledgments)
 
 ## Usage
@@ -309,6 +310,20 @@ $ club install
 You may also provide a clubhouse API token via environment variable `CLUBHOUSE_API_TOKEN`.
 ~~~sh
 $ CLUBHOUSE_API_TOKEN=foobar club story 3300
+~~~
+
+### Developement
+
+You can use typescript watcher which will recompile your code automatically:
+
+~~~sh
+$ npm run build:watch
+~~~
+
+You can run clubhouse-cli with typescript map enabled:
+
+~~~sh
+$ npm start -- story 1234
 ~~~
 
 ## Acknowledgments

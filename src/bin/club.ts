@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 const pkg = require('../../package.json');
 
-require('commander')
+import 'source-map-support/register';
+
+import * as commander from 'commander';
+
+process.on('unhandledRejection', console.log);
+
+commander
     .version(pkg.version)
     .description(pkg.description)
     .command('install [options]', 'install and configure API access')

@@ -1,17 +1,26 @@
 #!/usr/bin/env node
-const { execSync } = require('child_process');
-const fetch = require('node-fetch');
-const path = require('path');
-const fs = require('fs');
-const chalk = require('chalk');
-const config = require('../lib/configure.js').loadConfig();
-const debug = require('debug')('club');
-const client = require('../lib/client.js');
-const storyLib = require('../lib/stories.js');
-const spin = require('../lib/spinner.js')();
+import { execSync } from 'child_process';
+import * as commander from 'commander';
+
+import fetch from 'node-fetch';
+import * as path from 'path';
+import * as fs from 'fs';
+import chalk from 'chalk';
+import { loadConfig } from '../lib/configure';
+
+import debugging from 'debug';
+import client from '../lib/client';
+import storyLib, { StoryHydrated, Entities } from '../lib/stories';
+import { Epic, File, Story, StoryChange, Task, WorkflowState, StoryType } from 'clubhouse-lib';
+import spinner from '../lib/spinner';
+
+const config = loadConfig();
+const spin = spinner();
 const log = console.log;
 const logError = console.error;
-const program = require('commander')
+const debug = debugging('club');
+
+const program = commander
     .usage('[options] <id>')
     .description('Update and/or display story details')
     .option('-a, --archived', 'Update story as archived')
@@ -52,12 +61,14 @@ const main = async () => {
     const entities = await storyLib.fetchEntities();
     if (!(program.idonly || program.quiet)) spin.start();
     debug('constructing story update');
-    let update = {};
+    let update = {} as StoryChange;
     if (program.archived) {
         update.archived = true;
     }
     if (program.state) {
-        update.workflow_state_id = (storyLib.findState(entities, program.state) || {}).id;
+        update.workflow_state_id = (
+            storyLib.findState(entities, program.state) || ({} as WorkflowState)
+        ).id;
     }
     if (program.estimate) {
         update.estimate = parseInt(program.estimate, 10);
@@ -66,19 +77,19 @@ const main = async () => {
         update.name = program.title;
     }
     if (program.description) {
-        update.description = program.description;
+        update.description = `${program.description}`;
     }
     if (program.type) {
         const typeMatch = new RegExp(program.type, 'i');
         update.story_type = ['feature', 'bug', 'chore'].filter(t => {
             return !!t.match(typeMatch);
-        })[0];
+        })[0] as StoryType;
     }
     if (program.owners) {
         update.owner_ids = storyLib.findOwnerIds(entities, program.owners);
     }
     if (program.epic) {
-        update.epic_id = (storyLib.findEpic(entities, program.epic) || {}).id;
+        update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
     }
     if (program.label) {
         update.labels = storyLib.findLabelNames(entities, program.label);
@@ -90,7 +101,7 @@ const main = async () => {
         program.moveUp !== undefined;
     const hasUpdate = Object.keys(update).length > 0 || hasPositionUpdate;
     debug('constructed story update', update);
-    let gitID = [];
+    let gitID: string[] = [];
     if (program.fromGit || !program.args.length) {
         debug('fetching story ID from git');
         let branch = execSync('git branch').toString('utf-8');
@@ -99,7 +110,7 @@ const main = async () => {
             let id = parseInt(branch.match(/\*.*/)[0].match(/[0-9]+/)[0], 10);
             debug('parsed story ID from git branch:', id);
             if (id) {
-                gitID.push(id);
+                gitID.push(id.toString());
             }
         } else {
             stopSpinner();
@@ -144,15 +155,15 @@ const main = async () => {
             if (program.taskComplete) {
                 debug('calculating task(s) to complete');
                 const descMatch = new RegExp(program.taskComplete, 'i');
-                let tasks = story.tasks.filter(t => t.description.match(descMatch));
-                let updatedTaskIds = tasks.map(t => t.id);
+                let tasks = story.tasks.filter((t: Task) => t.description.match(descMatch));
+                let updatedTaskIds = tasks.map((t: Task) => t.id);
                 debug('request tasks complete', updatedTaskIds);
                 await Promise.all(
-                    tasks.map(t => client.updateTask(id, t.id, { complete: !t.complete }))
+                    tasks.map((t: Task) => client.updateTask(id, t.id, { complete: !t.completed }))
                 );
                 debug('response tasks complete');
-                story.tasks = story.tasks.map(t => {
-                    if (updatedTaskIds.indexOf(t.id) > -1) t.complete = !t.complete;
+                story.tasks = story.tasks.map((t: Task) => {
+                    if (updatedTaskIds.indexOf(t.id) > -1) t.completed = !t.completed;
                     return t;
                 });
             }
@@ -165,7 +176,7 @@ const main = async () => {
             if (hasUpdate) {
                 if (hasPositionUpdate) {
                     debug('calculating move up/down');
-                    let siblings = await storyLib.listStories({
+                    let siblings: Story[] = await storyLib.listStories({
                         state: story.workflow_state_id.toString(),
                         sort: 'state.position:asc,position:asc',
                     });
@@ -232,8 +243,8 @@ const stopSpinner = () => {
     if (!(program.idonly || program.quiet)) spin.stop(true);
 };
 
-const downloadFiles = story => {
-    story.files.map(file => {
+const downloadFiles = (story: Story) => {
+    story.files.map((file: File) => {
         const filePath = path.join(program.downloadDir, file.name);
         log(chalk.bold('Downloading file to: ') + filePath);
         return fetch(storyLib.fileURL(file)).then(res =>
@@ -242,7 +253,7 @@ const downloadFiles = story => {
     });
 };
 
-const printStory = (story, entities) => {
+const printStory = (story: StoryHydrated, entities: Entities) => {
     if (program.idonly) {
         return log(story.id);
     }

@@ -1,9 +1,14 @@
 #!/usr/bin/env node
-const spin = require('../lib/spinner.js')('Finding... %s ');
-const configure = require('../lib/configure.js');
-const storyLib = require('../lib/stories.js');
+import spinner from '../lib/spinner';
+import * as commander from 'commander';
+
+import configure from '../lib/configure';
+import storyLib, { StoryHydrated } from '../lib/stories';
+
+const spin = spinner('Finding... %s ');
 const log = console.log;
-const program = require('commander')
+
+export const program = commander
     .description(
         `Search through clubhouse stories. Arguments (non-flag/options) will
   be passed to Clubhouse story search API as search operators. Note that passing search
@@ -41,14 +46,14 @@ const program = require('commander')
     )
     .option('-f, --format [template]', 'Format each story output by template', '');
 
-const getWorkspaceOptions = program => {
+const getWorkspaceOptions = (program: any) => {
     const blacklistedKeys = ['Command', 'commands', 'Option', 'options', 'rawArgs', 'save'];
     return Object.entries(program)
         .filter(([key]) => !(blacklistedKeys.includes(key) || key.startsWith('_')))
         .reduce((obj, [key, val]) => Object.assign(obj, { [key]: val }), {});
 };
 
-const main = async () => {
+export const main = async () => {
     program.parse(process.argv);
     if (!program.quiet) {
         if (!program.args.length) {
@@ -56,7 +61,7 @@ const main = async () => {
         }
         spin.start();
     }
-    let stories = [];
+    let stories: StoryHydrated[] = [];
     try {
         stories = await storyLib.listStories(program);
     } catch (e) {
@@ -79,8 +84,3 @@ const main = async () => {
 if (require.main === module) {
     main();
 }
-
-module.exports = {
-    program,
-    main,
-};

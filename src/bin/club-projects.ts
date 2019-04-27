@@ -1,9 +1,15 @@
 #!/usr/bin/env node
-const client = require('../lib/client.js');
-const chalk = require('chalk');
-const spin = require('../lib/spinner.js')();
+import client from '../lib/client';
+
+import * as commander from 'commander';
+import chalk from 'chalk';
+import spinner from '../lib/spinner';
+import { Project } from 'clubhouse-lib';
+
+const spin = spinner();
 const log = console.log;
-const program = require('commander')
+
+const program = commander
     .description('Display projects available for stories')
     .option('-a, --archived', 'List only projects including archived', '')
     .option('-d, --detailed', 'List more details for each project', '')
@@ -16,13 +22,13 @@ const main = async () => {
     spin.stop(true);
     const textMatch = new RegExp(program.title, 'i');
     projects
-        .filter(o => {
+        .filter((o: Project) => {
             return !!`${o.name} ${o.name}`.match(textMatch);
         })
         .map(printItem);
 };
 
-const printItem = proj => {
+const printItem = (proj: Project) => {
     if (proj.archived && !program.archived) return;
     log(chalk.bold(`#${proj.id}`) + chalk.blue(` ${proj.name}`));
     log(chalk.bold('Points:        ') + ` ${proj.stats.num_points}`);

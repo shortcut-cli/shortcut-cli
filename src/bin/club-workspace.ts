@@ -1,10 +1,15 @@
 #!/usr/bin/env node
-const configure = require('../lib/configure.js');
-const storyLib = require('../lib/stories.js');
+import configure from '../lib/configure';
+import * as commander from 'commander';
+import storyLib from '../lib/stories';
+
+import { program as searchProgram } from './club-search';
+import { StoryHydrated } from '../lib/stories';
+
 const config = configure.loadConfig();
 const log = console.log;
-const search = require('./club-search');
-const program = require('commander')
+
+const program = commander
     .description('List stories matching saved workspace query')
     .option('-l, --list', 'List saved workspaces')
     .option('-q, --quiet', 'Print only workspace story output, no loading dialog', '')
@@ -38,7 +43,7 @@ const main = async () => {
         }
         return;
     }
-    const name = program.name || program.args[0] || 'default';
+    const name: string = `${program.name || program.args[0] || 'default'}`;
     const workspace = config.workspaces[name];
     if (!workspace) {
         log('No workspace saved with name', name);
@@ -47,9 +52,9 @@ const main = async () => {
         log('to create it.');
         return;
     }
-    const found = search.program.parse(process.argv);
-    const findOpts = found.options.map(o => o.name());
-    const additionalArgs = findOpts.reduce((acc, val) => {
+    const found = searchProgram.parse(process.argv);
+    const findOpts = found.options.map((o: any) => o.name());
+    const additionalArgs = findOpts.reduce((acc: any, val: any) => {
         acc[val] = found[val] || acc[val] || found[val];
         return acc;
     }, workspace);
@@ -57,7 +62,7 @@ const main = async () => {
         log('Loading %s workspace ...', name);
         log();
     }
-    let stories = [];
+    let stories: StoryHydrated[] = [];
     try {
         stories = await storyLib.listStories(additionalArgs);
     } catch (e) {
@@ -67,7 +72,7 @@ const main = async () => {
 };
 main();
 
-const toArgs = obj =>
+const toArgs = (obj: any) =>
     Object.keys(obj)
         .map(k => `--${k} '${obj[k]}'`)
         .join(' ');

@@ -1,5 +1,6 @@
-const Spinner = require('cli-spinner').Spinner;
-const spinner = text => {
+import { Spinner } from 'cli-spinner';
+
+const spinner = (text: string = '') => {
     const spin = new Spinner({
         text: text ? text : 'Loading... %s ',
         stream: process.stderr,
@@ -8,4 +9,4 @@ const spinner = text => {
     return spin;
 };
 
-module.exports = spinner;
+export default spinner;

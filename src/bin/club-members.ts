@@ -1,10 +1,13 @@
 #!/usr/bin/env node
-const client = require('../lib/client.js');
-const chalk = require('chalk');
-const spinner = require('../lib/spinner.js');
+import client from '../lib/client';
+import spinner from '../lib/spinner';
 const spin = spinner('Loading... %s ');
 const log = console.log;
-const program = require('commander')
+import * as commander from 'commander';
+import { Member } from 'clubhouse-lib';
+import chalk from 'chalk';
+
+const program = commander
     .description('Display members available for stories')
     .option('-s, --search [query]', 'List members with name containing query', '')
     .option('-d, --disabled', 'List members including disabled', '')
@@ -16,13 +19,13 @@ const main = async () => {
     spin.stop(true);
     const ownerMatch = new RegExp(program.search, 'i');
     members
-        .filter(o => {
+        .filter((o: Member) => {
             return !!`${o.profile.name} ${o.profile.mention_name}`.match(ownerMatch);
         })
         .map(printMember);
 };
 
-const printMember = member => {
+const printMember = (member: Member) => {
     if (member.disabled && !program.disabled) return;
     log(chalk.bold(`#${member.id}`));
     log(chalk.bold('Name:          ') + ` ${member.profile.name}`);
