@@ -242,12 +242,12 @@ const printFormattedStory = (program: any) => {
     \tArchived:\t%a
     `;
         const format = program.format || defaultFormat;
-        const labels = story.labels.map((l: Label) => ` ${l.name} (#${l.id})`);
+        const labels = story.labels.map((l: Label) => `${l.name} (#${l.id})`);
         const owners = story.owners.map(
             (o: Member) => `${o.profile.name} (${o.profile.mention_name})`
         );
         const url = `https://app.clubhouse.io/story/${story.id}`;
-        const project = ` ${story.project.name} (#${story.project.id})`;
+        const project = `${story.project.name} (#${story.project.id})`;
         log(
             format
                 .replace(/%j/, JSON.stringify({ ...story, url }, null, 2))
