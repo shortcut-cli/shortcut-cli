@@ -155,7 +155,6 @@ const findEpic = (entities: Entities, epicName: string | number) => {
 };
 
 const findIteration = (entities: Entities, iterationName: string | number) => {
-    console.log(entities.iterationsById)
     if (entities.iterationsById[iterationName]) {
         return entities.iterationsById[iterationName];
     }
@@ -214,7 +213,9 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
                 return false;
             }
             if (
-                !(s.iteration_id + ' ' + (s.iteration || ({} as Iteration)).name).match(regexIteration)
+                !(s.iteration_id + ' ' + (s.iteration || ({} as Iteration)).name).match(
+                    regexIteration
+                )
             ) {
                 return false;
             }
@@ -343,9 +344,7 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     }
     if (story.iteration) {
         log(
-            chalk.bold('Iteration:') +
-                chalk.bold(` #${story.iteration_id} `) +
-                story.iteration.name
+            chalk.bold('Iteration:') + chalk.bold(` #${story.iteration_id} `) + story.iteration.name
         );
     } else {
         log(chalk.bold('Iteration:') + ' _');
