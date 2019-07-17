@@ -7,7 +7,17 @@ import chalk from 'chalk';
 import { execSync } from 'child_process';
 
 import debugging from 'debug';
-import { Epic, File, Label, Member, Project, Story, Workflow, WorkflowState } from 'clubhouse-lib';
+import {
+    Epic,
+    File,
+    Iteration,
+    Label,
+    Member,
+    Project,
+    Story,
+    Workflow,
+    WorkflowState,
+} from 'clubhouse-lib';
 
 const debug = debugging('club');
 const config = loadConfig();
@@ -18,6 +28,7 @@ export interface Entities {
     statesById?: { [key: string]: WorkflowState };
     membersById?: { [key: string]: Member };
     epicsById?: { [key: string]: Epic };
+    iterationsById?: { [key: string]: Iteration };
     labels?: Label[];
 }
 
@@ -26,13 +37,14 @@ export interface Entities {
  */
 export interface StoryHydrated extends Story {
     epic?: Epic;
+    iteration?: Iteration;
     project?: Project;
     state?: WorkflowState;
     owners?: Member[];
 }
 
 async function fetchEntities(): Promise<Entities> {
-    let [projectsById, statesById, membersById, epicsById, labels] = await Promise.all([
+    let [projectsById, statesById, membersById, epicsById, iterationsById, labels] = await Promise.all([
         client.listProjects().then(mapByItemId),
         client
             .listWorkflows()
@@ -40,6 +52,7 @@ async function fetchEntities(): Promise<Entities> {
             .then(mapByItemId),
         client.listMembers().then(mapByItemId),
         client.listEpics().then(mapByItemId),
+        client.listIterations().then(mapByItemId),
         client.listResource('labels'),
     ]).catch(err => {
         log(`Error fetching workflows: ${err}`);
@@ -47,7 +60,7 @@ async function fetchEntities(): Promise<Entities> {
     });
 
     debug('response workflows, members, projects, epics');
-    return { projectsById, statesById, membersById, epicsById, labels };
+    return { projectsById, statesById, membersById, epicsById, iterationsById, labels };
 }
 
 const listStories = async (program: any) => {
@@ -101,6 +114,7 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
     augmented.project = entities.projectsById[story.project_id];
     augmented.state = entities.statesById[story.workflow_state_id];
     augmented.epic = entities.epicsById[story.epic_id];
+    augmented.iteration = entities.iterationsById[story.epic_id];
     augmented.owners = story.owner_ids.map(id => entities.membersById[id]);
     debug('hydrated story');
     return augmented;
@@ -133,6 +147,14 @@ const findEpic = (entities: Entities, epicName: string | number) => {
     return Object.values(entities.epicsById).filter(s => s.name.match(epicMatch))[0];
 };
 
+const findIteration = (entities: Entities, iterationName: string | number) => {
+    if (entities.iterationsById[iterationName]) {
+        return entities.iterationsById[iterationName];
+    }
+    const iterationMatch = new RegExp(`${iterationName}`, 'i');
+    return Object.values(entities.iterationsById).filter(s => s.name.match(iterationMatch))[0];
+};
+
 const findOwnerIds = (entities: Entities, owners: string) => {
     const ownerMatch = new RegExp(owners.split(',').join('|'), 'i');
     return Object.values(entities.membersById)
@@ -162,6 +184,7 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
     let regexText = new RegExp(program.text, 'i');
     let regexType = new RegExp(program.type, 'i');
     let regexEpic = new RegExp(program.epic, 'i');
+    let regexIteration = new RegExp(program.iteration, 'i');
 
     return stories
         .map((story: Story) => hydrateStory(entities, story))
@@ -180,6 +203,9 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
                 return false;
             }
             if (!(s.epic_id + ' ' + (s.epic || ({} as Epic)).name).match(regexEpic)) {
+                return false;
+            }
+            if (!(s.iteration_id + ' ' + (s.iteration || ({} as Iteration)).name).match(regexEpic)) {
                 return false;
             }
             if (program.owner) {
@@ -234,6 +260,7 @@ const printFormattedStory = (program: any) => {
     \tType:   \t%y/%e
     \tProject:\t%p
     \tEpic:   \t%E
+    \tIteration:\t%I
     \tOwners: \t%o
     \tState:  \t%s
     \tLabels: \t%l
@@ -260,6 +287,10 @@ const printFormattedStory = (program: any) => {
                 .replace(
                     /%E/,
                     story.epic_id ? `${(story.epic || ({} as Epic)).name} (#${story.epic_id})` : '_'
+                )
+                .replace(
+                    /%I/,
+                    story.iteration_id ? `${(story.iteration || ({} as Iteration)).name} (#${story.iteration_id})` : '_'
                 )
                 .replace(/%p/, project)
                 .replace(/%o/, owners.join(', ') || '_')
@@ -297,6 +328,11 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
         log(chalk.bold('Epic:') + chalk.bold(`     #${story.epic_id} `) + story.epic.name);
     } else {
         log(chalk.bold('Epic:') + '     _');
+    }
+    if (story.iteration) {
+        log(chalk.bold('Iteration:') + chalk.bold(`     #${story.iteration_id} `) + story.iteration.name);
+    } else {
+        log(chalk.bold('Iteration:') + ' _');
     }
     log(chalk.bold('State:') + chalk.bold(`    #${story.workflow_state_id} `) + story.state.name);
     log(chalk.bold('Created:') + `  ${story.created_at}`);
@@ -378,6 +414,7 @@ export default {
     findProject,
     findState,
     findEpic,
+    findIteration,
     findOwnerIds,
     findLabelNames,
     fileURL,

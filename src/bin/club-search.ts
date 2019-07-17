@@ -31,6 +31,7 @@ export const program = commander
     .option('-p, --project [id]', 'Stories in project', '')
     .option('-s, --state [id|name]', 'Stories in workflow state id/name, by regex', '')
     .option('-E, --epic [id|name]', 'Stories in epic id/name, by regex', '')
+    .option('-i, --iteration [id|name]', 'Stories in iteration id/name, by regex', '')
     .option('-S, --save [name]', 'Save search configuration as workspace')
     .option('-t, --text [name]', 'Stories with text in name, by regex', '')
     .option(

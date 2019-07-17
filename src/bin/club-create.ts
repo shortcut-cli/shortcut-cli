@@ -5,7 +5,7 @@ import { exec } from 'child_process';
 
 import client from '../lib/client';
 
-import { Epic, Project, Story, WorkflowState } from 'clubhouse-lib';
+import { Epic, Iteration, Project, Story, WorkflowState } from 'clubhouse-lib';
 import spinner from '../lib/spinner';
 import * as commander from 'commander';
 
@@ -22,6 +22,7 @@ const program = commander
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
             '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
     )
+    .option('-i, --iteration [id|name]', 'Set iteration of story')
     .option('-I, --idonly', 'Print only ID of story result')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('-o, --owners [id|name]', 'Set owners of story, comma-separated', '')
@@ -51,6 +52,9 @@ const main = async () => {
     }
     if (program.epic) {
         update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
+    }
+    if (program.iteration) {
+        update.iteration_id = (storyLib.findIteration(entities, program.iteration) || ({} as Iteration)).id;
     }
     if (program.estimate) {
         update.estimate = parseInt(program.estimate, 10);

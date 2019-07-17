@@ -11,7 +11,7 @@ import { loadConfig } from '../lib/configure';
 import debugging from 'debug';
 import client from '../lib/client';
 import storyLib, { StoryHydrated, Entities } from '../lib/stories';
-import { Epic, File, Story, StoryChange, Task, WorkflowState, StoryType } from 'clubhouse-lib';
+import { Epic, File, Iteration, Story, StoryChange, Task, WorkflowState, StoryType } from 'clubhouse-lib';
 import spinner from '../lib/spinner';
 
 const config = loadConfig();
@@ -30,6 +30,7 @@ const program = commander
     .option('--download-dir [path]', 'Directory to download files to', '.')
     .option('-e, --estimate [number]', 'Update estimate of story', '')
     .option('-E, --epic [id|name]', 'Set epic of story')
+    .option('-i, --iteration [id|name]', 'Set iteration of story')
     .option('-f, --format [template]', 'Format the story output by template', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
     .option(
@@ -90,6 +91,9 @@ const main = async () => {
     }
     if (program.epic) {
         update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
+    }
+    if (program.iteration) {
+        update.iteration_id = (storyLib.findIteration(entities, program.iteration) || ({} as Iteration)).id;
     }
     if (program.label) {
         update.labels = storyLib.findLabelNames(entities, program.label);

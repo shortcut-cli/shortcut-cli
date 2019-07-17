@@ -38,7 +38,7 @@
   "dependencies": {
     "chalk": "^2.2.0",
     "cli-spinner": "^0.2.6",
-    "clubhouse-lib": "0.6.1",
+    "clubhouse-lib": "andjosh/clubhouse-lib",
     "commander": "^2.12.0",
     "debug": "^3.1.0",
     "prompt": "^1.0.0"
