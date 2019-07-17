@@ -66,7 +66,7 @@ async function fetchEntities(): Promise<Entities> {
         process.exit(2);
     });
 
-    debug('response workflows, members, projects, epics');
+    debug('response workflows, members, projects, epics, iterations');
     return { projectsById, statesById, membersById, epicsById, iterationsById, labels };
 }
 
@@ -121,7 +121,7 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
     augmented.project = entities.projectsById[story.project_id];
     augmented.state = entities.statesById[story.workflow_state_id];
     augmented.epic = entities.epicsById[story.epic_id];
-    augmented.iteration = entities.iterationsById[story.epic_id];
+    augmented.iteration = entities.iterationsById[story.iteration_id];
     augmented.owners = story.owner_ids.map(id => entities.membersById[id]);
     debug('hydrated story');
     return augmented;
@@ -155,6 +155,7 @@ const findEpic = (entities: Entities, epicName: string | number) => {
 };
 
 const findIteration = (entities: Entities, iterationName: string | number) => {
+    console.log(entities.iterationsById)
     if (entities.iterationsById[iterationName]) {
         return entities.iterationsById[iterationName];
     }
@@ -213,7 +214,7 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
                 return false;
             }
             if (
-                !(s.iteration_id + ' ' + (s.iteration || ({} as Iteration)).name).match(regexEpic)
+                !(s.iteration_id + ' ' + (s.iteration || ({} as Iteration)).name).match(regexIteration)
             ) {
                 return false;
             }
@@ -266,16 +267,16 @@ const sortStories = (program: any) => {
 const printFormattedStory = (program: any) => {
     return (story: StoryHydrated) => {
         const defaultFormat = `#%i %t
-    \tType:   \t%y/%e
-    \tProject:\t%p
-    \tEpic:   \t%E
-    \tIteration:\t%I
-    \tOwners: \t%o
-    \tState:  \t%s
-    \tLabels: \t%l
-    \tURL:    \t%u
-    \tCreated:\t%c\tUpdated: %u
-    \tArchived:\t%a
+    \tType:       %y/%e
+    \tProject:    %p
+    \tEpic:       %E
+    \tIteration:  %I
+    \tOwners:     %o
+    \tState:      %s
+    \tLabels:     %l
+    \tURL:        %u
+    \tCreated:    %c\tUpdated: %u
+    \tArchived:   %a
     `;
         const format = program.format || defaultFormat;
         const labels = story.labels.map((l: Label) => `${l.name} (#${l.id})`);
@@ -330,36 +331,36 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     });
 
     log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
-    log(chalk.bold('Desc:') + `     ${formatLong(story.description || '_')}`);
-    log(chalk.bold('Owners:') + `   ${owners.join(', ') || '_'}`);
-    log(chalk.bold('Type:') + `     ${story.story_type}/${story.estimate || '_'}`);
-    log(chalk.bold('Label:') + `    ${labels.join(', ') || '_'}`);
-    log(chalk.bold('Project:') + chalk.bold(`  #${story.project_id} `) + story.project.name);
+    log(chalk.bold('Desc:') + `      ${formatLong(story.description || '_')}`);
+    log(chalk.bold('Owners:') + `    ${owners.join(', ') || '_'}`);
+    log(chalk.bold('Type:') + `      ${story.story_type}/${story.estimate || '_'}`);
+    log(chalk.bold('Label:') + `     ${labels.join(', ') || '_'}`);
+    log(chalk.bold('Project:') + chalk.bold(`   #${story.project_id} `) + story.project.name);
     if (story.epic) {
-        log(chalk.bold('Epic:') + chalk.bold(`     #${story.epic_id} `) + story.epic.name);
+        log(chalk.bold('Epic:') + chalk.bold(`      #${story.epic_id} `) + story.epic.name);
     } else {
-        log(chalk.bold('Epic:') + '     _');
+        log(chalk.bold('Epic:') + '      _');
     }
     if (story.iteration) {
         log(
             chalk.bold('Iteration:') +
-                chalk.bold(`     #${story.iteration_id} `) +
+                chalk.bold(` #${story.iteration_id} `) +
                 story.iteration.name
         );
     } else {
         log(chalk.bold('Iteration:') + ' _');
     }
-    log(chalk.bold('State:') + chalk.bold(`    #${story.workflow_state_id} `) + story.state.name);
-    log(chalk.bold('Created:') + `  ${story.created_at}`);
+    log(chalk.bold('State:') + chalk.bold(`     #${story.workflow_state_id} `) + story.state.name);
+    log(chalk.bold('Created:') + `   ${story.created_at}`);
     if (story.created_at !== story.updated_at) {
-        log(chalk.bold('Updated:') + `  ${story.updated_at}`);
+        log(chalk.bold('Updated:') + `   ${story.updated_at}`);
     }
-    log(chalk.bold('URL:') + `      ${storyURL(story)}`);
+    log(chalk.bold('URL:') + `       ${storyURL(story)}`);
     if (story.archived) {
-        log(chalk.bold('Archived: ') + chalk.bold(`${story.archived}`));
+        log(chalk.bold('Archived:  ') + chalk.bold(`${story.archived}`));
     }
     if (story.completed) {
-        log(chalk.bold('Completed: ') + chalk.bold(`${story.completed_at}`));
+        log(chalk.bold('Completed:  ') + chalk.bold(`${story.completed_at}`));
     }
     story.tasks.map(c => {
         log(
