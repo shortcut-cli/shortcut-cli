@@ -11,7 +11,16 @@ import { loadConfig } from '../lib/configure';
 import debugging from 'debug';
 import client from '../lib/client';
 import storyLib, { StoryHydrated, Entities } from '../lib/stories';
-import { Epic, File, Iteration, Story, StoryChange, Task, WorkflowState, StoryType } from 'clubhouse-lib';
+import {
+    Epic,
+    File,
+    Iteration,
+    Story,
+    StoryChange,
+    Task,
+    WorkflowState,
+    StoryType,
+} from 'clubhouse-lib';
 import spinner from '../lib/spinner';
 
 const config = loadConfig();
@@ -93,7 +102,9 @@ const main = async () => {
         update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
     }
     if (program.iteration) {
-        update.iteration_id = (storyLib.findIteration(entities, program.iteration) || ({} as Iteration)).id;
+        update.iteration_id = (
+            storyLib.findIteration(entities, program.iteration) || ({} as Iteration)
+        ).id;
     }
     if (program.label) {
         update.labels = storyLib.findLabelNames(entities, program.label);

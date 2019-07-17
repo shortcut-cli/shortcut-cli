@@ -44,7 +44,14 @@ export interface StoryHydrated extends Story {
 }
 
 async function fetchEntities(): Promise<Entities> {
-    let [projectsById, statesById, membersById, epicsById, iterationsById, labels] = await Promise.all([
+    let [
+        projectsById,
+        statesById,
+        membersById,
+        epicsById,
+        iterationsById,
+        labels,
+    ] = await Promise.all([
         client.listProjects().then(mapByItemId),
         client
             .listWorkflows()
@@ -205,7 +212,9 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
             if (!(s.epic_id + ' ' + (s.epic || ({} as Epic)).name).match(regexEpic)) {
                 return false;
             }
-            if (!(s.iteration_id + ' ' + (s.iteration || ({} as Iteration)).name).match(regexEpic)) {
+            if (
+                !(s.iteration_id + ' ' + (s.iteration || ({} as Iteration)).name).match(regexEpic)
+            ) {
                 return false;
             }
             if (program.owner) {
@@ -290,7 +299,9 @@ const printFormattedStory = (program: any) => {
                 )
                 .replace(
                     /%I/,
-                    story.iteration_id ? `${(story.iteration || ({} as Iteration)).name} (#${story.iteration_id})` : '_'
+                    story.iteration_id
+                        ? `${(story.iteration || ({} as Iteration)).name} (#${story.iteration_id})`
+                        : '_'
                 )
                 .replace(/%p/, project)
                 .replace(/%o/, owners.join(', ') || '_')
@@ -330,7 +341,11 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
         log(chalk.bold('Epic:') + '     _');
     }
     if (story.iteration) {
-        log(chalk.bold('Iteration:') + chalk.bold(`     #${story.iteration_id} `) + story.iteration.name);
+        log(
+            chalk.bold('Iteration:') +
+                chalk.bold(`     #${story.iteration_id} `) +
+                story.iteration.name
+        );
     } else {
         log(chalk.bold('Iteration:') + ' _');
     }

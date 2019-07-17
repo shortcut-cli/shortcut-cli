@@ -54,7 +54,9 @@ const main = async () => {
         update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
     }
     if (program.iteration) {
-        update.iteration_id = (storyLib.findIteration(entities, program.iteration) || ({} as Iteration)).id;
+        update.iteration_id = (
+            storyLib.findIteration(entities, program.iteration) || ({} as Iteration)
+        ).id;
     }
     if (program.estimate) {
         update.estimate = parseInt(program.estimate, 10);
