@@ -133,7 +133,8 @@ const main = async () => {
             process.exit(2);
         }
     }
-    program.args.concat(gitID).map(async id => {
+    let argIDs = program.args.map(a => (a.match(/\d+/) || [])[0]);
+    argIDs.concat(gitID).map(async id => {
         let story;
         try {
             if (program.comment) {
