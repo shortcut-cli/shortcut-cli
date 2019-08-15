@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.1] - 2019-08-15
+### Fixed
+- Remove development start script to prevent production override.
+
 ## [2.0.0] - 2019-08-15
 ### Added
 - Support Iterations filtering/assignment on stories.
@@ -23,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Convert to TypeScript.
 - New formatting/argument syntax for Epic and story ID.
+- Allow non-digit characters in story IDs.
 
 ## [1.17.0] - 2019-03-19
 ### Added
