@@ -38,7 +38,7 @@ const program = commander
     .option('-D, --download', 'Download all attached files', '')
     .option('--download-dir [path]', 'Directory to download files to', '.')
     .option('-e, --estimate [number]', 'Update estimate of story', '')
-    .option('-E, --epic [id|name]', 'Set epic of story')
+    .option('--epic [id|name]', 'Set epic of story')
     .option('-i, --iteration [id|name]', 'Set iteration of story')
     .option('-f, --format [template]', 'Format the story output by template', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')

@@ -267,11 +267,11 @@ const sortStories = (program: any) => {
 
 const printFormattedStory = (program: any) => {
     return (story: StoryHydrated) => {
-        const defaultFormat = `#%i %t
+        const defaultFormat = `#%id %t
     \tType:       %y/%e
     \tProject:    %p
-    \tEpic:       %E
-    \tIteration:  %I
+    \tEpic:       %epic
+    \tIteration:  %i
     \tOwners:     %o
     \tState:      %s
     \tLabels:     %l
@@ -289,18 +289,18 @@ const printFormattedStory = (program: any) => {
         log(
             format
                 .replace(/%j/, JSON.stringify({ ...story, url }, null, 2))
-                .replace(/%i/, chalk.blue.bold(`${story.id}`))
+                .replace(/%id/, chalk.blue.bold(`${story.id}`))
                 .replace(/%t/, chalk.blue(`${story.name}`))
                 .replace(/%d/, story.description || '')
                 .replace(/%y/, story.story_type)
                 .replace(/%e/, `${story.estimate || '_'}`)
                 .replace(/%l/, labels.join(', ') || '_')
                 .replace(
-                    /%E/,
+                    /%epic/,
                     story.epic_id ? `${(story.epic || ({} as Epic)).name} (#${story.epic_id})` : '_'
                 )
                 .replace(
-                    /%I/,
+                    /%i/,
                     story.iteration_id
                         ? `${(story.iteration || ({} as Iteration)).name} (#${story.iteration_id})`
                         : '_'

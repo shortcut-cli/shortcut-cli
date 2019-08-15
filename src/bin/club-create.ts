@@ -16,7 +16,7 @@ const program = commander
     .description('create a story with provided details')
     .option('-d, --description [text]', 'Set description of story', '')
     .option('-e, --estimate [number]', 'Set estimate of story')
-    .option('-E, --epic [id|name]', 'Set epic of story')
+    .option('--epic [id|name]', 'Set epic of story')
     .option(
         '--git-branch',
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +

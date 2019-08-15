@@ -69,7 +69,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     -o, --owner [name]              Stories with owner, by regex
     -p, --project [id]              Stories in project
     -s, --state [id|name]           Stories in workflow state id/name, by regex
-    -E, --epic [id|name]            Stories in epic id/name, by regex
+    --epic [id|name]                Stories in epic id/name, by regex
     -i, --iteration [id|name]       Stories in iteration id/name, by regex
     -S, --save [name]               Save search configuration as workspace
     -t, --text [name]               Stories with text in name, by regex
@@ -105,14 +105,14 @@ $ club search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
 Templating variables:
 
 ~~~
-%i      Print ID of story
+%id     Print ID of story
 %t      Print title/name of story
 %a      Print archived status of story
 %o      Print owners of story
 %l      Print labels on story
 %u      Print URL of story
-%E      Print epic of story
-%I      Print iteration of story
+%epic   Print epic of story
+%i      Print iteration of story
 %p      Print project of story
 %y      Print story type
 %e      Print story estimate
@@ -144,7 +144,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     -d, --description [text]  Update description of story
     -D, --download            Download all attached files
     --download-dir [path]     Directory to download files to
-    -E, --epic [id|name]      Update epic of story
+    --epic [id|name]          Update epic of story
     -i, --iteration [id|name] Update iteration of story
     -f, --format [template]   Format story output by template
     --from-git                Fetch story parsed by ID in current git branch
@@ -195,7 +195,7 @@ Comment: This is a commend
 
     -d, --description [text]  Set description of story
     -e, --estimate [number]   Set estimate of story
-    -E, --epic [id|name]      Set epic of story
+    --epic [id|name]          Set epic of story
     -i, --iteration [id|name] Set iteration of story
     -I, --idonly              Print only ID of story result
     -l, --label [id|name]     Stories with label id/name, by regex
