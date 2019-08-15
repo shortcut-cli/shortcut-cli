@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] - 2019-08-15
+### Added
+- Support Iterations filtering/assignment on stories.
+
+### Changed
+- Convert to TypeScript.
+- New formatting/argument syntax for Epic and story ID.
+
 ## [1.17.0] - 2019-03-19
 ### Added
 - Running tests on CircleCI.
