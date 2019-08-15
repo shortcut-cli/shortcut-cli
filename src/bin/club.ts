@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 const pkg = require('../../package.json');
 
-import 'source-map-support/register';
-
 import * as commander from 'commander';
 
 process.on('unhandledRejection', console.log);
