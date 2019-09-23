@@ -129,7 +129,7 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
 
 const findProject = (entities: Entities, project: number | string) => {
     if (entities.projectsById[project]) {
-        return entities.statesById[project];
+        return entities.projectsById[project];
     }
     const projectMatch = new RegExp(`${project}`, 'i');
     return Object.values(entities.projectsById).filter(s => !!s.name.match(projectMatch))[0];
