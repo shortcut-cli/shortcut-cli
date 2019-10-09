@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // @ts-ignore
-import prompt from 'prompt';
+import * as prompt from 'prompt';
 
 import configure from '../lib/configure';
 
