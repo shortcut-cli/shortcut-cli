@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.4] - 2019-10-10
+### Fixed
+- Fix the import of prompt to conform to Typescript
+
 ## [2.0.3] - 2019-09-23
 ### Fixed
 - Fix the entity returned by findProject by ID.
