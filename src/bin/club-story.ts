@@ -119,7 +119,12 @@ const main = async () => {
     let gitID: string[] = [];
     if (program.fromGit || !program.args.length) {
         debug('fetching story ID from git');
-        let branch = execSync('git branch').toString('utf-8');
+        var branch = '';
+        try {
+            branch = execSync('git branch').toString('utf-8');
+        } catch (e) {
+            debug(e);
+        }
         if (branch.match(/\*.*[0-9]+/)) {
             debug('parsing story ID from git branch:', branch);
             let id = parseInt(branch.match(/\*.*/)[0].match(/[0-9]+/)[0], 10);
@@ -129,7 +134,7 @@ const main = async () => {
             }
         } else {
             stopSpinner();
-            logError('No ID found in branch');
+            logError('No story ID argument present or found in git branch');
             process.exit(2);
         }
     }

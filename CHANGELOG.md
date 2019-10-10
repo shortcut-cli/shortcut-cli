@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.5] - 2019-10-10
+### Fixed
+- Gracefully handle lack of git repository when searching for story ID.
+
 ## [2.0.4] - 2019-10-10
 ### Fixed
 - Fix the import of prompt to conform to Typescript
