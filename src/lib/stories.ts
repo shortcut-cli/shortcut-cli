@@ -364,7 +364,7 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     story.tasks.map(c => {
         log(
             chalk.bold('Task:     ') +
-                (c.completed ? '[X]' : '[ ]') +
+                (c.complete ? '[X]' : '[ ]') +
                 ' ' +
                 formatLong(c.description)
         );
