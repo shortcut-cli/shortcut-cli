@@ -7,14 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 ### Changed
-- Converted the code base to Typescript.
-- Fix formatting
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
 
 ---
+
+## [2.0.6] - 2019-11-06
+### Changed
+- Upgrade to latest `clubhouse-lib`.
+### Fixed
+- Fix completed status on story tasks.
 
 ## [2.0.5] - 2019-10-10
 ### Fixed
