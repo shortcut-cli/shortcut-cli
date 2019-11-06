@@ -180,11 +180,11 @@ const main = async () => {
                 let updatedTaskIds = tasks.map((t: Task) => t.id);
                 debug('request tasks complete', updatedTaskIds);
                 await Promise.all(
-                    tasks.map((t: Task) => client.updateTask(id, t.id, { complete: !t.completed }))
+                    tasks.map((t: Task) => client.updateTask(id, t.id, { complete: !t.complete }))
                 );
                 debug('response tasks complete');
                 story.tasks = story.tasks.map((t: Task) => {
-                    if (updatedTaskIds.indexOf(t.id) > -1) t.completed = !t.completed;
+                    if (updatedTaskIds.indexOf(t.id) > -1) t.complete = !t.complete;
                     return t;
                 });
             }

@@ -1,4 +1,4 @@
-import * as Clubhouse from 'clubhouse-lib';
+import Clubhouse from 'clubhouse-lib';
 
 import { loadConfig } from './configure';
 
