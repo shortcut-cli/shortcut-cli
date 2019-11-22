@@ -46,7 +46,7 @@
     "@types/chalk": "^2.2.0",
     "@types/cli-spinner": "^0.2.0",
     "@types/debug": "^4.1.2",
-    "@types/node": "^11.11.4",
+    "@types/node": "^12.12.11",
     "@types/node-fetch": "^2.1.7",
     "babel-eslint": "^8.0.1",
     "eslint": "^4.10.0",
