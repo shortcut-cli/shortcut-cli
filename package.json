@@ -43,21 +43,21 @@
     "prompt": "^1.0.0"
   },
   "devDependencies": {
-    "@types/chalk": "^2.2.0",
-    "@types/cli-spinner": "^0.2.0",
+    "@types/chalk": "2.2.0",
+    "@types/cli-spinner": "0.2.0",
     "@types/debug": "4.1.5",
-    "@types/node": "^12.12.11",
-    "@types/node-fetch": "^2.1.7",
-    "babel-eslint": "^8.0.1",
-    "eslint": "^4.10.0",
-    "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-babel": "^4.1.2",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-node": "^5.2.1",
-    "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "prettier": "^1.18.2",
-    "source-map-support": "^0.5.11",
-    "typescript": "^3.4.5"
+    "@types/node": "12.12.11",
+    "@types/node-fetch": "2.1.7",
+    "babel-eslint": "8.0.1",
+    "eslint": "4.19.1",
+    "eslint-config-standard": "10.2.1",
+    "eslint-plugin-babel": "4.1.2",
+    "eslint-plugin-import": "2.8.0",
+    "eslint-plugin-node": "5.2.1",
+    "eslint-plugin-promise": "3.6.0",
+    "eslint-plugin-standard": "3.1.0",
+    "prettier": "1.18.2",
+    "source-map-support": "0.5.11",
+    "typescript": "3.4.5"
   }
 }
