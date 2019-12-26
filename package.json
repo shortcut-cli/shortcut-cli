@@ -58,6 +58,6 @@
     "eslint-plugin-standard": "4.0.1",
     "prettier": "1.19.1",
     "source-map-support": "0.5.16",
-    "typescript": "3.7.3"
+    "typescript": "3.7.4"
   }
 }
