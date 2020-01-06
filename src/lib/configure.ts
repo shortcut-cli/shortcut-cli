@@ -5,7 +5,20 @@ import * as os from 'os';
 //TODO: Move to XDG_CONFIG
 const configFile = path.resolve(os.homedir(), '.clubhouse-cli', 'config.json');
 
-export const loadConfig = () => {
+export interface Config {
+    mentionName: string;
+
+    // Clubhouse workspace
+    // https://help.clubhouse.io/hc/en-us/sections/360000212786-Organizations-and-Workspaces.
+    workspaceName: string;
+
+    token: string;
+
+    // Object used by club workspace. Unrelated to the clubhouse concept of workspace.
+    workspaces: { [key: string]: object };
+}
+
+export const loadConfig: () => Config = () => {
     const envToken = process.env.CLUBHOUSE_API_TOKEN;
     if (fs.existsSync(configFile)) {
         try {
@@ -16,13 +29,13 @@ export const loadConfig = () => {
             return config;
         } catch (e) {
             console.error(e);
-            return false;
+            return {};
         }
     }
     if (envToken) {
         return { token: envToken };
     }
-    return false;
+    return {};
 };
 
 const saveConfig = (opt: any) => {

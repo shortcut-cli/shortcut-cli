@@ -2,6 +2,7 @@
 import { execSync } from 'child_process';
 import * as commander from 'commander';
 
+import * as os from 'os';
 import fetch from 'node-fetch';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -59,6 +60,9 @@ const program = commander
     .option('--move-up [n]', 'Move story position upward by n stories')
     .option('-o, --owners [id|name]', 'Update owners of story, comma-separated', '')
     .option('-O, --open', 'Open story in browser')
+    .option('--oe, --open-epic', "Open story's epic in browser")
+    .option('--oi, --open-iteration', "Open story's iteration in browser")
+    .option('--op, --open-project', "Open story's project in browser")
     .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-t, --title [text]', 'Update title/name of story', '')
@@ -237,7 +241,10 @@ const main = async () => {
         if (!program.idonly) spin.stop(true);
         if (story) {
             printStory(story, entities);
-            if (program.open) execSync('open ' + storyLib.storyURL(story));
+            if (program.open) openURL(storyLib.storyURL(story));
+            if (program.openEpic) openURL(storyLib.buildURL('epic', story.epic_id));
+            if (program.openIteration) openURL(storyLib.buildURL('iteration', story.iteration_id));
+            if (program.openProject) openURL(storyLib.buildURL('project', story.project_id));
         }
         if (program.download) {
             downloadFiles(story);
@@ -258,6 +265,11 @@ const main = async () => {
         }
     });
     stopSpinner();
+};
+
+const openURL = (url: string) => {
+    const open = os.platform() === 'darwin' ? 'open' : 'xdg-open';
+    execSync(`${open} '${url}'`);
 };
 
 const stopSpinner = () => {
