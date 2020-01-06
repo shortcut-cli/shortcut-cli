@@ -2,11 +2,19 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 
-//TODO: Move to XDG_CONFIG
-const configFile = path.resolve(os.homedir(), '.clubhouse-cli', 'config.json');
+const configDir =
+    process.env.XDG_CONFIG_HOME ||
+    path.resolve(process.env.XDG_DATA_HOME || os.homedir(), '.config', 'clubhouse-cli');
+
+const configFile = path.resolve(configDir, 'config.json');
+const legacyConfigDir = path.resolve(os.homedir(), '.clubhouse-cli');
 
 export const loadConfig = () => {
     const envToken = process.env.CLUBHOUSE_API_TOKEN;
+    if (fs.existsSync(legacyConfigDir)) {
+        createConfigDir();
+        fs.renameSync(legacyConfigDir, configDir);
+    }
     if (fs.existsSync(configFile)) {
         try {
             const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
@@ -25,12 +33,19 @@ export const loadConfig = () => {
     return false;
 };
 
+const createConfigDir = () => {
+    const dir = path.dirname(configDir);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir);
+    }
+};
+
 const saveConfig = (opt: any) => {
-    const dir = path.dirname(configFile);
     try {
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
+        createConfigDir();
         fs.writeFileSync(configFile, JSON.stringify(opt), { flag: 'w' });
         return true;
     } catch (e) {
