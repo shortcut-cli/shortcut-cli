@@ -11,39 +11,61 @@ const legacyConfigDir = path.resolve(os.homedir(), '.clubhouse-cli');
 
 export interface Config {
     mentionName: string;
-
-    // Clubhouse workspace
-    // https://help.clubhouse.io/hc/en-us/sections/360000212786-Organizations-and-Workspaces.
-    workspaceName: string;
-
+    urlSlug: string;
     token: string;
-
-    // Object used by club workspace. Unrelated to the clubhouse concept of workspace.
+    // Object used by club workspace.
+    // This is unrelated to the concept of Clubhouse Workspaces.
     workspaces: { [key: string]: object };
 }
 
+let CONFIG_CACHE = null as Config;
+
+/**
+ * Config load function to be used in most-cases.
+ */
 export const loadConfig: () => Config = () => {
-    const envToken = process.env.CLUBHOUSE_API_TOKEN;
+    const config = loadCachedConfig();
+    if (!config || config === ({} as Config) || !config.token) {
+        console.error("Please run 'club install' to configure Clubhouse API access.");
+        process.exit(11);
+    }
+
+    if (!config.urlSlug) {
+        console.error(
+            'Your config must be updated with data from Clubhouse. ' +
+                "Please run 'club install --refresh'."
+        );
+        process.exit(12);
+    }
+    return config;
+};
+
+/**
+ * Only use this function directly if you need to avoid the config check.
+ */
+export const loadCachedConfig: () => Config = () => {
+    if (CONFIG_CACHE) {
+        return { ...CONFIG_CACHE };
+    }
+    let config = {} as Config;
+    const token = process.env.CLUBHOUSE_API_TOKEN;
     if (fs.existsSync(legacyConfigDir)) {
         createConfigDir();
         fs.renameSync(legacyConfigDir, configDir);
     }
     if (fs.existsSync(configFile)) {
         try {
-            const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-            if (envToken) {
-                return Object.assign({}, config, { token: envToken });
-            }
-            return config;
+            config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
         } catch (e) {
             console.error(e);
-            return {};
+            process.exit(10);
         }
     }
-    if (envToken) {
-        return { token: envToken };
+    if (token) {
+        config = { token, ...config };
     }
-    return {};
+    CONFIG_CACHE = { ...config };
+    return config;
 };
 
 const createConfigDir = () => {
@@ -56,10 +78,11 @@ const createConfigDir = () => {
     }
 };
 
-const saveConfig = (opt: any) => {
+const saveConfig = (config: Config) => {
     try {
         createConfigDir();
-        fs.writeFileSync(configFile, JSON.stringify(opt), { flag: 'w' });
+        fs.writeFileSync(configFile, JSON.stringify(config), { flag: 'w' });
+        CONFIG_CACHE = { ...config };
         return true;
     } catch (e) {
         console.error(e);
@@ -67,24 +90,20 @@ const saveConfig = (opt: any) => {
     }
 };
 
-const updateConfig = (opt: any) => {
-    const extant = loadConfig() || {};
-    return saveConfig(Object.assign({}, extant, opt));
+export const updateConfig = (newConfig: Config) => {
+    const extantConfig = loadCachedConfig() || {};
+    return saveConfig({ ...newConfig, ...extantConfig });
 };
 
 const saveWorkspace = (name: string, workspace: any) => {
-    const extant = loadConfig();
-    let workspaces = extant.workspaces || {};
+    const extantConfig = loadCachedConfig();
+    let workspaces = extantConfig.workspaces || {};
     workspaces[name] = workspace;
-    return saveConfig(
-        Object.assign({}, extant, {
-            workspaces,
-        })
-    );
+    return saveConfig({ workspaces, ...extantConfig });
 };
 
 const removeWorkspace = (name: string) => {
-    const extant = loadConfig();
+    const extant = loadCachedConfig();
     delete extant.workspaces[name];
     return saveConfig(Object.assign({}, extant));
 };

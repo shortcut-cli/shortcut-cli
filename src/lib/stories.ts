@@ -322,16 +322,11 @@ const printFormattedStory = (program: any) => {
 };
 
 const buildURL = (...segments: (string | number)[]): string => {
-    let finalSegments = ['https://app.clubhouse.io'];
-    if (config.workspaceName) {
-        finalSegments = finalSegments.concat(config.workspaceName);
-    } else {
-        log(
-            "Please add the 'workspaceName' to your configuration " +
-                "either manually or via 'club install'."
-        );
-    }
-    return finalSegments.concat(...segments.map(item => item.toString())).join('/');
+    return [
+        'https://app.clubhouse.io',
+        config.urlSlug,
+        ...segments.map(item => item.toString()),
+    ].join('/');
 };
 
 const storyURL = (story: Story) => buildURL('story', story.id);
