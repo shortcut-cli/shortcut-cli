@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-### Changed
+- Respect XDG_CONFIG_HOME for the config location
 ### Deprecated
 ### Removed
 ### Fixed
