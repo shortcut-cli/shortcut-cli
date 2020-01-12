@@ -26,6 +26,11 @@ if (!extant || program.force) {
                 message: 'API Token -> https://app.clubhouse.io/xxxx/settings/account/api-tokens',
                 required: true,
             },
+            workspaceName: {
+                message:
+                    'Name of the Clubhouse Workspace (e.g.: xxxx) -> https://app.clubhouse.io/xxxx',
+                required: true,
+            },
         },
     };
     prompt.start({ message: 'clubhouse' });

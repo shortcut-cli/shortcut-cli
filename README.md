@@ -159,6 +159,9 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     -c, --comment [text]      Add comment to story
     -o, --owners [id|name]    Update owners of story, comma-separated
     -O, --open                Open story in browser
+    --oe, --open-epic         Open story's epic in browser
+    --oi, --open-iteration    Open story's iteration in browser
+    --op, --open-project      Open story's project in browser
     -q, --quiet               Print only story output, no loading dialog
     -t, --title [text]        Update title of story
     --task [text]             Create new task on story
