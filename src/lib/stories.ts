@@ -321,8 +321,20 @@ const printFormattedStory = (program: any) => {
     };
 };
 
-//TODO: Add workspace name in URL to avoid extra redirect.
-const storyURL = (story: Story) => `https://app.clubhouse.io/story/${story.id}`;
+const buildURL = (...segments: (string | number)[]): string => {
+    let finalSegments = ['https://app.clubhouse.io'];
+    if (config.workspaceName) {
+        finalSegments = finalSegments.concat(config.workspaceName);
+    } else {
+        log(
+            "Please add the 'workspaceName' to your configuration " +
+                "either manually or via 'club install'."
+        );
+    }
+    return finalSegments.concat(...segments.map(item => item.toString())).join('/');
+};
+
+const storyURL = (story: Story) => buildURL('story', story.id);
 
 const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     const labels = story.labels.map(l => {
@@ -435,4 +447,5 @@ export default {
     findLabelNames,
     fileURL,
     storyURL,
+    buildURL,
 };
