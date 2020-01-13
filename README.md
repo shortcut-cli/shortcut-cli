@@ -52,8 +52,9 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
   Usage: club-find [options] [SEARCH OPERATORS]
 
   Search through clubhouse stories. Arguments (non-flag/options) will
-  be passed to Clubhouse story search API as search operators. Note that passing search
-  operators and options (e.g. --owner yourself) will use the options as extra filtering
+  be passed to Clubhouse story search API as search operators. Passing '%self%' as
+  a search operator argument will be replaced by your mention name. Note that passing search
+  operators and options (e.g. --owner foobar) will use the options as extra filtering
   in the client.
 
   Refer to https://help.clubhouse.io/hc/en-us/articles/360000046646-Search-Operators
