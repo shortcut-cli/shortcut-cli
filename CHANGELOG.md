@@ -6,10 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- club search, replace `%self%` with the user's mention name.
-- Allow to open the story's epic, iteration and/or project.
-- Use xdg-open on non-macOS platform.
-- Add the Config interface and added workspaceName as a parameter.
 ### Changed
 ### Deprecated
 ### Removed
@@ -17,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
+
+## [2.1.0] - 2020-01-12
+### Added
+- In `club search`, replace `%self%` with the user's mention name.
+- Accept options to open the story's epic, iteration and/or project.
+- Use `xdg-open` on non-macOS platform.
+- Add the `Config` interface and added `workspaceName` as a parameter.
+### Security
+- Several dependency upgrades via Renovatebot.
 
 ## [2.0.6] - 2019-11-06
 ### Changed
