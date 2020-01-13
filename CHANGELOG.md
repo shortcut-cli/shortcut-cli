@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- club search, replace `%self%` with the user's mention name.
 - Allow to open the story's epic, iteration and/or project.
 - Use xdg-open on non-macOS platform.
 - Add the Config interface and added workspaceName as a parameter.

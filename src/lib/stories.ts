@@ -103,7 +103,8 @@ const fetchStories = async (program: any, entities: Entities) => {
 };
 
 const searchStories = async (program: any) => {
-    let result = await client.searchStories(program.args.join(' '));
+    const query = program.args.join(' ').replace('%self%', config.mentionName);
+    let result = await client.searchStories(query);
     let stories = result.data;
     while (result.next) {
         result = await client.getResource(result.next);
