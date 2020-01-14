@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Respect XDG_CONFIG_HOME for the config location
 ### Changed
+- The `mentionName` and `urlSlug` (previously names `workspaceName`)
+  configuration now get set automatically.
+- The config is now only read once (unless noted otherwise)
 ### Deprecated
 ### Removed
 ### Fixed
