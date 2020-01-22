@@ -6,17 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Respect XDG_CONFIG_HOME for the config location
 ### Changed
-- The `mentionName` and `urlSlug` (previously names `workspaceName`)
-  configuration now get set automatically.
-- The config is now only read once (unless noted otherwise)
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
 
 ---
+
+## [2.2.0] - 2020-01-22
+### Added
+- Respect `XDG_CONFIG_HOME` for the config location.
+### Changed
+- The `mentionName` and `urlSlug` (previously names `workspaceName`) configuration now get set automatically.
+- The config is now only read once (unless noted otherwise).
+### Security
+- General dependency renovations.
+### Upgrading
+You will be prompted to run `club install --refresh` upon upgrading to this version, which will pull from the new current member API endpoint to load workspace information into the saved config.
 
 ## [2.1.0] - 2020-01-12
 ### Added
