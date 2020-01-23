@@ -277,7 +277,7 @@ const printFormattedStory = (program: any) => {
     \tState:      %s
     \tLabels:     %l
     \tURL:        %u
-    \tCreated:    %c\tUpdated: %u
+    \tCreated:    %c\tUpdated: %updated
     \tArchived:   %a
     `;
         const format = program.format || defaultFormat;
@@ -314,7 +314,7 @@ const printFormattedStory = (program: any) => {
                 )
                 .replace(/%u/, url)
                 .replace(/%c/, `${story.created_at}`)
-                .replace(/%u/, `${story.updated_at !== story.created_at ? story.updated_at : '_'}`)
+                .replace(/%updated/, `${story.updated_at !== story.created_at ? story.updated_at : '_'}`)
                 .replace(/%a/, `${story.archived}`)
         );
         return story;

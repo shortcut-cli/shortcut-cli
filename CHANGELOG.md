@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.1] - 2020-01-23
+### Fixed
+- Allow story updated timestamp to be printed with custom formatter.
+
 ## [2.2.0] - 2020-01-22
 ### Added
 - Respect `XDG_CONFIG_HOME` for the config location.

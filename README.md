@@ -106,21 +106,21 @@ $ club search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
 Templating variables:
 
 ~~~
-%id     Print ID of story
-%t      Print title/name of story
-%a      Print archived status of story
-%o      Print owners of story
-%l      Print labels on story
-%u      Print URL of story
-%epic   Print epic of story
-%i      Print iteration of story
-%p      Print project of story
-%y      Print story type
-%e      Print story estimate
-%s      Print story state
-%c      Print story creation timestamp
-%u      Print story updated timestamp (if different from created)
-%j      Print full story as formatted JSON
+%id      Print ID of story
+%t       Print title/name of story
+%a       Print archived status of story
+%o       Print owners of story
+%l       Print labels on story
+%u       Print URL of story
+%epic    Print epic of story
+%i       Print iteration of story
+%p       Print project of story
+%y       Print story type
+%e       Print story estimate
+%s       Print story state
+%c       Print story creation timestamp
+%updated Print story updated timestamp (if different from created)
+%j       Print full story as formatted JSON
 ~~~
 
 Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and `\n` (newline) literals in the formatting string. Otherwise, you can actually just type a newline character.
