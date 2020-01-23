@@ -294,12 +294,12 @@ const printFormattedStory = (program: any) => {
                 .replace(/%t/, chalk.blue(`${story.name}`))
                 .replace(/%d/, story.description || '')
                 .replace(/%y/, story.story_type)
-                .replace(/%e/, `${story.estimate || '_'}`)
                 .replace(/%l/, labels.join(', ') || '_')
                 .replace(
                     /%epic/,
                     story.epic_id ? `${(story.epic || ({} as Epic)).name} (#${story.epic_id})` : '_'
                 )
+                .replace(/%e/, `${story.estimate || '_'}`)
                 .replace(
                     /%i/,
                     story.iteration_id
@@ -312,9 +312,9 @@ const printFormattedStory = (program: any) => {
                     /%s/,
                     `${(story.state || ({} as WorkflowState)).name} (#${story.workflow_state_id})`
                 )
-                .replace(/%u/, url)
                 .replace(/%c/, `${story.created_at}`)
                 .replace(/%updated/, `${story.updated_at !== story.created_at ? story.updated_at : '_'}`)
+                .replace(/%u/, url)
                 .replace(/%a/, `${story.archived}`)
         );
         return story;
