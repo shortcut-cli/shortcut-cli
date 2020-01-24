@@ -107,7 +107,10 @@ const searchStories = async (program: any) => {
     let result = await client.searchStories(query);
     let stories = result.data;
     while (result.next) {
-        result = await client.getResource(result.next);
+        // There is bug in Clubhouse API that returns /api/beta
+        // This can be removed once Clubhouse fixes the issue.
+        const sanitizedUrl = result.next.replace(/^\/api\/beta\//, '');
+        result = await client.getResource(sanitizedUrl);
         stories = stories.concat(result.data);
     }
     return stories;
