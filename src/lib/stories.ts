@@ -313,7 +313,10 @@ const printFormattedStory = (program: any) => {
                     `${(story.state || ({} as WorkflowState)).name} (#${story.workflow_state_id})`
                 )
                 .replace(/%c/, `${story.created_at}`)
-                .replace(/%updated/, `${story.updated_at !== story.created_at ? story.updated_at : '_'}`)
+                .replace(
+                    /%updated/,
+                    `${story.updated_at !== story.created_at ? story.updated_at : '_'}`
+                )
                 .replace(/%u/, url)
                 .replace(/%a/, `${story.archived}`)
         );
