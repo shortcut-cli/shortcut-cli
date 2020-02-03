@@ -10,11 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Removed
 ### Fixed
-- Fix bug in /api/v3 which returns an invalid URL that could not be processed by
-  the client.
 ### Security
 
 ---
+
+## [2.2.3] - 2020-02-03
+### Fixed
+- Fix bug in `clubhouse-lib` `/api/v3` which returns an invalid URL that could not be processed by the client.
 
 ## [2.2.2] - 2020-01-23
 ## [2.2.1] - 2020-01-23
