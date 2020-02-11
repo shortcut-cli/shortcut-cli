@@ -14,6 +14,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.4] - 2020-02-04
+## [2.2.3] - 2020-02-03
+### Fixed
+- Fix bug in `clubhouse-lib` `/api/v3` which returns an invalid URL that could not be processed by the client.
+
+## [2.2.2] - 2020-01-23
+## [2.2.1] - 2020-01-23
+### Fixed
+- Allow story updated timestamp to be printed with custom formatter.
+
+## [2.2.0] - 2020-01-22
+### Added
+- Respect `XDG_CONFIG_HOME` for the config location.
+### Changed
+- The `mentionName` and `urlSlug` (previously names `workspaceName`) configuration now get set automatically.
+- The config is now only read once (unless noted otherwise).
+### Security
+- General dependency renovations.
+### Upgrading
+You will be prompted to run `club install --refresh` upon upgrading to this version, which will pull from the new current member API endpoint to load workspace information into the saved config.
+
+## [2.1.0] - 2020-01-12
+### Added
+- In `club search`, replace `%self%` with the user's mention name.
+- Accept options to open the story's epic, iteration and/or project.
+- Use `xdg-open` on non-macOS platform.
+- Add the `Config` interface and added `workspaceName` as a parameter.
+### Security
+- Several dependency upgrades via Renovatebot.
+
 ## [2.0.6] - 2019-11-06
 ### Changed
 - Upgrade to latest `clubhouse-lib`.

@@ -103,10 +103,14 @@ const fetchStories = async (program: any, entities: Entities) => {
 };
 
 const searchStories = async (program: any) => {
-    let result = await client.searchStories(program.args.join(' '));
+    const query = program.args.join(' ').replace('%self%', config.mentionName);
+    let result = await client.searchStories(query);
     let stories = result.data;
     while (result.next) {
-        result = await client.getResource(result.next);
+        // There is bug in Clubhouse API that returns /api/beta
+        // This can be removed once Clubhouse fixes the issue.
+        const sanitizedUrl = result.next.replace(/^\/api\/beta\//, '');
+        result = await client.getResource(sanitizedUrl);
         stories = stories.concat(result.data);
     }
     return stories;
@@ -276,7 +280,7 @@ const printFormattedStory = (program: any) => {
     \tState:      %s
     \tLabels:     %l
     \tURL:        %u
-    \tCreated:    %c\tUpdated: %u
+    \tCreated:    %c\tUpdated: %updated
     \tArchived:   %a
     `;
         const format = program.format || defaultFormat;
@@ -293,12 +297,12 @@ const printFormattedStory = (program: any) => {
                 .replace(/%t/, chalk.blue(`${story.name}`))
                 .replace(/%d/, story.description || '')
                 .replace(/%y/, story.story_type)
-                .replace(/%e/, `${story.estimate || '_'}`)
                 .replace(/%l/, labels.join(', ') || '_')
                 .replace(
                     /%epic/,
                     story.epic_id ? `${(story.epic || ({} as Epic)).name} (#${story.epic_id})` : '_'
                 )
+                .replace(/%e/, `${story.estimate || '_'}`)
                 .replace(
                     /%i/,
                     story.iteration_id
@@ -311,17 +315,27 @@ const printFormattedStory = (program: any) => {
                     /%s/,
                     `${(story.state || ({} as WorkflowState)).name} (#${story.workflow_state_id})`
                 )
-                .replace(/%u/, url)
                 .replace(/%c/, `${story.created_at}`)
-                .replace(/%u/, `${story.updated_at !== story.created_at ? story.updated_at : '_'}`)
+                .replace(
+                    /%updated/,
+                    `${story.updated_at !== story.created_at ? story.updated_at : '_'}`
+                )
+                .replace(/%u/, url)
                 .replace(/%a/, `${story.archived}`)
         );
         return story;
     };
 };
 
-//TODO: Add workspace name in URL to avoid extra redirect.
-const storyURL = (story: Story) => `https://app.clubhouse.io/story/${story.id}`;
+const buildURL = (...segments: (string | number)[]): string => {
+    return [
+        'https://app.clubhouse.io',
+        config.urlSlug,
+        ...segments.map(item => item.toString()),
+    ].join('/');
+};
+
+const storyURL = (story: Story) => buildURL('story', story.id);
 
 const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     const labels = story.labels.map(l => {
@@ -434,4 +448,5 @@ export default {
     findLabelNames,
     fileURL,
     storyURL,
+    buildURL,
 };

@@ -1,6 +1,6 @@
 {
   "name": "clubhouse-cli",
-  "version": "2.0.6",
+  "version": "2.2.4",
   "description": "A command line tool for viewing, creating and updating clubhouse.io stories",
   "main": "index.js",
   "engines": {
@@ -37,27 +37,27 @@
   "dependencies": {
     "chalk": "^2.2.0",
     "cli-spinner": "^0.2.6",
-    "clubhouse-lib": "0.9.0",
+    "clubhouse-lib": "0.10.0",
     "commander": "^2.12.0",
-    "debug": "^3.1.0",
+    "debug": "^4.0.0",
     "prompt": "^1.0.0"
   },
   "devDependencies": {
-    "@types/chalk": "^2.2.0",
-    "@types/cli-spinner": "^0.2.0",
-    "@types/debug": "^4.1.2",
-    "@types/node": "^11.11.4",
-    "@types/node-fetch": "^2.1.7",
-    "babel-eslint": "^8.0.1",
-    "eslint": "^4.10.0",
-    "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-babel": "^4.1.2",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-node": "^5.2.1",
-    "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "prettier": "^1.18.2",
-    "source-map-support": "^0.5.11",
-    "typescript": "^3.4.5"
+    "@types/chalk": "2.2.0",
+    "@types/cli-spinner": "0.2.0",
+    "@types/debug": "4.1.5",
+    "@types/node": "12.12.25",
+    "@types/node-fetch": "2.5.4",
+    "babel-eslint": "10.0.3",
+    "eslint": "6.8.0",
+    "eslint-config-standard": "14.1.0",
+    "eslint-plugin-babel": "5.3.0",
+    "eslint-plugin-import": "2.20.1",
+    "eslint-plugin-node": "11.0.0",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-standard": "4.0.1",
+    "prettier": "1.19.1",
+    "source-map-support": "0.5.16",
+    "typescript": "3.7.5"
   }
 }
