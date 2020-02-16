@@ -14,6 +14,7 @@ const program = commander
     .option('-a, --archived', 'List only epics including archived', '')
     .option('-c, --completed', 'List only epics that have been completed', '')
     .option('-d, --detailed', 'List more details for each epic', '')
+    .option('-M, --milestone [query]', 'List epics in milestone matching id', '')
     .option('-t, --title [query]', 'List epics with name/title containing query', '')
     .option('-s, --started', 'List epics that have been started', '')
     .parse(process.argv);
@@ -23,14 +24,24 @@ const main = async () => {
     const epics = await client.listEpics();
     spin.stop(true);
     const textMatch = new RegExp(program.title, 'i');
-    epics.filter((epic: Epic) => !!`${epic.name} ${epic.name}`.match(textMatch)).map(printItem);
+    const milestoneMatch = new RegExp(program.milestone, 'i');
+    epics
+        .filter((epic: Epic) => {
+            return (
+                !!`${epic.name} ${epic.name}`.match(textMatch) &&
+                !!(program.milestone && `${epic.milestone_id}`.match(milestoneMatch))
+            );
+        })
+        .map(printItem);
 };
 
 const printItem = (epic: Epic) => {
     if (epic.archived && !program.archived) return;
     if (!epic.started && program.started) return;
     if (!epic.completed && program.completed) return;
+
     log(chalk.bold(`#${epic.id}`) + chalk.blue(` ${epic.name}`));
+    log(chalk.bold('Milestone:     ') + ` ${epic.milestone_id || '_'}`);
     log(chalk.bold('State:         ') + ` ${epic.state}`);
     log(chalk.bold('Deadline:      ') + ` ${epic.deadline || '_'}`);
     log(chalk.bold('Points:        ') + ` ${epic.stats.num_points}`);
