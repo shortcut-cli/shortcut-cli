@@ -28,7 +28,7 @@ const main = async () => {
         .filter((epic: Epic) => {
             return (
                 !!`${epic.name} ${epic.name}`.match(textMatch) &&
-                !!(program.milestone && epic.milestone_id == program.milestone )
+                !!(program.milestone ? epic.milestone_id == program.milestone : true)
             );
         })
         .map(printItem);
