@@ -14,7 +14,7 @@ const program = commander
     .option('-a, --archived', 'List only epics including archived', '')
     .option('-c, --completed', 'List only epics that have been completed', '')
     .option('-d, --detailed', 'List more details for each epic', '')
-    .option('-M, --milestone [query]', 'List epics in milestone matching id', '')
+    .option('-M, --milestone [ID]', 'List epics in milestone matching id', '')
     .option('-t, --title [query]', 'List epics with name/title containing query', '')
     .option('-s, --started', 'List epics that have been started', '')
     .parse(process.argv);
@@ -24,12 +24,11 @@ const main = async () => {
     const epics = await client.listEpics();
     spin.stop(true);
     const textMatch = new RegExp(program.title, 'i');
-    const milestoneMatch = new RegExp(program.milestone, 'i');
     epics
         .filter((epic: Epic) => {
             return (
                 !!`${epic.name} ${epic.name}`.match(textMatch) &&
-                !!(program.milestone && `${epic.milestone_id}`.match(milestoneMatch))
+                !!(program.milestone && epic.milestone_id == program.milestone )
             );
         })
         .map(printItem);
