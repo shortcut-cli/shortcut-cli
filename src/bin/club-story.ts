@@ -131,7 +131,7 @@ const main = async () => {
         }
         if (branch.match(/\*.*[0-9]+/)) {
             debug('parsing story ID from git branch:', branch);
-            let id = parseInt(branch.match(/\*.*/)[0].match(/[0-9]+/)[0], 10);
+            let id = parseInt(branch.match(/\*.*/)[0].match(/\/ch([0-9]+)/)[1], 10);
             debug('parsed story ID from git branch:', id);
             if (id) {
                 gitID.push(id.toString());
