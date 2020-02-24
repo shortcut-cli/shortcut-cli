@@ -259,7 +259,7 @@ Comment: This is a commend
     -a, --archived            List only epics including archived
     -c, --completed           List only epics that have been completed
     -d, --detailed            List more details for each epic
-    -M, --milestone [query]   List only epics with the given milestone ID
+    -M, --milestone [ID]   List only epics with the given milestone ID
     -t, --title [query]       List epics with name/title containing query
     -s, --started             List epics that have been started
     -h, --help                output usage information
