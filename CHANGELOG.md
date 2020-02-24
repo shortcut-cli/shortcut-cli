@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.0] - 2020-02-24
+### Added
+- Allow filtering of epics by related milestone ID.
+### Fixed
+- Prevent accidental git branch story ID matches on usernames with numbers.
+### Security
+- Dependency updates.
+
 ## [2.2.4] - 2020-02-04
 ## [2.2.3] - 2020-02-03
 ### Fixed
