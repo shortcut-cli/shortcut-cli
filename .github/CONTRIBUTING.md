@@ -4,8 +4,7 @@ This project adheres to the [Contributor Covenant](http://contributor-covenant.o
 
 ## How to Contribute
 
-Please make sure that your contribution fits well in the project's style & concept:
-- Pass all tests
+Please make sure that your contribution fits well in the project's style & concept.
 
 ## Creating an Issue
 
@@ -21,7 +20,6 @@ Check the [Issues](https://github.com/andjosh/clubhouse-cli/issues) on Github to
 
 - Create a topic branch from the development branch with the issue number `EX. #200_make_changes`
 - Keep git commit messages clear and appropriate
-- Make sure you have added any tests necessary to test your code. npm test
 - Update the Documentation to go along with any changes in functionality / improvements.
 
 ## Submitting the Pull Request
