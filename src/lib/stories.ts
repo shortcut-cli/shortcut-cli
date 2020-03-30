@@ -424,7 +424,7 @@ const checkoutStoryBranch = (story: StoryHydrated, prefix: string = '') => {
         .replace(/-$/, '');
     const branch = `${prefix}${slug}`;
     debug('checking out git branch: ' + branch);
-    execSync('git checkout -b ' + branch);
+    execSync(`git checkout ${branch} 2> /dev/null || git checkout -b ${branch}`);
 };
 
 // @ts-ignore
