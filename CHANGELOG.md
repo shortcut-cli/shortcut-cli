@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.1] - 2020-03-30
+### Fixed
+- Handle checking out to existing branches with `--git-branch`.
+### Security
+- Upgrade dependencies.
+
 ## [2.3.0] - 2020-02-24
 ### Added
 - Allow filtering of epics by related milestone ID.
