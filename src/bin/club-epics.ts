@@ -14,6 +14,7 @@ const program = commander
     .option('-a, --archived', 'List only epics including archived', '')
     .option('-c, --completed', 'List only epics that have been completed', '')
     .option('-d, --detailed', 'List more details for each epic', '')
+    .option('-f, --format [template]', 'Format each epic output by template', '')
     .option('-M, --milestone [ID]', 'List epics in milestone matching id', '')
     .option('-t, --title [query]', 'List epics with name/title containing query', '')
     .option('-s, --started', 'List epics that have been started', '')
@@ -39,29 +40,40 @@ const printItem = (epic: Epic) => {
     if (!epic.started && program.started) return;
     if (!epic.completed && program.completed) return;
 
-    log(chalk.bold(`#${epic.id}`) + chalk.blue(` ${epic.name}`));
-    log(chalk.bold('Milestone:     ') + ` ${epic.milestone_id || '_'}`);
-    log(chalk.bold('State:         ') + ` ${epic.state}`);
-    log(chalk.bold('Deadline:      ') + ` ${epic.deadline || '_'}`);
-    log(chalk.bold('Points:        ') + ` ${epic.stats.num_points}`);
-    log(chalk.bold('Points Started:') + ` ${epic.stats.num_points_started}`);
-    log(chalk.bold('Points Done:   ') + ` ${epic.stats.num_points_done}`);
-    log(
-        chalk.bold('Completion:    ') +
-            ` ${Math.round((epic.stats.num_points_done / (epic.stats.num_points || 1)) * 100)}%`
-    );
+    var defaultFormat = `#%id %t\nMilestone:\t%m\nState:\t\t%s\nDeadline:\t%dl\n`;
+    defaultFormat += `Points:\t\t%p\nPoints Started: %ps\nPoints Done:\t%pd\nCompletion:\t%c\n`;
     if (epic.archived) {
-        log(chalk.bold('Archived:      ') + ` ${epic.archived}`);
+        defaultFormat += `Archived:\t%ar\n`;
     }
     if (epic.started) {
-        log(chalk.bold('Started:       ') + ` ${epic.started_at}`);
+        defaultFormat += `Started:\t%st\n`;
     }
     if (epic.completed) {
-        log(chalk.bold('Completed:     ') + ` ${epic.completed_at}`);
+        defaultFormat += `Completed:\t%co\n`;
     }
     if (program.detailed) {
-        log(chalk.bold('Description:    ') + ` ${epic.description}`);
+        defaultFormat += `Description:\t%d\n`;
     }
-    log();
+
+    const format = program.format || defaultFormat;
+    log(
+        format
+            .replace(/%id/, chalk.bold(`${epic.id}`))
+            .replace(/%t/, chalk.blue(`${epic.name}`))
+            .replace(/%m/, `${epic.milestone_id || '_'}`)
+            .replace(/%s/, `${epic.state}`)
+            .replace(/%dl/, `${epic.deadline || '_'}`)
+            .replace(/%d/, `${epic.description}`)
+            .replace(/%p/, `${epic.stats.num_points}`)
+            .replace(/%ps/, `${epic.stats.num_points_started}`)
+            .replace(/%pd/, `${epic.stats.num_points_done}`)
+            .replace(
+                /%c/,
+                `${Math.round((epic.stats.num_points_done / (epic.stats.num_points || 1)) * 100)}%`
+            )
+            .replace(/%ar/, `${epic.archived}`)
+            .replace(/%st/, `${epic.started_at}`)
+            .replace(/%co/, `${epic.completed_at}`)
+    );
 };
 main();
