@@ -71,7 +71,7 @@ const printItem = (epic: Epic) => {
                 /%c/,
                 `${Math.round((epic.stats.num_points_done / (epic.stats.num_points || 1)) * 100)}%`
             )
-            .replace(/%ar/, `${epic.archived}`)
+            .replace(/%a/, `${epic.archived}`)
             .replace(/%st/, `${epic.started_at}`)
             .replace(/%co/, `${epic.completed_at}`)
     );
