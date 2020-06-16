@@ -12,6 +12,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "start": "node -r source-map-support/register build/bin/club.js",
     "test": "npm run test:format",
     "test:format": "prettier --list-different src/**/*.ts",
     "format": "prettier --write src/**/*.ts",

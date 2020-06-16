@@ -259,10 +259,31 @@ Comment: This is a commend
     -a, --archived            List only epics including archived
     -c, --completed           List only epics that have been completed
     -d, --detailed            List more details for each epic
+    -f, --format [template]   Format epic output by template
     -M, --milestone [ID]      List only epics with the given milestone ID
     -t, --title [query]       List epics with name/title containing query
     -s, --started             List epics that have been started
     -h, --help                output usage information
+~~~
+
+#### Epic Output Formatting
+
+Templating variables:
+
+~~~
+%id      Print ID of epic
+%t       Print title/name of epic
+%m       Print milestone of epic
+%s       Print epic state
+%dl      Print epic deadline
+%d       Print epic description
+%p       Print epic total points
+%ps      Print epic total points started
+%pd      Print epic total points done
+%c       Print epic total completion percentage
+%a       Print archived status of epic
+%st      Print started status of epic
+%co      Print completed status of epic
 ~~~
 
 ### Workflows
