@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.4.0] - 2020-06-16
+### Added
+- Allow custom formatting of epics via `club epics --format` (thanks [@gowabash](https://github.com/gowabash)!)
+### Security
+- Upgrade dependencies.
+
 ## [2.3.1] - 2020-03-30
 ### Fixed
 - Handle checking out to existing branches with `--git-branch`.
