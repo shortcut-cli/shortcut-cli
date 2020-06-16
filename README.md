@@ -354,7 +354,7 @@ $ npm run build:watch
 You can run clubhouse-cli with typescript map enabled:
 
 ~~~sh
-$ npm start -- story 1234
+$ npm start -- club story 1234
 ~~~
 
 ## Acknowledgments
