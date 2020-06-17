@@ -420,7 +420,7 @@ const buildStoryBranch = (story: StoryHydrated, prefix: string = '') => {
     prefix = prefix || `${config.mentionName}/ch${story.id}/${story.story_type}-`;
     let slug = story.name
         .toLowerCase()
-        .replace(/\s/g, '-')
+        .replace(/\W/g, '-')
         .replace(/[^a-z0-9-]/g, '')
         .slice(0, 30)
         .replace(/-$/, '');
