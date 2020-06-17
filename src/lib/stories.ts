@@ -319,7 +319,8 @@ const printFormattedStory = (program: any) => {
                 )
                 .replace(/%u/, url)
                 .replace(/%a/, `${story.archived}`)
-                .replace(/%gb/, `${buildStoryBranch(story)}`)
+                .replace(/%gbf/, `${buildStoryBranch(story)}`)
+                .replace(/%gbs/, `${buildStoryBranch(story, `${config.mentionName}/ch${story.id}/`)}`)
         );
         return story;
     };
