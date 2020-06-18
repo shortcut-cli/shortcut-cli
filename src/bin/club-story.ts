@@ -95,7 +95,7 @@ const main = async () => {
     }
     if (program.type) {
         const typeMatch = new RegExp(program.type, 'i');
-        update.story_type = ['feature', 'bug', 'chore'].filter(t => {
+        update.story_type = ['feature', 'bug', 'chore'].filter((t) => {
             return !!t.match(typeMatch);
         })[0] as StoryType;
     }
@@ -142,8 +142,8 @@ const main = async () => {
             process.exit(2);
         }
     }
-    let argIDs = program.args.map(a => (a.match(/\d+/) || [])[0]);
-    argIDs.concat(gitID).map(async id => {
+    let argIDs = program.args.map((a) => (a.match(/\d+/) || [])[0]);
+    argIDs.concat(gitID).map(async (id) => {
         let story;
         try {
             if (program.comment) {
@@ -205,7 +205,7 @@ const main = async () => {
                         state: story.workflow_state_id.toString(),
                         sort: 'state.position:asc,position:asc',
                     });
-                    let siblingIds = siblings.map(s => s.id);
+                    let siblingIds = siblings.map((s) => s.id);
                     let storyIndex = siblingIds.indexOf(~~id);
                     if (program.moveAfter) {
                         update.after_id = ~~program.moveAfter;
@@ -280,7 +280,7 @@ const downloadFiles = (story: Story) => {
     story.files.map((file: File) => {
         const filePath = path.join(program.downloadDir, file.name);
         log(chalk.bold('Downloading file to: ') + filePath);
-        return fetch(storyLib.fileURL(file)).then(res =>
+        return fetch(storyLib.fileURL(file)).then((res) =>
             res.body.pipe(fs.createWriteStream(filePath))
         );
     });

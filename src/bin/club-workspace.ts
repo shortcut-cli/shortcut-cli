@@ -30,7 +30,7 @@ const main = async () => {
         return;
     } else if (program.list) {
         log('Workspaces:');
-        Object.keys(config.workspaces).map(w => {
+        Object.keys(config.workspaces).map((w) => {
             log(' ', w + ':', toArgs(config.workspaces[w]));
         });
         return;
@@ -74,5 +74,5 @@ main();
 
 const toArgs = (obj: any) =>
     Object.keys(obj)
-        .map(k => `--${k} '${obj[k]}'`)
+        .map((k) => `--${k} '${obj[k]}'`)
         .join(' ');
