@@ -319,6 +319,8 @@ const printFormattedStory = (program: any) => {
                 )
                 .replace(/%u/, url)
                 .replace(/%a/, `${story.archived}`)
+                .replace(/%gbs/, `${buildStoryBranch(story, `${config.mentionName}/ch${story.id}/`)}`)
+                .replace(/%gb/, `${buildStoryBranch(story)}`)
         );
         return story;
     };
@@ -414,15 +416,19 @@ const parseDateComparator: (arg: string) => (date: string) => boolean = arg => {
     };
 };
 
-const checkoutStoryBranch = (story: StoryHydrated, prefix: string = '') => {
+const buildStoryBranch = (story: StoryHydrated, prefix: string = '') => {
     prefix = prefix || `${config.mentionName}/ch${story.id}/${story.story_type}-`;
     let slug = story.name
         .toLowerCase()
-        .replace(/\s/g, '-')
+        .replace(/\W/g, '-')
         .replace(/[^a-z0-9-]/g, '')
         .slice(0, 30)
         .replace(/-$/, '');
-    const branch = `${prefix}${slug}`;
+    return `${prefix}${slug}`;
+}
+
+const checkoutStoryBranch = (story: StoryHydrated, prefix: string = '') => {
+    const branch = buildStoryBranch(story, prefix);
     debug('checking out git branch: ' + branch);
     execSync(`git checkout ${branch} 2> /dev/null || git checkout -b ${branch}`);
 };
