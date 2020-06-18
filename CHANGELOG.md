@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.0] - 2020-06-18
+### Added
+- Add story formatting options for git branch and git branch short-name (thanks [@jshmfrankel](https://github.com/joshmfrankel)!)
+
 ## [2.4.0] - 2020-06-16
 ### Added
 - Allow custom formatting of epics via `club epics --format` (thanks [@gowabash](https://github.com/gowabash)!)
