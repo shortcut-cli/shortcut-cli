@@ -1,4 +1,13 @@
 version: 2
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build_node_10
+      - build_node_11
+      - build_node_12
+      - build_node_13
+      - build_node_14
 jobs:
   build_node_14:
     docker:
