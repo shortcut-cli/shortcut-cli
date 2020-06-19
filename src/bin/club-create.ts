@@ -8,7 +8,9 @@ import client from '../lib/client';
 import { Epic, Iteration, Project, Story, WorkflowState } from 'clubhouse-lib';
 import spinner from '../lib/spinner';
 import * as commander from 'commander';
+import { loadConfig } from '../lib/configure';
 
+const config = loadConfig();
 const spin = spinner();
 const log = console.log;
 const program = commander
@@ -21,6 +23,10 @@ const program = commander
         '--git-branch',
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
             '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
+    )
+    .option(
+        '--git-branch-short',
+        'Checkout git branch from story slug <mention-name>/ch<id>/<title>'
     )
     .option('-i, --iteration [id|name]', 'Set iteration of story')
     .option('-I, --idonly', 'Print only ID of story result')
@@ -84,6 +90,8 @@ const main = async () => {
         storyLib.printDetailedStory(story);
         if (program.gitBranch) {
             storyLib.checkoutStoryBranch(story);
+        } else if (program.gitBranchShort) {
+            storyLib.checkoutStoryBranch(story, `${config.mentionName}/ch${story.id}/`);
         }
         if (program.open) {
             exec('open ' + storyLib.storyURL(story));

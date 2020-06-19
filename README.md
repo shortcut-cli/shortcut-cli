@@ -214,6 +214,7 @@ Comment: This is a commend
     -h, --help                output usage information
     --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
                               as required by the Git integration: https://bit.ly/2RKO1FF
+    --git-branch-short        Checkout git branch from story slug <mention-name>/ch<id>/<title>
 ~~~
 
 ### Workspace
