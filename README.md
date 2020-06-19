@@ -370,3 +370,4 @@ $ npm start -- story 1234
 ## Contributors
 - [andjosh](https://github.com/andjosh)
 - [j-martin](https://github.com/j-martin)
+- [joshmfrankel](https://github.com/joshmfrankel)
