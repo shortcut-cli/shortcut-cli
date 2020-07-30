@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.2] - 2020-07-30
 ## [2.6.1] - 2020-07-30
 ### Fixed
 - Return clearer error message when trying to open the epic or iteration when the story is not assign to one or the other
