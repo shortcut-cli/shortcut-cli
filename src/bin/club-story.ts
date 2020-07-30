@@ -241,10 +241,26 @@ const main = async () => {
         if (!program.idonly) spin.stop(true);
         if (story) {
             printStory(story, entities);
-            if (program.open) openURL(storyLib.storyURL(story));
-            if (program.openEpic) openURL(storyLib.buildURL('epic', story.epic_id));
-            if (program.openIteration) openURL(storyLib.buildURL('iteration', story.iteration_id));
-            if (program.openProject) openURL(storyLib.buildURL('project', story.project_id));
+            if (program.open) {
+                openURL(storyLib.storyURL(story));
+            }
+            if (program.openEpic) {
+                if (!story.epic_id) {
+                    logError('This story is not part of an epic.');
+                    process.exit(21);
+                }
+                openURL(storyLib.buildURL('epic', story.epic_id));
+            }
+            if (program.openIteration) {
+                if (!story.iteration_id) {
+                    logError('This story is not part of an iteration.');
+                    process.exit(22);
+                }
+                openURL(storyLib.buildURL('iteration', story.iteration_id));
+            }
+            if (program.openProject) {
+                openURL(storyLib.buildURL('project', story.project_id));
+            }
         }
         if (program.download) {
             downloadFiles(story);
