@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Add `prepublish` hook to ensure the project is built before it's being published.
 ### Changed
 ### Deprecated
 ### Removed
