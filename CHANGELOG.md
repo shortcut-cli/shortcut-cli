@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Add `prepublish` hook to ensure the project is built before it's being published.
 ### Changed
 ### Deprecated
 ### Removed
@@ -14,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
+
+## [2.7.0] - 2020-08-17
+### Added
+- Add support for story search via estimate (thanks [@jbcrail](https://github.com/jbcrail)!).
+- Add `prepublish` hook to ensure the project is built before it's being published.
 
 ## [2.6.3] - 2020-07-30
 ## [2.6.2] - 2020-07-30
