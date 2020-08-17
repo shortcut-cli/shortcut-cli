@@ -36,6 +36,11 @@ export const program = commander
     .option('-S, --save [name]', 'Save search configuration as workspace')
     .option('-t, --text [name]', 'Stories with text in name, by regex', '')
     .option(
+        '-e, --estimate [operator][number]',
+        'Stories estimated within criteria (operator is one of <|>|=)',
+        ''
+    )
+    .option(
         '-u, --updated [operator][date]',
         'Stories updated within criteria (operator is one of <|>|=)',
         ''

@@ -186,6 +186,10 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
     if (program.updated) {
         updated_at = parseDateComparator(program.updated);
     }
+    let estimate: any;
+    if (program.estimate) {
+        estimate = parseNumberComparator(program.estimate);
+    }
     let regexLabel = new RegExp(program.label, 'i');
     let regexState = new RegExp(program.state, 'i');
     let regexOwner = new RegExp(program.owner, 'i');
@@ -236,7 +240,10 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
             if (created_at && !created_at(s.created_at)) {
                 return false;
             }
-            return !(updated_at && !updated_at(s.updated_at));
+            if (updated_at && !updated_at(s.updated_at)) {
+                return false;
+            }
+            return !(estimate && !estimate(s.estimate));
         });
 };
 
@@ -415,6 +422,23 @@ const parseDateComparator: (arg: string) => (date: string) => boolean = (arg) =>
             case '=':
             default:
                 return new Date(date.slice(0, match[0].length)).getTime() === parsedDate.getTime();
+        }
+    };
+};
+
+const parseNumberComparator: (arg: string) => (n: number) => boolean = (arg) => {
+    const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 30 } };
+    const parsedNumber = Number(arg.slice(match.index));
+    const comparator = arg.slice(0, match.index).trimRight();
+    return (n) => {
+        switch (comparator) {
+            case '<':
+                return Number(n) < parsedNumber;
+            case '>':
+                return Number(n) > parsedNumber;
+            case '=':
+            default:
+                return Number(n) === parsedNumber;
         }
     };
 };
