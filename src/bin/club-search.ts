@@ -35,6 +35,7 @@ export const program = commander
     .option('-i, --iteration [id|name]', 'Stories in iteration id/name, by regex', '')
     .option('-S, --save [name]', 'Save search configuration as workspace')
     .option('-t, --text [name]', 'Stories with text in name, by regex', '')
+    .option('-e, --estimate [operator][number]', '', '')
     .option(
         '-u, --updated [operator][date]',
         'Stories updated within criteria (operator is one of <|>|=)',
