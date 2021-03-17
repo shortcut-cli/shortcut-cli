@@ -10,6 +10,8 @@ import spinner from '../lib/spinner';
 import * as commander from 'commander';
 import { loadConfig } from '../lib/configure';
 
+const inquirer = require('inquirer');
+
 const config = loadConfig();
 const spin = spinner();
 const log = console.log;
@@ -22,7 +24,7 @@ const program = commander
     .option(
         '--git-branch',
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
-            '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
+        '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
     )
     .option(
         '--git-branch-short',
@@ -37,64 +39,86 @@ const program = commander
     .option('-t, --title [text]', 'Set title of story, required', '')
     .option('-s, --state [id|name]', 'Set workflow state of story', '')
     .option('-y, --type [name]', 'Set type of story, default: feature', 'feature')
+    .option('--interactive', 'Create story with interactive mode')
     .parse(process.argv);
 
 const main = async () => {
     const entities = await storyLib.fetchEntities();
-    if (!program.idonly) spin.start();
-    let update = {
-        name: program.title,
-        story_type: program.type,
-        description: `${program.description}`,
-        estimate: program.estimate || undefined,
-    } as Story;
-    if (program.project) {
-        update.project_id = (storyLib.findProject(entities, program.project) || ({} as Project)).id;
-    }
-    if (program.state) {
-        update.workflow_state_id = (
-            storyLib.findState(entities, program.state) || ({} as WorkflowState)
-        ).id;
-    }
-    if (program.epic) {
-        update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
-    }
-    if (program.iteration) {
-        update.iteration_id = (
-            storyLib.findIteration(entities, program.iteration) || ({} as Iteration)
-        ).id;
-    }
-    if (program.estimate) {
-        update.estimate = parseInt(program.estimate, 10);
-    }
-    if (program.owners) {
-        update.owner_ids = storyLib.findOwnerIds(entities, program.owners);
-    }
-    if (program.label) {
-        update.labels = storyLib.findLabelNames(entities, program.label);
-    }
-    let story: StoryHydrated;
-    if (!update.name || !update.project_id) {
-        if (!program.idonly) spin.stop(true);
-        log('Must provide --title and --project');
+
+    if (program.interactive) {
+
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'title',
+                message: "Title",
+            },
+            {
+                type: 'input',
+                name: 'description',
+                message: "Description",
+            },
+        ]).then((sad) => {
+            console.log(JSON.stringify(sad, null, '  '));
+        });
+
     } else {
-        try {
-            story = await client.createStory(update);
-        } catch (e) {
-            log('Error creating story');
+
+        if (!program.idonly) spin.start();
+        let update = {
+            name: program.title,
+            story_type: program.type,
+            description: `${program.description}`,
+            estimate: program.estimate || undefined,
+        } as Story;
+        if (program.project) {
+            update.project_id = (storyLib.findProject(entities, program.project) || ({} as Project)).id;
         }
-    }
-    if (!program.idonly) spin.stop(true);
-    if (story) {
-        story = storyLib.hydrateStory(entities, story);
-        storyLib.printDetailedStory(story);
-        if (program.gitBranch) {
-            storyLib.checkoutStoryBranch(story);
-        } else if (program.gitBranchShort) {
-            storyLib.checkoutStoryBranch(story, `${config.mentionName}/ch${story.id}/`);
+        if (program.state) {
+            update.workflow_state_id = (
+                storyLib.findState(entities, program.state) || ({} as WorkflowState)
+            ).id;
         }
-        if (program.open) {
-            exec('open ' + storyLib.storyURL(story));
+        if (program.epic) {
+            update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
+        }
+        if (program.iteration) {
+            update.iteration_id = (
+                storyLib.findIteration(entities, program.iteration) || ({} as Iteration)
+            ).id;
+        }
+        if (program.estimate) {
+            update.estimate = parseInt(program.estimate, 10);
+        }
+        if (program.owners) {
+            update.owner_ids = storyLib.findOwnerIds(entities, program.owners);
+        }
+        if (program.label) {
+            update.labels = storyLib.findLabelNames(entities, program.label);
+        }
+        let story: StoryHydrated;
+        if (!update.name || !update.project_id) {
+            if (!program.idonly) spin.stop(true);
+            log('Must provide --title and --project');
+        } else {
+            try {
+                story = await client.createStory(update);
+            } catch (e) {
+                log('Error creating story');
+            }
+        }
+        if (!program.idonly) spin.stop(true);
+        if (story) {
+            story = storyLib.hydrateStory(entities, story);
+            storyLib.printDetailedStory(story);
+            if (program.gitBranch) {
+                storyLib.checkoutStoryBranch(story);
+            } else if (program.gitBranchShort) {
+                storyLib.checkoutStoryBranch(story, `${config.mentionName}/ch${story.id}/`);
+            }
+            if (program.open) {
+                exec('open ' + storyLib.storyURL(story));
+            }
         }
     }
 };

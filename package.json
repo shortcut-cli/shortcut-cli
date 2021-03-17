@@ -43,6 +43,7 @@
     "clubhouse-lib": "0.10.0",
     "commander": "^2.12.0",
     "debug": "^4.0.0",
+    "inquirer": "^8.0.0",
     "prompt": "^1.0.0"
   },
   "devDependencies": {

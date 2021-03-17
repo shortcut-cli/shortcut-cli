@@ -46,7 +46,7 @@ const program = commander
     .option(
         '--git-branch',
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
-            '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
+        '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
     )
     .option(
         '--git-branch-short',
@@ -217,10 +217,10 @@ const main = async () => {
                     } else if (program.moveDown) {
                         update.after_id =
                             siblingIds[
-                                Math.min(
-                                    siblings.length - 1,
-                                    storyIndex + (~~program.moveDown || 1)
-                                )
+                            Math.min(
+                                siblings.length - 1,
+                                storyIndex + (~~program.moveDown || 1)
+                            )
                             ];
                     }
                     debug('constructed story position update', update);
