@@ -200,6 +200,7 @@ Comment: This is a commend
 
   Options:
 
+    --interactive             Create story in the interactive mode
     -d, --description [text]  Set description of story
     -e, --estimate [number]   Set estimate of story
     --epic [id|name]          Set epic of story
@@ -212,7 +213,8 @@ Comment: This is a commend
     -t, --title [text]        Set title of story, required
     -s, --state [id|name]     Set workflow state of story
     -y, --type [name]         Set type of story, default: feature
-    -h, --help                output usage information
+    --interactive             Create story in the interactive mode
+    -h, --help                Output usage information
     --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
                               as required by the Git integration: https://bit.ly/2RKO1FF
     --git-branch-short        Checkout git branch from story slug <mention-name>/ch<id>/<title>
