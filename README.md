@@ -15,7 +15,7 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
     - [Workflows](#workflows)
     - [Projects](#projects)
     - [Install](#install)
-    - [Developement](#developement)
+    - [Development](#development)
 - [Acknowledgments](#acknowledgments)
 
 ## Usage
@@ -347,7 +347,7 @@ You may also provide a clubhouse API token via environment variable `CLUBHOUSE_A
 $ CLUBHOUSE_API_TOKEN=foobar club story 3300
 ~~~
 
-### Developement
+### Development
 
 You can use typescript watcher which will recompile your code automatically:
 
