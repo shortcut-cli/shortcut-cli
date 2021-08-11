@@ -11,7 +11,7 @@ workflows:
 jobs:
   build_node_14:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     working_directory: ~/repo
     steps:
       - checkout
@@ -29,7 +29,7 @@ jobs:
           command: npm run ci
   build_node_13:
     docker:
-      - image: circleci/node:13
+      - image: circleci/node:16
     working_directory: ~/repo
     steps:
       - checkout
@@ -47,7 +47,7 @@ jobs:
           command: npm run ci
   build_node_12:
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:16
     working_directory: ~/repo
     steps:
       - checkout
@@ -65,7 +65,7 @@ jobs:
           command: npm run ci
   build_node_11:
     docker:
-      - image: circleci/node:11
+      - image: circleci/node:16
     working_directory: ~/repo
     steps:
       - checkout
@@ -83,7 +83,7 @@ jobs:
           command: npm run ci
   build_node_10:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:16
     working_directory: ~/repo
     steps:
       - checkout
