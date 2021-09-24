@@ -293,7 +293,7 @@ const printFormattedStory = (program: any) => {
             (o: Member) => `${o.profile.name} (${o.profile.mention_name})`
         );
         const url = `https://app.clubhouse.io/story/${story.id}`;
-        const project = `${story.project.name} (#${story.project.id})`;
+        const project = story.project ? `${story.project.name} (#${story.project.id})` : 'None';
         log(
             format
                 .replace(/%j/, JSON.stringify({ ...story, url }, null, 2))
@@ -359,7 +359,9 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     log(chalk.bold('Owners:') + `    ${owners.join(', ') || '_'}`);
     log(chalk.bold('Type:') + `      ${story.story_type}/${story.estimate || '_'}`);
     log(chalk.bold('Label:') + `     ${labels.join(', ') || '_'}`);
-    log(chalk.bold('Project:') + chalk.bold(`   #${story.project_id} `) + story.project.name);
+    if (story.project) {
+        log(chalk.bold('Project:') + chalk.bold(`   #${story.project_id} `) + story.project.name);
+    }
     if (story.epic) {
         log(chalk.bold('Epic:') + chalk.bold(`      #${story.epic_id} `) + story.epic.name);
     } else {
