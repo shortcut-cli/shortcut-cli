@@ -328,7 +328,7 @@ const printFormattedStory = (program: any) => {
                 .replace(/%a/, `${story.archived}`)
                 .replace(
                     /%gbs/,
-                    `${buildStoryBranch(story, `${config.mentionName}/ch${story.id}/`)}`
+                    `${buildStoryBranch(story, `${config.mentionName}/sc-${story.id}/`)}`
                 )
                 .replace(/%gb/, `${buildStoryBranch(story)}`)
         );
@@ -444,7 +444,7 @@ const parseNumberComparator: (arg: string) => (n: number) => boolean = (arg) => 
 };
 
 const buildStoryBranch = (story: StoryHydrated, prefix: string = '') => {
-    prefix = prefix || `${config.mentionName}/ch${story.id}/${story.story_type}-`;
+    prefix = prefix || `${config.mentionName}/sc-${story.id}/${story.story_type}-`;
     let slug = story.name
         .toLowerCase()
         .replace(/\W/g, '-')

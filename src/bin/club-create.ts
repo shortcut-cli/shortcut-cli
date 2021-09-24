@@ -91,7 +91,7 @@ const main = async () => {
         if (program.gitBranch) {
             storyLib.checkoutStoryBranch(story);
         } else if (program.gitBranchShort) {
-            storyLib.checkoutStoryBranch(story, `${config.mentionName}/ch${story.id}/`);
+            storyLib.checkoutStoryBranch(story, `${config.mentionName}/sc-${story.id}/`);
         }
         if (program.open) {
             exec('open ' + storyLib.storyURL(story));
