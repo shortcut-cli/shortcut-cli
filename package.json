@@ -60,7 +60,7 @@
     "eslint-plugin-promise": "4.3.1",
     "eslint-plugin-standard": "4.1.0",
     "prettier": "2.2.1",
-    "source-map-support": "0.5.19",
+    "source-map-support": "0.5.20",
     "typescript": "3.8.3"
   }
 }
