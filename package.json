@@ -50,7 +50,7 @@
     "@types/cli-spinner": "0.2.1",
     "@types/debug": "4.1.7",
     "@types/node": "12.20.19",
-    "@types/node-fetch": "2.5.12",
+    "@types/node-fetch": "3.0.2",
     "babel-eslint": "10.1.0",
     "eslint": "7.32.0",
     "eslint-config-standard": "16.0.3",
