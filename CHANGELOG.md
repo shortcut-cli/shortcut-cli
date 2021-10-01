@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Branch base story inferrence: support for both `chNNNN` and `sc-NNNNN`.
 ### Changed
+- Switch branch format to `user/sc-NNNN/...` to fit Shortcut new prefix.
 ### Deprecated
 ### Removed
 ### Fixed

@@ -131,7 +131,7 @@ const main = async () => {
         }
         if (branch.match(/\*.*[0-9]+/)) {
             debug('parsing story ID from git branch:', branch);
-            let id = parseInt(branch.match(/\*.*/)[0].match(/\/ch([0-9]+)/)[1], 10);
+            let id = parseInt(branch.match(/\*.*/)[0].match(/\/(ch|sc-)([0-9]+)/)[2], 10);
             debug('parsed story ID from git branch:', id);
             if (id) {
                 gitID.push(id.toString());
@@ -277,7 +277,7 @@ const main = async () => {
             }
             storyLib.checkoutStoryBranch(story);
         } else if (story && program.gitBranchShort) {
-            storyLib.checkoutStoryBranch(story, `${config.mentionName}/ch${story.id}/`);
+            storyLib.checkoutStoryBranch(story, `${config.mentionName}/sc-${story.id}/`);
         }
     });
     stopSpinner();
