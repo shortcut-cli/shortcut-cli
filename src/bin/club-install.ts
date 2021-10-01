@@ -12,13 +12,13 @@ const log = console.log;
 
 const program = commander
     .version(require('../../package').version)
-    .description('Install access token and other settings for the Clubhouse API')
+    .description('Install access token and other settings for the Shortcut API')
     .option('-f, --force', 'Force install/reinstall')
-    .option('-r, --refresh', 'Refresh the configuration with details from Clubhouse.')
+    .option('-r, --refresh', 'Refresh the configuration with details from Shortcut.')
     .parse(process.argv);
 
 const enrichConfigWithMemberDetails = async (config: Config) => {
-    log('Fetching user/member details from Clubhouse...');
+    log('Fetching user/member details from Shortcut...');
     const member = await Clubhouse.create(config.token).getCurrentMember();
     return {
         mentionName: member.mention_name,

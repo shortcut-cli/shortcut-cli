@@ -1,8 +1,8 @@
-# clubhouse-cli
+# shortcut-cli
 
 [![CircleCI](https://circleci.com/gh/andjosh/clubhouse-cli.svg?style=svg)](https://circleci.com/gh/andjosh/clubhouse-cli)
 
-This is a command line interface for [Clubhouse](https://app.clubhouse.io), focused on the display and manipulation of stories. With this, you can run custom searches, save them as local workspaces, and recall those workspaces. You can also view full stories, update most attributes on a story, and create brand new stories quickly.
+This is a command line interface for [Shortcut](https://app.shortcut.com), focused on the display and manipulation of stories. With this, you can run custom searches, save them as local workspaces, and recall those workspaces. You can also view full stories, update most attributes on a story, and create brand new stories quickly.
 
 ## Table of Contents
 - [Usage & Commands](#usage)
@@ -51,13 +51,13 @@ This is a command line interface for [Clubhouse](https://app.clubhouse.io), focu
 ~~~
   Usage: club find [options] [SEARCH OPERATORS]
 
-  Search through clubhouse stories. Arguments (non-flag/options) will
-  be passed to Clubhouse story search API as search operators. Passing '%self%' as
+  Search through Shorcut stories. Arguments (non-flag/options) will
+  be passed to Shortcut story search API as search operators. Passing '%self%' as
   a search operator argument will be replaced by your mention name. Note that passing search
   operators and options (e.g. --owner foobar) will use the options as extra filtering
   in the client.
 
-  Refer to https://help.clubhouse.io/hc/en-us/articles/360000046646-Search-Operators
+  Refer to https://help.shortcut.com/hc/en-us/articles/360000046646-Search-Operators
   for more details about search operators.
 
 
@@ -94,7 +94,7 @@ $ club search -o 'josh' -s 'Review'
   Project:   #14 Customers
   Owners:    Josh (josh)
   State:     #500000020 Code Review
-  URL:       https://app.clubhouse.io/story/1480
+  URL:       https://app.shortcut.com/story/1480
 
 # Custom formatting is an option
 $ club search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
@@ -355,7 +355,7 @@ You can use typescript watcher which will recompile your code automatically:
 $ npm run build:watch
 ~~~
 
-You can run clubhouse-cli with typescript map enabled:
+You can run shortcut-cli with typescript map enabled:
 
 ~~~sh
 $ npm start -- story 1234
@@ -365,8 +365,8 @@ $ npm start -- story 1234
 
 - [Repository for this code](https://github.com/andjosh/clubhouse-cli)
 - [NPM registry for this code](https://www.npmjs.com/package/clubhouse-cli)
-- [Clubhouse API](http://clubhouse.io/api/rest/v2/)
-- Official [clubhouse-lib](https://github.com/clubhouse/clubhouse-lib)
+- [Shortcut API](https://shortcut.com/api/rest/v3)
+- Official [clubhouse-lib](https://github.com/useshortcut/clubhouse-lib)
 
 ## Contributors
 - [andjosh](https://github.com/andjosh)

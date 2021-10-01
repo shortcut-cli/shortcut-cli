@@ -269,7 +269,7 @@ const main = async () => {
             if (!config.mentionName) {
                 stopSpinner();
                 storyLib.checkoutStoryBranch(story, `${story.story_type}-${story.id}-`); // TODO: Remove this deprecation in next release
-                logError('Error creating story branch in Clubhouse format');
+                logError('Error creating story branch in Shortcut format');
                 logError(
                     'Please run: "club install --force" to add your mention name to the config.'
                 );
