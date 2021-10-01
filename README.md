@@ -1,4 +1,4 @@
-# shortcut-cli
+# shortcut-cli (formerly clubhouse-cli)
 
 [![CircleCI](https://circleci.com/gh/shortcut-cli/shortcut-cli/tree/main.svg?style=svg)](https://circleci.com/gh/shortcut-cli/shortcut-cli/tree/main)
 
