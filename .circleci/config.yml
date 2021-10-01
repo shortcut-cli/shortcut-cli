@@ -1,101 +1,34 @@
-version: 2
-workflows:
-  version: 2
-  build:
-    jobs:
-      - build_node_10
-      - build_node_11
-      - build_node_12
-      - build_node_13
-      - build_node_14
+version: 2.1
+
+orbs:
+    node: circleci/node@4.7.0
+
 jobs:
-  build_node_14:
-    docker:
-      - image: circleci/node:14
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: Installing Dependencies
-          command: npm ci
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Running Tests
-          command: npm run ci
-  build_node_13:
-    docker:
-      - image: circleci/node:13
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: Installing Dependencies
-          command: npm ci
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Running Tests
-          command: npm run ci
-  build_node_12:
-    docker:
-      - image: circleci/node:12
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: Installing Dependencies
-          command: npm ci
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Running Tests
-          command: npm run ci
-  build_node_11:
-    docker:
-      - image: circleci/node:11
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: Installing Dependencies
-          command: npm ci
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Running Tests
-          command: npm run ci
-  build_node_10:
-    docker:
-      - image: circleci/node:10
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: Installing Dependencies
-          command: npm ci
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Running Tests
-          command: npm run ci
+    build_node:
+        parameters:
+            node-version:
+                type: string
+        docker:
+            - image: circleci/node:<< parameters.node-version >>
+        working_directory: ~/repo
+        steps:
+            - checkout
+            - node/install-packages:
+                  include-branch-in-cache-key: false
+            - run:
+                  name: Running Tests
+                  command: npm run ci
+
+workflows:
+    build:
+        jobs:
+            - build_node:
+                  matrix:
+                      parameters:
+                          node-version:
+                              - '10'
+                              - '11'
+                              - '12'
+                              - '13'
+                              - '14'
+                              - '16'
