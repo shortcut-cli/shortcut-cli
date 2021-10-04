@@ -16,7 +16,7 @@ export const program = commander
   passing search operators and options (e.g. --owner foobar) will use the
   options as extra filtering in the client.
 
-  Refer to https://help.clubhouse.io/hc/en-us/articles/360000046646-Search-Operators
+  Refer to https://help.shortcut.com/hc/en-us/articles/360000046646-Search-Operators
   for more details about search operators.`
     )
     .usage('[options] [SEARCH OPERATORS]')

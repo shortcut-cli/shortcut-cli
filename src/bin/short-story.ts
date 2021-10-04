@@ -28,7 +28,7 @@ const config = loadConfig();
 const spin = spinner();
 const log = console.log;
 const logError = console.error;
-const debug = debugging('club');
+const debug = debugging('short');
 
 const program = commander
     .usage('[options] <id>')
@@ -271,7 +271,7 @@ const main = async () => {
                 storyLib.checkoutStoryBranch(story, `${story.story_type}-${story.id}-`); // TODO: Remove this deprecation in next release
                 logError('Error creating story branch in Shortcut format');
                 logError(
-                    'Please run: "club install --force" to add your mention name to the config.'
+                    'Please run: "short install --force" to add your mention name to the config.'
                 );
                 process.exit(10);
             }

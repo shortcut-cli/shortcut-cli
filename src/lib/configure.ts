@@ -2,18 +2,27 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 
-const configDir =
-    process.env.XDG_CONFIG_HOME ||
-    path.resolve(process.env.XDG_DATA_HOME || os.homedir(), '.config', 'clubhouse-cli');
+function getConfigDir(suffix: string) {
+    let configBaseDir =
+        process.env.XDG_CONFIG_HOME ||
+        path.resolve(process.env.XDG_DATA_HOME || os.homedir(), '.config');
+    return path.resolve(configBaseDir, suffix);
+}
+
+const configDir = getConfigDir('shortcut-cli');
 
 const configFile = path.resolve(configDir, 'config.json');
-const legacyConfigDir = path.resolve(os.homedir(), '.clubhouse-cli');
+
+const legacyConfigDirs = [
+    getConfigDir('clubhouse-cli'),
+    path.resolve(os.homedir(), '.clubhouse-cli'),
+];
 
 export interface Config {
     mentionName: string;
     urlSlug: string;
     token: string;
-    // Object used by club workspace.
+    // Object used by short workspace.
     // This is unrelated to the concept of Shortcut Workspaces.
     workspaces: { [key: string]: object };
 }
@@ -26,14 +35,14 @@ let CONFIG_CACHE = null as Config;
 export const loadConfig: () => Config = () => {
     const config = loadCachedConfig();
     if (!config || config === ({} as Config) || !config.token) {
-        console.error("Please run 'club install' to configure Shortcut API access.");
+        console.error("Please run 'short install' to configure Shortcut API access.");
         process.exit(11);
     }
 
     if (!config.urlSlug) {
         console.error(
             'Your config must be updated with data from Shortcut. ' +
-                "Please run 'club install --refresh'."
+                "Please run 'short install --refresh'."
         );
         process.exit(12);
     }
@@ -48,11 +57,13 @@ export const loadCachedConfig: () => Config = () => {
         return { ...CONFIG_CACHE };
     }
     let config = {} as Config;
-    const token = process.env.CLUBHOUSE_API_TOKEN;
-    if (fs.existsSync(legacyConfigDir)) {
-        createConfigDir();
-        fs.renameSync(legacyConfigDir, configDir);
-    }
+    const token = process.env.SHORTCUT_API_TOKEN || process.env.CLUBHOUSE_API_TOKEN;
+    legacyConfigDirs.forEach((dir) => {
+        if (fs.existsSync(dir)) {
+            createConfigDir();
+            fs.renameSync(dir, configDir);
+        }
+    });
     if (fs.existsSync(configFile)) {
         try {
             config = JSON.parse(fs.readFileSync(configFile, 'utf8'));

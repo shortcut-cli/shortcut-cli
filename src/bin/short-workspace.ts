@@ -3,7 +3,7 @@ import configure from '../lib/configure';
 import * as commander from 'commander';
 import storyLib from '../lib/stories';
 
-import { program as searchProgram } from './club-search';
+import { program as searchProgram } from './short-search';
 import { StoryHydrated } from '../lib/stories';
 
 const config = configure.loadConfig();
@@ -20,12 +20,12 @@ const program = commander
 const main = async () => {
     if (!config || !config.token) {
         log('Not installed yet.');
-        log('Please run: club install');
+        log('Please run: short install');
         return;
     } else if (!config.workspaces) {
         log('No workspace saved.');
         log('Please run:');
-        log('  club search [options] --save');
+        log('  short search [options] --save');
         log('to create your first one.');
         return;
     } else if (program.list) {
@@ -48,7 +48,7 @@ const main = async () => {
     if (!workspace) {
         log('No workspace saved with name', name);
         log('Please run:');
-        log('  club search [options] --save', name);
+        log('  short search [options] --save', name);
         log('to create it.');
         return;
     }
