@@ -26,14 +26,14 @@ let CONFIG_CACHE = null as Config;
 export const loadConfig: () => Config = () => {
     const config = loadCachedConfig();
     if (!config || config === ({} as Config) || !config.token) {
-        console.error("Please run 'club install' to configure Shortcut API access.");
+        console.error("Please run 'short install' to configure Shortcut API access.");
         process.exit(11);
     }
 
     if (!config.urlSlug) {
         console.error(
             'Your config must be updated with data from Shortcut. ' +
-                "Please run 'club install --refresh'."
+                "Please run 'short install --refresh'."
         );
         process.exit(12);
     }

@@ -3,7 +3,7 @@ import configure from '../lib/configure';
 import * as commander from 'commander';
 import storyLib from '../lib/stories';
 
-import { program as searchProgram } from './club-search';
+import { program as searchProgram } from './short-search';
 import { StoryHydrated } from '../lib/stories';
 
 const config = configure.loadConfig();
@@ -20,7 +20,7 @@ const program = commander
 const main = async () => {
     if (!config || !config.token) {
         log('Not installed yet.');
-        log('Please run: club install');
+        log('Please run: short install');
         return;
     } else if (!config.workspaces) {
         log('No workspace saved.');
