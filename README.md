@@ -32,7 +32,7 @@ $ short install
 ~~~
   Usage: short install [options]
 
-  Install access token for clubhouse API
+  Install access token for Shortcut API
 
 
   Options:
@@ -42,7 +42,7 @@ $ short install
     -h, --help     output usage information
 ~~~
 
-You may also provide a clubhouse API token via environment variable `SHORTCUT_API_TOKEN`.
+You may also provide a Shortcut API token via environment variable `SHORTCUT_API_TOKEN`.
 ~~~sh
 $ SHORTCUT_API_TOKEN=foobar short story 3300
 ~~~
@@ -363,7 +363,7 @@ $ npm start -- story 1234
 ## Acknowledgments
 
 - [Repository for this code](https://github.com/shortcut-cli/shortcut-cli)
-- [NPM registry for this code](https://www.npmjs.com/package/clubhouse-cli)
+- [NPM registry for this code](https://www.npmjs.com/package/@shortcut-cli/shortcut-cli)
 - [Shortcut API](https://shortcut.com/api/rest/v3)
 - Official [clubhouse-lib](https://github.com/useshortcut/clubhouse-lib)
 
