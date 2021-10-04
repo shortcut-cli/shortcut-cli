@@ -6,6 +6,7 @@ This is a command line interface for [Shortcut](https://app.shortcut.com), focus
 
 ## Table of Contents
 - [Usage & Commands](#usage)
+    - [Install](#install)
     - [Search](#search)
     - [Story](#story)
     - [Story Creation](#story-creation)
@@ -14,12 +15,37 @@ This is a command line interface for [Shortcut](https://app.shortcut.com), focus
     - [Epics](#epics)
     - [Workflows](#workflows)
     - [Projects](#projects)
-    - [Install](#install)
-    - [Development](#development)
+- [Development](#development)
 - [Acknowledgments](#acknowledgments)
 
 ## Usage
 
+### Install
+
+Install via npm:
+
+~~~sh
+$ npm install @shortcut-cli/shortcut-cli -g
+$ short install
+~~~
+
+~~~
+  Usage: short install [options]
+
+  Install access token for clubhouse API
+
+
+  Options:
+
+    -V, --version  output the version number
+    -f, --force    Force install/reinstall
+    -h, --help     output usage information
+~~~
+
+You may also provide a clubhouse API token via environment variable `SHORTCUT_API_TOKEN`.
+~~~sh
+$ SHORTCUT_API_TOKEN=foobar short story 3300
+~~~
 ~~~
   Usage: short [options] [command]
 
@@ -320,34 +346,7 @@ Templating variables:
     -h, --help           output usage information
 ~~~
 
-### Install
-
-Install via npm:
-
-~~~sh
-$ npm install @shortcut-cli/shortcut-cli -g
-$ short install
-~~~
-
-~~~
-  Usage: short install [options]
-
-  Install access token for clubhouse API
-
-
-  Options:
-
-    -V, --version  output the version number
-    -f, --force    Force install/reinstall
-    -h, --help     output usage information
-~~~
-
-You may also provide a clubhouse API token via environment variable `SHORTCUT_API_TOKEN`.
-~~~sh
-$ SHORTCUT_API_TOKEN=foobar short story 3300
-~~~
-
-### Development
+## Development
 
 You can use typescript watcher which will recompile your code automatically:
 
