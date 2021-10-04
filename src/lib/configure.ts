@@ -57,7 +57,7 @@ export const loadCachedConfig: () => Config = () => {
         return { ...CONFIG_CACHE };
     }
     let config = {} as Config;
-    const token = process.env.CLUBHOUSE_API_TOKEN;
+    const token = process.env.SHORTCUT_API_TOKEN || process.env.CLUBHOUSE_API_TOKEN;
     legacyConfigDirs.forEach((dir) => {
         if (fs.existsSync(dir)) {
             createConfigDir();
