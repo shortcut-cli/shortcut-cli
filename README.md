@@ -21,7 +21,7 @@ This is a command line interface for [Shortcut](https://app.shortcut.com), focus
 ## Usage
 
 ~~~
-  Usage: club [options] [command]
+  Usage: short [options] [command]
 
   A command line tool for searching, viewing, and updating shortcut.com stories
 
@@ -49,7 +49,7 @@ This is a command line interface for [Shortcut](https://app.shortcut.com), focus
 ### Search
 
 ~~~
-  Usage: club find [options] [SEARCH OPERATORS]
+  Usage: short find [options] [SEARCH OPERATORS]
 
   Search through Shorcut stories. Arguments (non-flag/options) will
   be passed to Shortcut story search API as search operators. Passing '%self%' as
@@ -85,7 +85,7 @@ This is a command line interface for [Shortcut](https://app.shortcut.com), focus
 Example output
 
 ~~~
-$ club search -o 'josh' -s 'Review'
+$ short search -o 'josh' -s 'Review'
 #1480 Create Thinga-ma-bob
   Type:      feature/3
   Label:     #512 client_web
@@ -97,7 +97,7 @@ $ club search -o 'josh' -s 'Review'
   URL:       https://app.shortcut.com/story/1480
 
 # Custom formatting is an option
-$ club search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
+$ short search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
 1480    Code Review (#500000020)  Create Thinga-ma-bob
     Josh (josh)
 ~~~
@@ -135,7 +135,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
 ### Story
 
 ~~~
-  Usage: club story [options] <id>
+  Usage: short story [options] <id>
 
   Update and/or display story details
 
@@ -177,7 +177,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
 Example output:
 
 ~~~
-$ club story 1480 -c 'This is a commend' -o josh
+$ short story 1480 -c 'This is a commend' -o josh
 #1480 Create Thinga-ma-bob
 Desc:    Create a thing to display:
 Owners:  Josh (josh)
@@ -193,7 +193,7 @@ Comment: This is a commend
 ### Story Creation
 
 ~~~
-  Usage: club create [options]
+  Usage: short create [options]
 
   create a story with provided details
 
@@ -221,7 +221,7 @@ Comment: This is a commend
 ### Workspace
 
 ~~~
-  Usage: club workspace [NAME] [options]
+  Usage: short workspace [NAME] [options]
 
   List stories matching saved workspace query
 
@@ -238,7 +238,7 @@ Comment: This is a commend
 ### Members
 
 ~~~
-  Usage: club members [options]
+  Usage: short members [options]
 
   Display members available for stories
 
@@ -253,7 +253,7 @@ Comment: This is a commend
 ### Epics
 
 ~~~
-  Usage: club epics [options]
+  Usage: short epics [options]
 
   Display epics available for stories
 
@@ -293,7 +293,7 @@ Templating variables:
 ### Workflows
 
 ~~~
-  Usage: club workflows [options]
+  Usage: short workflows [options]
 
   Display workflows/states available for stories
 
@@ -307,7 +307,7 @@ Templating variables:
 ### Projects
 
 ~~~
-  Usage: club projects [options]
+  Usage: short projects [options]
 
   Display projects available for stories
 
@@ -325,12 +325,12 @@ Templating variables:
 Install via npm:
 
 ~~~sh
-$ npm install clubhouse-cli -g
-$ club install
+$ npm install shortcut-cli -g
+$ short install
 ~~~
 
 ~~~
-  Usage: club install [options]
+  Usage: short install [options]
 
   Install access token for clubhouse API
 
@@ -342,9 +342,9 @@ $ club install
     -h, --help     output usage information
 ~~~
 
-You may also provide a clubhouse API token via environment variable `CLUBHOUSE_API_TOKEN`.
+You may also provide a clubhouse API token via environment variable `SHORTCUT_API_TOKEN`.
 ~~~sh
-$ CLUBHOUSE_API_TOKEN=foobar club story 3300
+$ SHORTCUT_API_TOKEN=foobar short story 3300
 ~~~
 
 ### Development

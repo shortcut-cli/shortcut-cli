@@ -22,7 +22,7 @@ export interface Config {
     mentionName: string;
     urlSlug: string;
     token: string;
-    // Object used by club workspace.
+    // Object used by short workspace.
     // This is unrelated to the concept of Shortcut Workspaces.
     workspaces: { [key: string]: object };
 }

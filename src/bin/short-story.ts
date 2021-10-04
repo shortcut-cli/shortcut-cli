@@ -28,7 +28,7 @@ const config = loadConfig();
 const spin = spinner();
 const log = console.log;
 const logError = console.error;
-const debug = debugging('club');
+const debug = debugging('short');
 
 const program = commander
     .usage('[options] <id>')

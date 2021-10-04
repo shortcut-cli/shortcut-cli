@@ -25,7 +25,7 @@ const main = async () => {
     } else if (!config.workspaces) {
         log('No workspace saved.');
         log('Please run:');
-        log('  club search [options] --save');
+        log('  short search [options] --save');
         log('to create your first one.');
         return;
     } else if (program.list) {
@@ -48,7 +48,7 @@ const main = async () => {
     if (!workspace) {
         log('No workspace saved with name', name);
         log('Please run:');
-        log('  club search [options] --save', name);
+        log('  short search [options] --save', name);
         log('to create it.');
         return;
     }
