@@ -23,7 +23,7 @@ This is a command line interface for [Shortcut](https://app.shortcut.com), focus
 ~~~
   Usage: club [options] [command]
 
-  A command line tool for searching, viewing, and updating clubhouse.io stories
+  A command line tool for searching, viewing, and updating shortcut.com stories
 
 
   Options:
@@ -185,7 +185,7 @@ Type:    feature/3
 Label:   #512 client_web
 Project: #14 Customer
 State:   #500000020 Code Review
-URL:     https://app.clubhouse.io/story/1480
+URL:     https://app.shortcut.com/story/1480
 Comment: This is a commend
          Josh at: 2017-10-25T16:17:04Z
 ~~~

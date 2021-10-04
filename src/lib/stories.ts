@@ -292,7 +292,7 @@ const printFormattedStory = (program: any) => {
         const owners = story.owners.map(
             (o: Member) => `${o.profile.name} (${o.profile.mention_name})`
         );
-        const url = `https://app.clubhouse.io/story/${story.id}`;
+        const url = `https://app.shortcut.com/story/${story.id}`;
         const project = story.project ? `${story.project.name} (#${story.project.id})` : 'None';
         log(
             format
@@ -338,7 +338,7 @@ const printFormattedStory = (program: any) => {
 
 const buildURL = (...segments: (string | number)[]): string => {
     return [
-        'https://app.clubhouse.io',
+        'https://app.shortcut.com',
         config.urlSlug,
         ...segments.map((item) => item.toString()),
     ].join('/');

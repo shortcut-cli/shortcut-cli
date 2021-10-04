@@ -35,7 +35,7 @@ const main = async () => {
             properties: {
                 token: {
                     message:
-                        'API Token -> https://app.clubhouse.io/xxxx/settings/account/api-tokens',
+                        'API Token -> https://app.shortcut.com/xxxx/settings/account/api-tokens',
                     required: true,
                 },
             },
