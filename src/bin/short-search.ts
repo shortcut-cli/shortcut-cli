@@ -10,7 +10,7 @@ const log = console.log;
 
 export const program = commander
     .description(
-        `Search through clubhouse stories. Arguments (non-flag/options) will be
+        `Search through Shortcut stories. Arguments (non-flag/options) will be
   passed to Shortcut story search API as search operators. Passing '%self%' as
   a search operator argument will be replaced by your mention name. Note that
   passing search operators and options (e.g. --owner foobar) will use the

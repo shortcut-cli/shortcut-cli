@@ -40,7 +40,7 @@ const main = async () => {
                 },
             },
         };
-        prompt.start({ message: 'clubhouse' });
+        prompt.start({ message: 'Shortcut' });
         prompt.get(schema, async (err: Error, result: any) => {
             if (err) return log(err);
             const config = await enrichConfigWithMemberDetails(result);
