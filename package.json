@@ -1,5 +1,5 @@
 {
-  "name": "shortcut-cli",
+  "name": "@shortcut-cli/shortcut-cli",
   "version": "3.0.0-rc0",
   "description": "A command line tool for viewing, creating and updating shortcut.com stories",
   "main": "index.js",

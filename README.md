@@ -325,7 +325,7 @@ Templating variables:
 Install via npm:
 
 ~~~sh
-$ npm install shortcut-cli -g
+$ npm install @shortcut-cli/shortcut-cli -g
 $ short install
 ~~~
 
