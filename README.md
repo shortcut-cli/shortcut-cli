@@ -363,7 +363,7 @@ $ npm start -- story 1234
 
 ## Acknowledgments
 
-- [Repository for this code](https://github.com/andjosh/clubhouse-cli)
+- [Repository for this code](https://github.com/shortcut-cli/shortcut-cli)
 - [NPM registry for this code](https://www.npmjs.com/package/clubhouse-cli)
 - [Shortcut API](https://shortcut.com/api/rest/v3)
 - Official [clubhouse-lib](https://github.com/useshortcut/clubhouse-lib)
