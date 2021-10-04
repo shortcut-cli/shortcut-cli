@@ -21,7 +21,6 @@
     "ci": "npm run build && npm run test"
   },
   "bin": {
-    "club": "./build/bin/club.js",
     "short": "./build/bin/short.js"
   },
   "repository": {
