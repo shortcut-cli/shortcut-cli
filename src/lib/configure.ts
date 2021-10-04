@@ -2,12 +2,21 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 
-const configDir =
-    process.env.XDG_CONFIG_HOME ||
-    path.resolve(process.env.XDG_DATA_HOME || os.homedir(), '.config', 'clubhouse-cli');
+function getConfigDir(suffix: string) {
+    let configBaseDir =
+        process.env.XDG_CONFIG_HOME ||
+        path.resolve(process.env.XDG_DATA_HOME || os.homedir(), '.config');
+    return path.resolve(configBaseDir, suffix);
+}
+
+const configDir = getConfigDir('shortcut-cli');
 
 const configFile = path.resolve(configDir, 'config.json');
-const legacyConfigDir = path.resolve(os.homedir(), '.clubhouse-cli');
+
+const legacyConfigDirs = [
+    getConfigDir('clubhouse-cli'),
+    path.resolve(os.homedir(), '.clubhouse-cli'),
+];
 
 export interface Config {
     mentionName: string;
@@ -49,10 +58,12 @@ export const loadCachedConfig: () => Config = () => {
     }
     let config = {} as Config;
     const token = process.env.CLUBHOUSE_API_TOKEN;
-    if (fs.existsSync(legacyConfigDir)) {
-        createConfigDir();
-        fs.renameSync(legacyConfigDir, configDir);
-    }
+    legacyConfigDirs.forEach((dir) => {
+        if (fs.existsSync(dir)) {
+            createConfigDir();
+            fs.renameSync(dir, configDir);
+        }
+    });
     if (fs.existsSync(configFile)) {
         try {
             config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
