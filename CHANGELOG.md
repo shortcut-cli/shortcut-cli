@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+---
+
+## 3.0.0
+
+TLDR: Renamed clubhouse-cli to shortcut-cli and `club` is now `short`.
+
+### Added
 - Branch base story inference: support for both `chNNNN` and `sc-NNNNN`.
 - Add tests against Node 16 (soon to be LTS).
 ### Changed
@@ -17,10 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Fixed
 - Do not expect stories to have a project. Projects are now optional.
+
 ### Security
-
----
-
 ## [2.7.0] - 2020-08-17
 ### Added
 - Add support for story search via estimate (thanks [@jbcrail](https://github.com/jbcrail)!).
