@@ -60,7 +60,7 @@ async function fetchEntities(): Promise<Entities> {
         client.listMembers().then(mapByItemId),
         client.listEpics().then(mapByItemId),
         client.listIterations().then(mapByItemId),
-        client.listResource('labels'),
+        client.listLabels(),
     ]).catch((err) => {
         log(`Error fetching workflows: ${err}`);
         process.exit(2);

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 ### Changed
+- Updated typescript to 4.4.3
 ### Deprecated
 ### Removed
 ### Fixed
