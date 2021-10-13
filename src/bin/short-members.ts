@@ -4,7 +4,7 @@ import spinner from '../lib/spinner';
 const spin = spinner('Loading... %s ');
 const log = console.log;
 import * as commander from 'commander';
-import { Member } from 'clubhouse-lib';
+import { Member } from '@useshortcut/client';
 import chalk from 'chalk';
 
 const program = commander
@@ -15,7 +15,7 @@ const program = commander
 
 const main = async () => {
     spin.start();
-    const members = await client.listMembers();
+    const members = await client.listMembers(null).then((r) => r.data);
     spin.stop(true);
     const ownerMatch = new RegExp(program.search, 'i');
     members

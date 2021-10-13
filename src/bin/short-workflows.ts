@@ -5,7 +5,7 @@ import * as commander from 'commander';
 import client from '../lib/client';
 
 import spinner from '../lib/spinner';
-import { Workflow, WorkflowState } from 'clubhouse-lib';
+import { Workflow, WorkflowState } from '@useshortcut/client';
 
 const spin = spinner();
 const log = console.log;
@@ -17,7 +17,7 @@ const program = commander
 
 const main = async () => {
     spin.start();
-    const wfs = await client.listWorkflows();
+    const wfs = await client.listWorkflows().then((r) => r.data);
     spin.stop(true);
     wfs.map(printWf);
 };

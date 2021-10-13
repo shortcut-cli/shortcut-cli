@@ -4,7 +4,7 @@ import client from '../lib/client';
 import * as commander from 'commander';
 import chalk from 'chalk';
 import spinner from '../lib/spinner';
-import { Project } from 'clubhouse-lib';
+import { Project } from '@useshortcut/client';
 
 const spin = spinner();
 const log = console.log;
@@ -18,7 +18,7 @@ const program = commander
 
 const main = async () => {
     spin.start();
-    const projects = await client.listProjects();
+    const projects = await client.listProjects().then((r) => r.data);
     spin.stop(true);
     const textMatch = new RegExp(program.title, 'i');
     projects

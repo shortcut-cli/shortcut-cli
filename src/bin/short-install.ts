@@ -5,7 +5,7 @@ import * as prompt from 'prompt';
 
 import { Config, loadCachedConfig, updateConfig } from '../lib/configure';
 import * as commander from 'commander';
-import Clubhouse from 'clubhouse-lib';
+import { ShortcutClient } from '@useshortcut/client';
 
 const extant = loadCachedConfig();
 const log = console.log;
@@ -19,7 +19,9 @@ const program = commander
 
 const enrichConfigWithMemberDetails = async (config: Config) => {
     log('Fetching user/member details from Shortcut...');
-    const member = await Clubhouse.create(config.token).getCurrentMember();
+    const member = await new ShortcutClient(config.token)
+        .getCurrentMemberInfo()
+        .then((r) => r.data);
     return {
         mentionName: member.mention_name,
         urlSlug: member.workspace2.url_slug,

@@ -365,7 +365,7 @@ $ npm start -- story 1234
 - [Repository for this code](https://github.com/shortcut-cli/shortcut-cli)
 - [NPM registry for this code](https://www.npmjs.com/package/@shortcut-cli/shortcut-cli)
 - [Shortcut API](https://shortcut.com/api/rest/v3)
-- Official [clubhouse-lib](https://github.com/useshortcut/clubhouse-lib)
+- Official [@useshortcut/client](https://github.com/useshortcut/clubhouse-lib)
 
 ## Contributors
 - [andjosh](https://github.com/andjosh)

@@ -9,26 +9,32 @@ import { execSync } from 'child_process';
 import debugging from 'debug';
 import {
     Epic,
-    File,
+    EpicSlim,
     Iteration,
+    IterationSlim,
     Label,
     Member,
     Project,
     Story,
+    UploadedFile,
     Workflow,
     WorkflowState,
-} from 'clubhouse-lib';
+} from '@useshortcut/client';
 
 const debug = debugging('club');
 const config = loadConfig();
 const log = console.log;
 
+interface HasId {
+    id: number | string;
+}
+
 export interface Entities {
-    projectsById?: { [key: string]: Project };
-    statesById?: { [key: string]: WorkflowState };
-    membersById?: { [key: string]: Member };
-    epicsById?: { [key: string]: Epic };
-    iterationsById?: { [key: string]: Iteration };
+    projectsById?: Map<number, Project>;
+    statesById?: Map<number, WorkflowState>;
+    membersById?: Map<string, Member>;
+    epicsById?: Map<number, EpicSlim>;
+    iterationsById?: Map<number, IterationSlim>;
     labels?: Label[];
 }
 
@@ -36,8 +42,8 @@ export interface Entities {
  * Augmented story to be displayed
  */
 export interface StoryHydrated extends Story {
-    epic?: Epic;
-    iteration?: Iteration;
+    epic?: EpicSlim;
+    iteration?: IterationSlim;
     project?: Project;
     state?: WorkflowState;
     owners?: Member[];
@@ -52,15 +58,28 @@ async function fetchEntities(): Promise<Entities> {
         iterationsById,
         labels,
     ] = await Promise.all([
-        client.listProjects().then(mapByItemId),
+        client
+            .listProjects()
+            .then((r) => r.data)
+            .then(mapByItemId),
         client
             .listWorkflows()
+            .then((r) => r.data)
             .then((wfs: Workflow[]) => wfs.reduce((states, wf) => states.concat(wf.states), []))
             .then(mapByItemId),
-        client.listMembers().then(mapByItemId),
-        client.listEpics().then(mapByItemId),
-        client.listIterations().then(mapByItemId),
-        client.listLabels(),
+        client
+            .listMembers(null)
+            .then((r) => r.data)
+            .then(mapByItemStringId),
+        client
+            .listEpics(null)
+            .then((r) => r.data)
+            .then(mapByItemId),
+        client
+            .listIterations(null)
+            .then((r) => r.data)
+            .then(mapByItemId),
+        client.listLabels(null).then((r) => r.data),
     ]).catch((err) => {
         log(`Error fetching workflows: ${err}`);
         process.exit(2);
@@ -80,11 +99,15 @@ const listStories = async (program: any) => {
     return filterStories(program, stories, entities).sort(sortStories(program));
 };
 
-// TODO: Use proper generics
-const mapByItemId = (items: any[]) =>
-    items.reduce((obj, item) => ({ ...obj, [item.id]: item }), {});
+function mapByItemId<T extends HasId>(items: T[]): Map<number, T> {
+    return items.reduce((map, obj) => map.set(obj.id, obj), new Map());
+}
 
-const fetchStories = async (program: any, entities: Entities) => {
+function mapByItemStringId<T extends HasId>(items: T[]): Map<string, T> {
+    return items.reduce((map, obj) => map.set(obj.id, obj), new Map());
+}
+
+async function fetchStories(program: any, entities: Entities): Promise<Story[]> {
     if ((program.args || []).length) {
         debug('using the search endpoint');
         return searchStories(program);
@@ -97,21 +120,22 @@ const fetchStories = async (program: any, entities: Entities) => {
     );
 
     debug('request all stories for project(s)', projectIds.map((p) => p.name).join(', '));
-    return Promise.all(projectIds.map((p) => client.listStories(p.id))).then((projectStories) =>
-        projectStories.reduce((acc, stories) => acc.concat(stories), [])
-    );
-};
+    return Promise.all(
+        projectIds.map((p) => client.listStories(p.id, null))
+    ).then((projectStories) => projectStories.reduce((acc, stories) => acc.concat(stories), []));
+}
 
-const searchStories = async (program: any) => {
+async function searchStories(program: any): Promise<Story[]> {
     const query = program.args.join(' ').replace('%self%', config.mentionName);
-    let result = await client.searchStories(query);
-    let stories = result.data;
-    while (result.next) {
-        result = await client.getResource(result.next);
-        stories = stories.concat(result.data);
+    let result = await client.searchStories({ query });
+    let stories: Story[] = result.data.data;
+    while (result.data.next) {
+        const nextCursor = new URLSearchParams(result.data.next).get('next');
+        result = await client.searchStories({ query, next: nextCursor });
+        stories = stories.concat(result.data.data);
     }
     return stories;
-};
+}
 
 const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
     entities: Entities,
@@ -119,49 +143,33 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
 ) => {
     debug('hydrating story');
     const augmented = story as StoryHydrated;
-    augmented.project = entities.projectsById[story.project_id];
-    augmented.state = entities.statesById[story.workflow_state_id];
-    augmented.epic = entities.epicsById[story.epic_id];
-    augmented.iteration = entities.iterationsById[story.iteration_id];
-    augmented.owners = story.owner_ids.map((id) => entities.membersById[id]);
+    augmented.project = entities.projectsById.get(story.project_id);
+    augmented.state = entities.statesById.get(story.workflow_state_id);
+    augmented.epic = entities.epicsById.get(story.epic_id);
+    augmented.iteration = entities.iterationsById.get(story.iteration_id);
+    augmented.owners = story.owner_ids.map((id) => entities.membersById.get(id));
     debug('hydrated story');
     return augmented;
 };
 
-const findProject = (entities: Entities, project: number | string) => {
-    if (entities.projectsById[project]) {
-        return entities.projectsById[project];
+const findEntity = <K, V>(entities: Map<K, V>, id: K) => {
+    if (entities.get(id)) {
+        return entities.get(id);
     }
-    const projectMatch = new RegExp(`${project}`, 'i');
-    return Object.values(entities.projectsById).filter((s) => !!s.name.match(projectMatch))[0];
+    const match = new RegExp(`${id}`, 'i');
+    return Object.values(entities).filter((s) => !!s.name.match(match))[0];
 };
 
-const findState = (entities: Entities, state: string | number) => {
-    if (entities.statesById[state]) {
-        return entities.statesById[state];
-    }
-    const stateMatch = new RegExp(`${state}`, 'i');
-    // Since the name of a state may be duplicated, it would be
-    // much safer to search for states of the current story workflow.
-    // That will take a bit of refactoring.
-    return Object.values(entities.statesById).filter((s) => !!s.name.match(stateMatch))[0];
-};
+const findProject = (entities: Entities, project: number) =>
+    findEntity(entities.projectsById, project);
 
-const findEpic = (entities: Entities, epicName: string | number) => {
-    if (entities.epicsById[epicName]) {
-        return entities.epicsById[epicName];
-    }
-    const epicMatch = new RegExp(`${epicName}`, 'i');
-    return Object.values(entities.epicsById).filter((s) => s.name.match(epicMatch))[0];
-};
+const findState = (entities: Entities, state: number) => findEntity(entities.statesById, state);
 
-const findIteration = (entities: Entities, iterationName: string | number) => {
-    if (entities.iterationsById[iterationName]) {
-        return entities.iterationsById[iterationName];
-    }
-    const iterationMatch = new RegExp(`${iterationName}`, 'i');
-    return Object.values(entities.iterationsById).filter((s) => s.name.match(iterationMatch))[0];
-};
+const findEpic = (entities: Entities, epicName: number) =>
+    findEntity(entities.statesById, epicName);
+
+const findIteration = (entities: Entities, iterationName: number) =>
+    findEntity(entities.statesById, iterationName);
 
 const findOwnerIds = (entities: Entities, owners: string) => {
     const ownerMatch = new RegExp(owners.split(',').join('|'), 'i');
@@ -284,7 +292,8 @@ const printFormattedStory = (program: any) => {
     \tState:      %s
     \tLabels:     %l
     \tURL:        %u
-    \tCreated:    %c\tUpdated: %updated
+    \tCreated:    %c
+    \tUpdated:    %updated
     \tArchived:   %a
     `;
         const format = program.format || defaultFormat;
@@ -396,15 +405,15 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
         return c;
     });
     story.comments.map((c) => {
-        const author = entities.membersById[c.author_id];
+        const author = entities.membersById.get(c.author_id);
         log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
         log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
         return c;
     });
-    story.files.map((c) => {
-        log(chalk.bold('File:') + `     ${fileURL(c)}`);
-        log(chalk.bold('          name:') + `  ${c.name}`);
-        return c;
+    story.files.map((file) => {
+        log(chalk.bold('File:') + `     ${file.name}`);
+        log(`          ${file.url}`);
+        return file;
     });
     log();
 };
@@ -462,8 +471,7 @@ const checkoutStoryBranch = (story: StoryHydrated, prefix: string = '') => {
     execSync(`git checkout ${branch} 2> /dev/null || git checkout -b ${branch}`);
 };
 
-// @ts-ignore
-const fileURL = (file: File) => `${file.url}?token=${client.requestFactory.token}`;
+const fileURL = (file: UploadedFile) => `${file.url}?token=${config.token}`;
 
 export default {
     listStories,
