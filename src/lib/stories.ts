@@ -10,6 +10,7 @@ import debugging from 'debug';
 import {
     Epic,
     EpicSlim,
+    Group,
     Iteration,
     IterationSlim,
     Label,
@@ -33,6 +34,7 @@ export interface Entities {
     projectsById?: Map<number, Project>;
     statesById?: Map<number, WorkflowState>;
     membersById?: Map<string, Member>;
+    groupsById?: Map<string, Group>;
     epicsById?: Map<number, EpicSlim>;
     iterationsById?: Map<number, IterationSlim>;
     labels?: Label[];
@@ -46,6 +48,7 @@ export interface StoryHydrated extends Story {
     iteration?: IterationSlim;
     project?: Project;
     state?: WorkflowState;
+    group?: Group;
     owners?: Member[];
 }
 
@@ -54,6 +57,7 @@ async function fetchEntities(): Promise<Entities> {
         projectsById,
         statesById,
         membersById,
+        groupsById,
         epicsById,
         iterationsById,
         labels,
@@ -72,6 +76,10 @@ async function fetchEntities(): Promise<Entities> {
             .then((r) => r.data)
             .then(mapByItemStringId),
         client
+            .listGroups()
+            .then((r) => r.data)
+            .then(mapByItemStringId),
+        client
             .listEpics(null)
             .then((r) => r.data)
             .then(mapByItemId),
@@ -85,8 +93,8 @@ async function fetchEntities(): Promise<Entities> {
         process.exit(2);
     });
 
-    debug('response workflows, members, projects, epics, iterations');
-    return { projectsById, statesById, membersById, epicsById, iterationsById, labels };
+    debug('response workflows, members, groups, projects, epics, iterations');
+    return { projectsById, statesById, membersById, groupsById, epicsById, iterationsById, labels };
 }
 
 const listStories = async (program: any) => {
@@ -148,6 +156,7 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
     augmented.epic = entities.epicsById.get(story.epic_id);
     augmented.iteration = entities.iterationsById.get(story.iteration_id);
     augmented.owners = story.owner_ids.map((id) => entities.membersById.get(id));
+    augmented.group = entities.groupsById.get(story.group_id);
     debug('hydrated story');
     return augmented;
 };
@@ -285,6 +294,7 @@ const printFormattedStory = (program: any) => {
     return (story: StoryHydrated) => {
         const defaultFormat = `#%id %t
     \tType:       %y/%e
+    \tTeam:       %T
     \tProject:    %p
     \tEpic:       %epic
     \tIteration:  %i
@@ -323,6 +333,7 @@ const printFormattedStory = (program: any) => {
                         : '_'
                 )
                 .replace(/%p/, project)
+                .replace(/%T/, story.group?.name || '_')
                 .replace(/%o/, owners.join(', ') || '_')
                 .replace(
                     /%s/,
@@ -360,11 +371,13 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
     });
     const owners = story.owners.map((o) => {
-        return `${o.profile.name} (` + chalk.bold(`${o.profile.mention_name}` + ')');
+        const mentionName = chalk.bold(`${o.profile.mention_name}`);
+        return `${o.profile.name} (${mentionName})`;
     });
 
     log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
     log(chalk.bold('Desc:') + `      ${formatLong(story.description || '_')}`);
+    log(chalk.bold('Team:') + `      ${story.group?.name || '_'}`);
     log(chalk.bold('Owners:') + `    ${owners.join(', ') || '_'}`);
     log(chalk.bold('Type:') + `      ${story.story_type}/${story.estimate || '_'}`);
     log(chalk.bold('Label:') + `     ${labels.join(', ') || '_'}`);
