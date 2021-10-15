@@ -5,7 +5,14 @@ import { exec } from 'child_process';
 
 import client from '../lib/client';
 
-import { Epic, Iteration, Project, Story, WorkflowState } from 'clubhouse-lib';
+import {
+    CreateStoryParams,
+    Epic,
+    Iteration,
+    Project,
+    Story,
+    WorkflowState,
+} from '@useshortcut/client';
 import spinner from '../lib/spinner';
 import * as commander from 'commander';
 import { loadConfig } from '../lib/configure';
@@ -47,7 +54,7 @@ const main = async () => {
         story_type: program.type,
         description: `${program.description}`,
         estimate: program.estimate || undefined,
-    } as Story;
+    } as CreateStoryParams;
     if (program.project) {
         update.project_id = (storyLib.findProject(entities, program.project) || ({} as Project)).id;
     }
@@ -79,7 +86,7 @@ const main = async () => {
         log('Must provide --title and --project');
     } else {
         try {
-            story = await client.createStory(update);
+            story = await client.createStory(update).then((r) => r.data);
         } catch (e) {
             log('Error creating story');
         }

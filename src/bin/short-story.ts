@@ -3,9 +3,9 @@ import { execSync } from 'child_process';
 import * as commander from 'commander';
 
 import * as os from 'os';
-import fetch from 'node-fetch';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as https from 'https';
 import chalk from 'chalk';
 import { loadConfig } from '../lib/configure';
 
@@ -14,14 +14,13 @@ import client from '../lib/client';
 import storyLib, { StoryHydrated, Entities } from '../lib/stories';
 import {
     Epic,
-    File,
+    UploadedFile,
     Iteration,
     Story,
-    StoryChange,
     Task,
     WorkflowState,
-    StoryType,
-} from 'clubhouse-lib';
+    UpdateStory,
+} from '@useshortcut/client';
 import spinner from '../lib/spinner';
 
 const config = loadConfig();
@@ -75,7 +74,7 @@ const main = async () => {
     const entities = await storyLib.fetchEntities();
     if (!(program.idonly || program.quiet)) spin.start();
     debug('constructing story update');
-    let update = {} as StoryChange;
+    let update = {} as UpdateStory;
     if (program.archived) {
         update.archived = true;
     }
@@ -95,9 +94,10 @@ const main = async () => {
     }
     if (program.type) {
         const typeMatch = new RegExp(program.type, 'i');
-        update.story_type = ['feature', 'bug', 'chore'].filter((t) => {
-            return !!t.match(typeMatch);
-        })[0] as StoryType;
+        // @ts-ignore
+        update.story_type = ['feature', 'bug', 'chore'].filter(
+            (t) => !!t.match(typeMatch)
+        )[0] as UpdateStory;
     }
     if (program.owners) {
         update.owner_ids = storyLib.findOwnerIds(entities, program.owners);
@@ -143,8 +143,9 @@ const main = async () => {
         }
     }
     let argIDs = program.args.map((a) => (a.match(/\d+/) || [])[0]);
-    argIDs.concat(gitID).map(async (id) => {
-        let story;
+    argIDs.concat(gitID).map(async (_id) => {
+        const id = parseInt(_id, 10);
+        let story: Story;
         try {
             if (program.comment) {
                 debug('request comment create');
@@ -169,7 +170,7 @@ const main = async () => {
         }
         try {
             debug('request story');
-            story = await client.getStory(id);
+            story = await client.getStory(id).then((r) => r.data);
             debug('response story');
         } catch (e) {
             stopSpinner();
@@ -292,15 +293,16 @@ const stopSpinner = () => {
     if (!(program.idonly || program.quiet)) spin.stop(true);
 };
 
-const downloadFiles = (story: Story) => {
-    story.files.map((file: File) => {
-        const filePath = path.join(program.downloadDir, file.name);
-        log(chalk.bold('Downloading file to: ') + filePath);
-        return fetch(storyLib.fileURL(file)).then((res) =>
-            res.body.pipe(fs.createWriteStream(filePath))
-        );
+const downloadFiles = (story: Story) =>
+    story.files.map((file: UploadedFile) => {
+        https.get(storyLib.fileURL(file), (res) => {
+            const filePath = path.join(program.downloadDir, file.name);
+            log(chalk.bold('Downloading file to: ') + filePath);
+            const stream = fs.createWriteStream(filePath);
+            res.pipe(stream);
+            stream.on('finish', () => stream.close());
+        });
     });
-};
 
 const printStory = (story: StoryHydrated, entities: Entities) => {
     if (program.idonly) {

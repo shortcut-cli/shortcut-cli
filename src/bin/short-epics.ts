@@ -3,7 +3,7 @@ import client from '../lib/client';
 import * as commander from 'commander';
 import chalk from 'chalk';
 
-import { Epic } from 'clubhouse-lib';
+import { Epic } from '@useshortcut/client';
 import spinner from '../lib/spinner';
 
 const log = console.log;
@@ -22,7 +22,7 @@ const program = commander
 
 const main = async () => {
     spin.start();
-    const epics = await client.listEpics();
+    const epics = await client.listEpics(null).then((r) => r.data);
     spin.stop(true);
     const textMatch = new RegExp(program.title, 'i');
     epics
