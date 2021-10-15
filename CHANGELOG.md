@@ -7,14 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 ### Changed
-- Updated typescript to 4.4.3
-- Update shortcut client
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
 
 ---
+
+## 3.1.0
+
+### Changed
+- Updated typescript to 4.4.3
+- Update shortcut client
 
 ## 3.0.0
 
