@@ -80,7 +80,7 @@ const main = async () => {
     if (program.label) {
         update.labels = storyLib.findLabelNames(entities, program.label);
     }
-    let story: StoryHydrated;
+    let story: Story;
     if (!update.name || !update.project_id) {
         if (!program.idonly) spin.stop(true);
         log('Must provide --title and --project');
@@ -93,12 +93,12 @@ const main = async () => {
     }
     if (!program.idonly) spin.stop(true);
     if (story) {
-        story = storyLib.hydrateStory(entities, story);
-        storyLib.printDetailedStory(story);
+        const hydrateStory = storyLib.hydrateStory(entities, story);
+        storyLib.printDetailedStory(hydrateStory);
         if (program.gitBranch) {
-            storyLib.checkoutStoryBranch(story);
+            storyLib.checkoutStoryBranch(hydrateStory);
         } else if (program.gitBranchShort) {
-            storyLib.checkoutStoryBranch(story, `${config.mentionName}/sc-${story.id}/`);
+            storyLib.checkoutStoryBranch(hydrateStory, `${config.mentionName}/sc-${story.id}/`);
         }
         if (program.open) {
             exec('open ' + storyLib.storyURL(story));
