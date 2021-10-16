@@ -138,6 +138,7 @@ Templating variables:
 %a       Print archived status of story
 %T       Print the team name
 %o       Print owners of story
+%r       Print the requester
 %l       Print labels on story
 %u       Print URL of story
 %epic    Print epic of story
