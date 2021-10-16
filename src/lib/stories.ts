@@ -50,6 +50,7 @@ export interface StoryHydrated extends Story {
     state?: WorkflowState;
     group?: Group;
     owners?: Member[];
+    requester?: Member;
 }
 
 async function fetchEntities(): Promise<Entities> {
@@ -156,6 +157,7 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
     augmented.epic = entities.epicsById.get(story.epic_id);
     augmented.iteration = entities.iterationsById.get(story.iteration_id);
     augmented.owners = story.owner_ids.map((id) => entities.membersById.get(id));
+    augmented.requester = entities.membersById.get(story.requested_by_id);
     augmented.group = entities.groupsById.get(story.group_id);
     debug('hydrated story');
     return augmented;
@@ -298,6 +300,7 @@ const printFormattedStory = (program: any) => {
     \tProject:    %p
     \tEpic:       %epic
     \tIteration:  %i
+    \tRequester:  %r
     \tOwners:     %o
     \tState:      %s
     \tLabels:     %l
@@ -335,6 +338,11 @@ const printFormattedStory = (program: any) => {
                 .replace(/%p/, project)
                 .replace(/%T/, story.group?.name || '_')
                 .replace(/%o/, owners.join(', ') || '_')
+                .replace(
+                    /%r/,
+                    `${story.requester.profile.name} (${story.requester.profile.mention_name})` ||
+                        '_'
+                )
                 .replace(
                     /%s/,
                     `${(story.state || ({} as WorkflowState)).name} (#${story.workflow_state_id})`
@@ -379,6 +387,10 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     log(chalk.bold('Desc:') + `      ${formatLong(story.description || '_')}`);
     log(chalk.bold('Team:') + `      ${story.group?.name || '_'}`);
     log(chalk.bold('Owners:') + `    ${owners.join(', ') || '_'}`);
+    log(
+        chalk.bold('Requester:') +
+            ` ${story.requester.profile.name} (${story.requester.profile.mention_name})`
+    );
     log(chalk.bold('Type:') + `      ${story.story_type}/${story.estimate || '_'}`);
     log(chalk.bold('Label:') + `     ${labels.join(', ') || '_'}`);
     if (story.project) {

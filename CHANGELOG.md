@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Show team when showing stories.
+- Show requester name when showing stories.
 ### Changed
 ### Deprecated
 ### Removed
