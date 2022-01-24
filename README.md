@@ -373,5 +373,6 @@ $ npm start -- story 1234
 - [andjosh](https://github.com/andjosh)
 - [j-martin](https://github.com/j-martin)
 - [joshmfrankel](https://github.com/joshmfrankel)
+- [ohe](https://github.com/ohe)
 
 See the [full list](https://github.com/shortcut-cli/shortcut-cli/graphs/contributors).
