@@ -10,10 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Removed
 ### Fixed
-- Fix search with flags #291
 ### Security
 
 ---
+
+## 3.2.1
+
+### Fixed
+- Fix search with flags #291
+- Fix retrieval of project and epic entities #293 (by @ohe)
+- Fix: findEpic method was searching in states entities instead of epics ones (by @ohe)
 
 ## 3.2.0
 
