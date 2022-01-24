@@ -165,7 +165,7 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
 
 const isNumber = (val: string | number) => !!(val || val === 0) && !isNaN(Number(val.toString()));
 
-const findEntity = <_ , V>(entities: Map<string | number, V>, id: string | number) => {
+const findEntity = <_, V>(entities: Map<string | number, V>, id: string | number) => {
     // entities can be either a map of string ids or a map of number ids
     // id, when passed in, is often a string coming from user input
     // so we need to check both types to find the entity.
@@ -173,7 +173,7 @@ const findEntity = <_ , V>(entities: Map<string | number, V>, id: string | numbe
         return entities.get(id);
     }
     if (isNumber(id) && Number(id.toString())) {
-        return entities.get((Number(id.toString())));
+        return entities.get(Number(id.toString()));
     }
     const match = new RegExp(`${id}`, 'i');
     return Object.values(entities).filter((s) => !!s.name.match(match))[0];
@@ -184,8 +184,7 @@ const findProject = (entities: Entities, project: number) =>
 
 const findState = (entities: Entities, state: number) => findEntity(entities.statesById, state);
 
-const findEpic = (entities: Entities, epicName: number) =>
-    findEntity(entities.epicsById, epicName);
+const findEpic = (entities: Entities, epicName: number) => findEntity(entities.epicsById, epicName);
 
 const findIteration = (entities: Entities, iterationName: number) =>
     findEntity(entities.statesById, iterationName);
