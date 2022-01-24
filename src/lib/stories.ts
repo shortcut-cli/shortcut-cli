@@ -177,7 +177,7 @@ const findProject = (entities: Entities, project: number) =>
 const findState = (entities: Entities, state: number) => findEntity(entities.statesById, state);
 
 const findEpic = (entities: Entities, epicName: number) =>
-    findEntity(entities.statesById, epicName);
+    findEntity(entities.epicsById, epicName);
 
 const findIteration = (entities: Entities, iterationName: number) =>
     findEntity(entities.statesById, iterationName);
