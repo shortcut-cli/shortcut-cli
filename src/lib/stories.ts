@@ -123,15 +123,17 @@ async function fetchStories(program: any, entities: Entities): Promise<Story[]> 
     }
 
     debug('filtering projects');
-    let regexProject = new RegExp(program.project, 'i');
-    const projectIds = Object.values(entities.projectsById).filter(
+    const regexProject = new RegExp(program.project, 'i');
+    const projectIds = [...entities.projectsById.values()].filter(
         (p) => !!(p.id + p.name).match(regexProject)
     );
 
     debug('request all stories for project(s)', projectIds.map((p) => p.name).join(', '));
     return Promise.all(
         projectIds.map((p) => client.listStories(p.id, null))
-    ).then((projectStories) => projectStories.reduce((acc, stories) => acc.concat(stories), []));
+    ).then((projectStories) =>
+        projectStories.reduce((acc, stories) => acc.concat(stories.data), [])
+    );
 }
 
 async function searchStories(program: any): Promise<Story[]> {
