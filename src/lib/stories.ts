@@ -438,7 +438,7 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
         );
         return c;
     });
-    story.comments.map((c) => {
+    story.comments.filter(comment => !comment.deleted).map((c) => {
         const author = entities.membersById.get(c.author_id);
         log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
         log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
