@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## 3.2.2
+
+### Fixed
+- Handling of deleted comments.
+
 ## 3.2.1
 
 ### Fixed
