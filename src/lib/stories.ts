@@ -438,8 +438,8 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
         );
         return c;
     });
-    // @ts-ignore deleted is not currently part of the published library
     story.comments
+        // @ts-ignore deleted is not currently part of the published library
         .filter((comment) => !comment.deleted)
         .map((c) => {
             const author = entities.membersById.get(c.author_id);
