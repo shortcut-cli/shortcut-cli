@@ -439,12 +439,14 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
         return c;
     });
     // @ts-ignore deleted is not currently part of the published library
-    story.comments.filter(comment => !comment.deleted).map((c) => {
-        const author = entities.membersById.get(c.author_id);
-        log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
-        log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
-        return c;
-    });
+    story.comments
+        .filter((comment) => !comment.deleted)
+        .map((c) => {
+            const author = entities.membersById.get(c.author_id);
+            log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
+            log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
+            return c;
+        });
     story.files.map((file) => {
         log(chalk.bold('File:') + `     ${file.name}`);
         log(`          ${file.url}`);
