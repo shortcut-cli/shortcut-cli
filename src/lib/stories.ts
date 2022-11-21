@@ -184,6 +184,9 @@ const findEntity = <_, V>(entities: Map<string | number, V>, id: string | number
 const findProject = (entities: Entities, project: number) =>
     findEntity(entities.projectsById, project);
 
+const findGroup = (entities: Entities, group: number) =>
+    findEntity(entities.groupsById, group);
+
 const findState = (entities: Entities, state: number) => findEntity(entities.statesById, state);
 
 const findEpic = (entities: Entities, epicName: number) => findEntity(entities.epicsById, epicName);
@@ -405,6 +408,9 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     if (story.project) {
         log(chalk.bold('Project:') + chalk.bold(`   #${story.project_id} `) + story.project.name);
     }
+    if (story.group) {
+        log(chalk.bold('Team:') + chalk.bold(`   #${story.group_id} `) + story.group.name);
+    }
     if (story.epic) {
         log(chalk.bold('Epic:') + chalk.bold(`      #${story.epic_id} `) + story.epic.name);
     } else {
@@ -518,6 +524,7 @@ export default {
     fetchEntities,
     hydrateStory,
     findProject,
+    findGroup,
     findState,
     findEpic,
     findIteration,

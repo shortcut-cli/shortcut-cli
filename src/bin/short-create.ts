@@ -8,6 +8,7 @@ import client from '../lib/client';
 import {
     CreateStoryParams,
     Epic,
+    Group,
     Iteration,
     Project,
     Story,
@@ -41,6 +42,7 @@ const program = commander
     .option('-o, --owners [id|name]', 'Set owners of story, comma-separated', '')
     .option('-O, --open', 'Open story in browser')
     .option('-p, --project [id|name]', 'Set project of story, required', '')
+    .option('-T, --team [id|name]', 'Set team of story', '')
     .option('-t, --title [text]', 'Set title of story, required', '')
     .option('-s, --state [id|name]', 'Set workflow state of story', '')
     .option('-y, --type [name]', 'Set type of story, default: feature', 'feature')
@@ -57,6 +59,9 @@ const main = async () => {
     } as CreateStoryParams;
     if (program.project) {
         update.project_id = (storyLib.findProject(entities, program.project) || ({} as Project)).id;
+    }
+    if (program.team) {
+        update.group_id = (storyLib.findGroup(entities, program.team) || ({} as Group)).id;
     }
     if (program.state) {
         update.workflow_state_id = (
