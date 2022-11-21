@@ -237,6 +237,7 @@ Comment: This is a commend
     -o, --owners [id|name]    Set owners of story, comma-separated
     -O, --open                Open story in browser
     -p, --project [id|name]   Set project of story, required
+    -T, --team [id|name]      Set team of story
     -t, --title [text]        Set title of story, required
     -s, --state [id|name]     Set workflow state of story
     -y, --type [name]         Set type of story, default: feature
