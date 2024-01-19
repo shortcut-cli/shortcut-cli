@@ -4,7 +4,7 @@ import spinner from '../lib/spinner';
 const spin = spinner('Loading... %s ');
 const log = console.log;
 import * as commander from 'commander';
-import { Member } from '@useshortcut/client';
+import { Member } from '@shortcut/client';
 import chalk from 'chalk';
 
 const program = commander

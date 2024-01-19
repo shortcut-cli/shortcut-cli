@@ -4,7 +4,7 @@ import client from '../lib/client';
 import * as commander from 'commander';
 import chalk from 'chalk';
 import spinner from '../lib/spinner';
-import { Project } from '@useshortcut/client';
+import { Project } from '@shortcut/client';
 
 const spin = spinner();
 const log = console.log;

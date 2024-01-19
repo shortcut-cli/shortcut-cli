@@ -3,7 +3,7 @@ import client from '../lib/client';
 import * as commander from 'commander';
 import chalk from 'chalk';
 
-import { Epic } from '@useshortcut/client';
+import { Epic } from '@shortcut/client';
 import spinner from '../lib/spinner';
 
 const log = console.log;

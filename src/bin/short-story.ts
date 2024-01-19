@@ -20,7 +20,7 @@ import {
     Task,
     WorkflowState,
     UpdateStory,
-} from '@useshortcut/client';
+} from '@shortcut/client';
 import spinner from '../lib/spinner';
 
 const config = loadConfig();

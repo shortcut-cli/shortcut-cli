@@ -21,7 +21,7 @@ import {
     UploadedFile,
     Workflow,
     WorkflowState,
-} from '@useshortcut/client';
+} from '@shortcut/client';
 
 const debug = debugging('club');
 const config = loadConfig();

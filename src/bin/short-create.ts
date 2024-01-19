@@ -13,7 +13,7 @@ import {
     Project,
     Story,
     WorkflowState,
-} from '@useshortcut/client';
+} from '@shortcut/client';
 import spinner from '../lib/spinner';
 import * as commander from 'commander';
 import { loadConfig } from '../lib/configure';

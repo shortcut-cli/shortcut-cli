@@ -5,7 +5,7 @@ import * as prompt from 'prompt';
 
 import { Config, loadCachedConfig, updateConfig } from '../lib/configure';
 import * as commander from 'commander';
-import { ShortcutClient } from '@useshortcut/client';
+import { ShortcutClient } from '@shortcut/client';
 
 const extant = loadCachedConfig();
 const log = console.log;
