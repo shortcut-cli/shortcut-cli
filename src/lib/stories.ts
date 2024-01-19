@@ -54,45 +54,38 @@ export interface StoryHydrated extends Story {
 }
 
 async function fetchEntities(): Promise<Entities> {
-    let [
-        projectsById,
-        statesById,
-        membersById,
-        groupsById,
-        epicsById,
-        iterationsById,
-        labels,
-    ] = await Promise.all([
-        client
-            .listProjects()
-            .then((r) => r.data)
-            .then(mapByItemId),
-        client
-            .listWorkflows()
-            .then((r) => r.data)
-            .then((wfs: Workflow[]) => wfs.reduce((states, wf) => states.concat(wf.states), []))
-            .then(mapByItemId),
-        client
-            .listMembers(null)
-            .then((r) => r.data)
-            .then(mapByItemStringId),
-        client
-            .listGroups()
-            .then((r) => r.data)
-            .then(mapByItemStringId),
-        client
-            .listEpics(null)
-            .then((r) => r.data)
-            .then(mapByItemId),
-        client
-            .listIterations(null)
-            .then((r) => r.data)
-            .then(mapByItemId),
-        client.listLabels(null).then((r) => r.data),
-    ]).catch((err) => {
-        log(`Error fetching workflows: ${err}`);
-        process.exit(2);
-    });
+    let [projectsById, statesById, membersById, groupsById, epicsById, iterationsById, labels] =
+        await Promise.all([
+            client
+                .listProjects()
+                .then((r) => r.data)
+                .then(mapByItemId),
+            client
+                .listWorkflows()
+                .then((r) => r.data)
+                .then((wfs: Workflow[]) => wfs.reduce((states, wf) => states.concat(wf.states), []))
+                .then(mapByItemId),
+            client
+                .listMembers(null)
+                .then((r) => r.data)
+                .then(mapByItemStringId),
+            client
+                .listGroups()
+                .then((r) => r.data)
+                .then(mapByItemStringId),
+            client
+                .listEpics(null)
+                .then((r) => r.data)
+                .then(mapByItemId),
+            client
+                .listIterations(null)
+                .then((r) => r.data)
+                .then(mapByItemId),
+            client.listLabels(null).then((r) => r.data),
+        ]).catch((err) => {
+            log(`Error fetching workflows: ${err}`);
+            process.exit(2);
+        });
 
     debug('response workflows, members, groups, projects, epics, iterations');
     return { projectsById, statesById, membersById, groupsById, epicsById, iterationsById, labels };
@@ -129,10 +122,8 @@ async function fetchStories(program: any, entities: Entities): Promise<Story[]> 
     );
 
     debug('request all stories for project(s)', projectIds.map((p) => p.name).join(', '));
-    return Promise.all(
-        projectIds.map((p) => client.listStories(p.id, null))
-    ).then((projectStories) =>
-        projectStories.reduce((acc, stories) => acc.concat(stories.data), [])
+    return Promise.all(projectIds.map((p) => client.listStories(p.id, null))).then(
+        (projectStories) => projectStories.reduce((acc, stories) => acc.concat(stories.data), [])
     );
 }
 
@@ -184,8 +175,7 @@ const findEntity = <_, V>(entities: Map<string | number, V>, id: string | number
 const findProject = (entities: Entities, project: number) =>
     findEntity(entities.projectsById, project);
 
-const findGroup = (entities: Entities, group: number) =>
-    findEntity(entities.groupsById, group);
+const findGroup = (entities: Entities, group: number) => findEntity(entities.groupsById, group);
 
 const findState = (entities: Entities, state: number) => findEntity(entities.statesById, state);
 
@@ -205,7 +195,7 @@ const findLabelNames = (entities: Entities, label: string) => {
     const labelMatch = new RegExp(label.split(',').join('|'), 'i');
     return entities.labels
         .filter((m) => !!`${m.id} ${m.name}`.match(labelMatch))
-        .map((m) => ({ name: m.name } as Label));
+        .map((m) => ({ name: m.name }) as Label);
 };
 
 const filterStories = (program: any, stories: Story[], entities: Entities) => {
