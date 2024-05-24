@@ -236,10 +236,10 @@ Comment: This is a commend
     -l, --label [id|name]     Stories with label id/name, by regex
     -o, --owners [id|name]    Set owners of story, comma-separated
     -O, --open                Open story in browser
-    -p, --project [id|name]   Set project of story, required
+    -p, --project [id|name]   Set project of story, required if --state is not set
     -T, --team [id|name]      Set team of story
     -t, --title [text]        Set title of story, required
-    -s, --state [id|name]     Set workflow state of story
+    -s, --state [id|name]     Set workflow state of story, required if --project is not set
     -y, --type [name]         Set type of story, default: feature
     -h, --help                output usage information
     --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
