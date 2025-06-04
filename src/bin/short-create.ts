@@ -41,10 +41,10 @@ const program = commander
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')
     .option('-o, --owners [id|name]', 'Set owners of story, comma-separated', '')
     .option('-O, --open', 'Open story in browser')
-    .option('-p, --project [id|name]', 'Set project of story, required', '')
+    .option('-p, --project [id|name]', 'Set project of story, required if --state is not set', '')
     .option('-T, --team [id|name]', 'Set team of story', '')
     .option('-t, --title [text]', 'Set title of story, required', '')
-    .option('-s, --state [id|name]', 'Set workflow state of story', '')
+    .option('-s, --state [id|name]', 'Set workflow state of story, required if --project is not set', '')
     .option('-y, --type [name]', 'Set type of story, default: feature', 'feature')
     .parse(process.argv);
 
@@ -86,9 +86,13 @@ const main = async () => {
         update.labels = storyLib.findLabelNames(entities, program.label);
     }
     let story: Story;
-    if (!update.name || !update.project_id) {
+    if (!update.name) {
         if (!program.idonly) spin.stop(true);
-        log('Must provide --title and --project');
+        log('Must provide --title');
+    }
+    else if (!update.project_id && !update.workflow_state_id) {
+        if (!program.idonly) spin.stop(true);
+        log('Must provide --project or --state');
     } else {
         try {
             story = await client.createStory(update).then((r) => r.data);
