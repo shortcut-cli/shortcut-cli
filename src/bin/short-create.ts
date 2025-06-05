@@ -44,7 +44,11 @@ const program = commander
     .option('-p, --project [id|name]', 'Set project of story, required if --state is not set', '')
     .option('-T, --team [id|name]', 'Set team of story', '')
     .option('-t, --title [text]', 'Set title of story, required', '')
-    .option('-s, --state [id|name]', 'Set workflow state of story, required if --project is not set', '')
+    .option(
+        '-s, --state [id|name]',
+        'Set workflow state of story, required if --project is not set',
+        ''
+    )
     .option('-y, --type [name]', 'Set type of story, default: feature', 'feature')
     .parse(process.argv);
 
@@ -89,8 +93,7 @@ const main = async () => {
     if (!update.name) {
         if (!program.idonly) spin.stop(true);
         log('Must provide --title');
-    }
-    else if (!update.project_id && !update.workflow_state_id) {
+    } else if (!update.project_id && !update.workflow_state_id) {
         if (!program.idonly) spin.stop(true);
         log('Must provide --project or --state');
     } else {
