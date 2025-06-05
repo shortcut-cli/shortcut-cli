@@ -1,5 +1,8 @@
 # shortcut-cli (formerly clubhouse-cli)
 
+> [!WARNING]
+> This project is not actively maintained. [We are looking for maintainer(s)](https://github.com/shortcut-cli/shortcut-cli/issues/308).
+
 [![CircleCI](https://circleci.com/gh/shortcut-cli/shortcut-cli/tree/main.svg?style=svg)](https://circleci.com/gh/shortcut-cli/shortcut-cli/tree/main)
 
 This is a command line interface for [Shortcut](https://app.shortcut.com), focused on the display and manipulation of stories. With this, you can run custom searches, save them as local workspaces, and recall those workspaces. You can also view full stories, update most attributes on a story, and create brand new stories quickly.
