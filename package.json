@@ -4,7 +4,7 @@
   "description": "A community-driven command line tool for viewing, creating, and updating shortcut.com stories",
   "main": "index.js",
   "engines": {
-    "node": ">= 7.6.*"
+    "node": ">=16"
   },
   "files": [
     "build"
