@@ -88,6 +88,9 @@ export const main = async () => {
     }
 };
 
-if (require.main === module) {
+// We previously used `require.main === module` to check if this file was run directly,
+// but now we check if the script name includes 'short-search' to ensure it runs only when intended,
+// because our bundle doesn't support `require.main` in the same way.
+if (process.argv[1]?.includes('short-search')) {
     main();
 }
