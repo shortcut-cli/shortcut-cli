@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import spinner from '../lib/spinner';
 import * as commander from 'commander';
 
+import spinner from '../lib/spinner';
 import configure from '../lib/configure';
 import storyLib, { StoryHydrated } from '../lib/stories';
 

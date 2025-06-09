@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import client from '../lib/client';
 import * as commander from 'commander';
 import chalk from 'chalk';
-
 import { Epic } from '@shortcut/client';
+
+import client from '../lib/client';
 import spinner from '../lib/spinner';
 
 const log = console.log;
@@ -40,7 +40,7 @@ const printItem = (epic: Epic) => {
     if (!epic.started && program.started) return;
     if (!epic.completed && program.completed) return;
 
-    var defaultFormat = `#%id %t\nMilestone:\t%m\nState:\t\t%s\nDeadline:\t%dl\n`;
+    let defaultFormat = `#%id %t\nMilestone:\t%m\nState:\t\t%s\nDeadline:\t%dl\n`;
     defaultFormat += `Points:\t\t%p\nPoints Started: %ps\nPoints Done:\t%pd\nCompletion:\t%c\n`;
     if (epic.archived) {
         defaultFormat += `Archived:\t%ar\n`;

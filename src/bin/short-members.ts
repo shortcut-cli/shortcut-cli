@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-import client from '../lib/client';
-import spinner from '../lib/spinner';
-const spin = spinner('Loading... %s ');
-const log = console.log;
-import * as commander from 'commander';
 import { Member } from '@shortcut/client';
 import chalk from 'chalk';
+import * as commander from 'commander';
+
+import client from '../lib/client';
+import spinner from '../lib/spinner';
+
+const spin = spinner('Loading... %s ');
+const log = console.log;
 
 const program = commander
     .description('Display members available for stories')
