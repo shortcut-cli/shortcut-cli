@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import * as commander from 'commander';
+import commander from 'commander';
 import chalk from 'chalk';
-import { Epic } from '@shortcut/client';
+import type { Epic } from '@shortcut/client';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';

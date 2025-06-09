@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { Member } from '@shortcut/client';
+import type { Member } from '@shortcut/client';
 import chalk from 'chalk';
-import * as commander from 'commander';
+import commander from 'commander';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';

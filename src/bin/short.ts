@@ -1,14 +1,13 @@
 #!/usr/bin/env node
-import * as commander from 'commander';
+import commander from 'commander';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pkg = require('../../package.json');
+import { version, description } from '../../package.json';
 
 process.on('unhandledRejection', console.log);
 
 commander
-    .version(pkg.version)
-    .description(pkg.description)
+    .version(version)
+    .description(description)
     .command('install [options]', 'install and configure API access')
     .command('search [options] [SEARCH OPERATORS]', 'search stories with optional query')
     .alias('s')

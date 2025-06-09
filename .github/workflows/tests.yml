@@ -9,18 +9,17 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node: [16, 22]
-        name: build (node ${{ matrix.node }})
         steps:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-            - name: Setup node
+            - name: Use Node.js
               uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
               with:
-                  node-version: ${{ matrix.node }}
+                  node-version: 22
                   cache: 'npm'
-            - run: npm ci # Automatically builds the library (prepublish script)
+            - name: Install dependencies
+              run: npm ci
+            - name: Build
+              run: npm run build
 
     format-check:
         runs-on: ubuntu-latest
@@ -49,3 +48,17 @@ jobs:
               run: npm ci
             - name: Run ESLint
               run: npm run lint
+
+    type-check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+            - name: Use Node.js
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+              with:
+                  node-version: 22
+                  cache: 'npm'
+            - name: Install dependencies
+              run: npm ci
+            - name: Run TypeScript
+              run: npm run type-check

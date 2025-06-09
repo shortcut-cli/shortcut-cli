@@ -1,16 +1,7 @@
 {
+  "extends": "@total-typescript/tsconfig/bundler/no-dom/library",
   "compilerOptions": {
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "downlevelIteration": true,
-    "incremental": true,
     "strict": false,
-    "target": "es5",
-    "outDir": "build",
-    "inlineSourceMap": true,
-    "skipLibCheck": true
   },
   "include": [
     "src/**/*"

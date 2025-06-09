@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import * as commander from 'commander';
+import commander from 'commander';
 
 import spinner from '../lib/spinner';
 import configure from '../lib/configure';
-import storyLib, { StoryHydrated } from '../lib/stories';
+import storyLib, { type StoryHydrated } from '../lib/stories';
 
 const spin = spinner('Finding... %s ');
 const log = console.log;
