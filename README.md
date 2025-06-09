@@ -1,25 +1,25 @@
-# shortcut-cli (formerly clubhouse-cli)
+# shortcut-cli
 
-> [!WARNING]
-> This project is not actively maintained. [We are looking for maintainer(s)](https://github.com/shortcut-cli/shortcut-cli/issues/308).
+[![Version](https://badge.fury.io/js/@shortcut-cli%2Fshortcut-cli.svg)](https://badge.fury.io/js/@shortcut-cli%2Fshortcut-cli)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/shortcut-cli/shortcut-cli/blob/main/LICENSE)
+[![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
-[![CircleCI](https://circleci.com/gh/shortcut-cli/shortcut-cli/tree/main.svg?style=svg)](https://circleci.com/gh/shortcut-cli/shortcut-cli/tree/main)
-
-This is a command line interface for [Shortcut](https://app.shortcut.com), focused on the display and manipulation of stories. With this, you can run custom searches, save them as local workspaces, and recall those workspaces. You can also view full stories, update most attributes on a story, and create brand new stories quickly.
+This is a community-driven command line interface for [Shortcut](https://shortcut.com), focused on the display and manipulation of stories. With this, you can run custom searches, save them as local workspaces, and recall those workspaces. You can also view full stories, update most attributes on a story, and create brand new stories quickly.
 
 ## Table of Contents
-- [Usage & Commands](#usage)
-    - [Install](#install)
-    - [Search](#search)
-    - [Story](#story)
-    - [Story Creation](#story-creation)
-    - [Workspace](#workspace)
-    - [Members](#members)
-    - [Epics](#epics)
-    - [Workflows](#workflows)
-    - [Projects](#projects)
-- [Development](#development)
-- [Acknowledgments](#acknowledgments)
+
+-   [Usage & Commands](#usage)
+    -   [Install](#install)
+    -   [Search](#search)
+    -   [Story](#story)
+    -   [Story Creation](#story-creation)
+    -   [Workspace](#workspace)
+    -   [Members](#members)
+    -   [Epics](#epics)
+    -   [Workflows](#workflows)
+    -   [Projects](#projects)
+-   [Development](#development)
+-   [Acknowledgments](#acknowledgments)
 
 ## Usage
 
@@ -27,12 +27,12 @@ This is a command line interface for [Shortcut](https://app.shortcut.com), focus
 
 Install via npm:
 
-~~~sh
-$ npm install @shortcut-cli/shortcut-cli -g
-$ short install
-~~~
+```sh
+npm install @shortcut-cli/shortcut-cli -g
+short install
+```
 
-~~~
+```
   Usage: short install [options]
 
   Install access token for Shortcut API
@@ -43,13 +43,15 @@ $ short install
     -V, --version  output the version number
     -f, --force    Force install/reinstall
     -h, --help     output usage information
-~~~
+```
 
 You may also provide a Shortcut API token via environment variable `SHORTCUT_API_TOKEN`.
-~~~sh
-$ SHORTCUT_API_TOKEN=foobar short story 3300
-~~~
-~~~
+
+```sh
+SHORTCUT_API_TOKEN=foobar short story 3300
+```
+
+```
   Usage: short [options] [command]
 
   A command line tool for searching, viewing, and updating shortcut.com stories
@@ -73,14 +75,14 @@ $ SHORTCUT_API_TOKEN=foobar short story 3300
     projects        list or search projects
     workspace       list stories matching saved workspace query
     help [cmd]      display help for [cmd]
-~~~
+```
 
 ### Search
 
-~~~
+```
   Usage: short find [options] [SEARCH OPERATORS]
 
-  Search through Shorcut stories. Arguments (non-flag/options) will
+  Search through Shortcut stories. Arguments (non-flag/options) will
   be passed to Shortcut story search API as search operators. Passing '%self%' as
   a search operator argument will be replaced by your mention name. Note that passing search
   operators and options (e.g. --owner foobar) will use the options as extra filtering
@@ -109,12 +111,12 @@ $ SHORTCUT_API_TOKEN=foobar short story 3300
     -r, --sort [field]                  Sort stories by field (accessor[:asc|desc][,next])
     -f, --format [template]             Format each story output by template
     -h, --help                          output usage information
-~~~
+```
 
 Example output
 
-~~~
-$ short search -o 'josh' -s 'Review'
+```
+short search -o 'josh' -s 'Review'
 #1480 Create Thinga-ma-bob
   Type:      feature/3
   Label:     #512 client_web
@@ -126,16 +128,16 @@ $ short search -o 'josh' -s 'Review'
   URL:       https://app.shortcut.com/story/1480
 
 # Custom formatting is an option
-$ short search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
+short search -o 'josh' -s 'Review' -f $'%i\t%s\t%t\n\t%o'
 1480    Code Review (#500000020)  Create Thinga-ma-bob
     Josh (josh)
-~~~
+```
 
 #### Story Output Formatting
 
 Templating variables:
 
-~~~
+```
 %id      Print ID of story
 %t       Print title/name of story
 %a       Print archived status of story
@@ -154,8 +156,8 @@ Templating variables:
 %updated Print story updated timestamp (if different from created)
 %j       Print full story as formatted JSON
 %gb      Print Git integration branch name
-%gbs     Pring Git integration branch short name
-~~~
+%gbs     Print Git integration branch short name
+```
 
 Note that the `$` string operator in bash is helpful in allowing `\t` (tab) and `\n` (newline) literals in the formatting string. Otherwise, you can actually just type a newline character.
 
@@ -165,7 +167,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
 
 ### Story
 
-~~~
+```
   Usage: short story [options] <id>
 
   Update and/or display story details
@@ -203,12 +205,12 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     --task-complete [text]    Toggle completion of story task matching text
     -y, --type [name]         Set type of story
     -h, --help                output usage information
-~~~
+```
 
 Example output:
 
-~~~
-$ short story 1480 -c 'This is a commend' -o josh
+```
+short story 1480 -c 'This is a commend' -o josh
 #1480 Create Thinga-ma-bob
 Desc:    Create a thing to display:
 Owners:  Josh (josh)
@@ -217,13 +219,13 @@ Label:   #512 client_web
 Project: #14 Customer
 State:   #500000020 Code Review
 URL:     https://app.shortcut.com/story/1480
-Comment: This is a commend
+Comment: This is a comment
          Josh at: 2017-10-25T16:17:04Z
-~~~
+```
 
 ### Story Creation
 
-~~~
+```
   Usage: short create [options]
 
   create a story with provided details
@@ -248,11 +250,11 @@ Comment: This is a commend
     --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
                               as required by the Git integration: https://bit.ly/2RKO1FF
     --git-branch-short        Checkout git branch from story slug <mention-name>/ch<id>/<title>
-~~~
+```
 
 ### Workspace
 
-~~~
+```
   Usage: short workspace [NAME] [options]
 
   List stories matching saved workspace query
@@ -265,11 +267,11 @@ Comment: This is a commend
     -u, --unset [name]  Force unset saved workspace
     -q, --quiet         Print only resulting story output, no loading dialog
     -h, --help          output usage information
-~~~
+```
 
 ### Members
 
-~~~
+```
   Usage: short members [options]
 
   Display members available for stories
@@ -280,11 +282,11 @@ Comment: This is a commend
     -s, --search [query]  List members with name containing query
     -d, --disabled        List members including disabled
     -h, --help            output usage information
-~~~
+```
 
 ### Epics
 
-~~~
+```
   Usage: short epics [options]
 
   Display epics available for stories
@@ -300,13 +302,13 @@ Comment: This is a commend
     -t, --title [query]       List epics with name/title containing query
     -s, --started             List epics that have been started
     -h, --help                output usage information
-~~~
+```
 
 #### Epic Output Formatting
 
 Templating variables:
 
-~~~
+```
 %id      Print ID of epic
 %t       Print title/name of epic
 %m       Print milestone of epic
@@ -320,11 +322,11 @@ Templating variables:
 %a       Print archived status of epic
 %st      Print started status of epic
 %co      Print completed status of epic
-~~~
+```
 
 ### Workflows
 
-~~~
+```
   Usage: short workflows [options]
 
   Display workflows/states available for stories
@@ -334,11 +336,11 @@ Templating variables:
 
     -s, --search [query]  List states containing query
     -h, --help            output usage information
-~~~
+```
 
 ### Projects
 
-~~~
+```
   Usage: short projects [options]
 
   Display projects available for stories
@@ -350,33 +352,32 @@ Templating variables:
     -d, --detailed       List more details for each project
     -t, --title [query]  List projects with name/title containing query
     -h, --help           output usage information
-~~~
+```
 
 ## Development
 
-You can use typescript watcher which will recompile your code automatically:
+You can use TypeScript watcher which will recompile your code automatically:
 
-~~~sh
-$ npm run build:watch
-~~~
+```sh
+npm run build:watch
+```
 
-You can run shortcut-cli with typescript map enabled:
+You can run shortcut-cli with TypeScript map enabled:
 
-~~~sh
-$ npm start -- story 1234
-~~~
+```sh
+npm start -- story 1234
+```
 
 ## Acknowledgments
 
-- [Repository for this code](https://github.com/shortcut-cli/shortcut-cli)
-- [NPM registry for this code](https://www.npmjs.com/package/@shortcut-cli/shortcut-cli)
-- [Shortcut API](https://shortcut.com/api/rest/v3)
-- Official [@useshortcut/client](https://github.com/useshortcut/clubhouse-lib)
+-   [Repository for this code](https://github.com/shortcut-cli/shortcut-cli)
+-   [NPM registry for this code](https://www.npmjs.com/package/@shortcut-cli/shortcut-cli)
+-   [Shortcut API](https://shortcut.com/api/rest/v3)
+-   Official [@shortcut/client](https://github.com/useshortcut/shortcut-client-js)
+-   [joshbeckman](https://github.com/joshbeckman), [j-martin](https://github.com/j-martin), [joshmfrankel](https://github.com/joshmfrankel), and [ohe](https://github.com/ohe) who created and contributed to this project
 
 ## Contributors
-- [andjosh](https://github.com/andjosh)
-- [j-martin](https://github.com/j-martin)
-- [joshmfrankel](https://github.com/joshmfrankel)
-- [ohe](https://github.com/ohe)
 
-See the [full list](https://github.com/shortcut-cli/shortcut-cli/graphs/contributors).
+<a href="https://github.com/shortcut-cli/shortcut-cli/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=shortcut-cli/shortcut-cli" />
+</a>
