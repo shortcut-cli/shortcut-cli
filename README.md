@@ -1,7 +1,7 @@
 # shortcut-cli
 
 [![Version](https://badge.fury.io/js/@shortcut-cli%2Fshortcut-cli.svg)](https://badge.fury.io/js/@shortcut-cli%2Fshortcut-cli)
-[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/shortcut-cli%2Fshortcut-cli/blob/main/LICENSE)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/shortcut-cli/shortcut-cli/blob/main/LICENSE)
 [![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
 This is a community-driven command line interface for [Shortcut](https://shortcut.com), focused on the display and manipulation of stories. With this, you can run custom searches, save them as local workspaces, and recall those workspaces. You can also view full stories, update most attributes on a story, and create brand new stories quickly.
