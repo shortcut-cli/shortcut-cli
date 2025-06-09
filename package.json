@@ -55,6 +55,7 @@
     "@types/debug": "4.1.12",
     "@types/node": "22.15.30",
     "@types/node-fetch": "3.0.3",
+    "@types/prompt": "^1.1.9",
     "eslint": "^9.28.0",
     "globals": "^16.2.0",
     "prettier": "3.5.3",
