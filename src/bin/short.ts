@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-const pkg = require('../../package.json');
-
 import * as commander from 'commander';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pkg = require('../../package.json');
 
 process.on('unhandledRejection', console.log);
 

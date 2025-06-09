@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import client from '../lib/client';
 
 import * as commander from 'commander';
 import chalk from 'chalk';
-import spinner from '../lib/spinner';
 import { Project } from '@shortcut/client';
+
+import spinner from '../lib/spinner';
+import client from '../lib/client';
 
 const spin = spinner();
 const log = console.log;

@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 import { execSync } from 'child_process';
-import * as commander from 'commander';
-
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as https from 'https';
-import chalk from 'chalk';
-import { loadConfig } from '../lib/configure';
 
+import * as commander from 'commander';
+import chalk from 'chalk';
 import debugging from 'debug';
-import client from '../lib/client';
-import storyLib, { StoryHydrated, Entities } from '../lib/stories';
 import {
     Epic,
     UploadedFile,
@@ -21,6 +17,10 @@ import {
     WorkflowState,
     UpdateStory,
 } from '@shortcut/client';
+
+import client from '../lib/client';
+import storyLib, { StoryHydrated, Entities } from '../lib/stories';
+import { loadConfig } from '../lib/configure';
 import spinner from '../lib/spinner';
 
 const config = loadConfig();
@@ -74,7 +74,7 @@ const main = async () => {
     const entities = await storyLib.fetchEntities();
     if (!(program.idonly || program.quiet)) spin.start();
     debug('constructing story update');
-    let update = {} as UpdateStory;
+    const update = {} as UpdateStory;
     if (program.archived) {
         update.archived = true;
     }
@@ -94,7 +94,7 @@ const main = async () => {
     }
     if (program.type) {
         const typeMatch = new RegExp(program.type, 'i');
-        // @ts-ignore
+        // @ts-expect-error -- ?
         update.story_type = ['feature', 'bug', 'chore'].filter(
             (t) => !!t.match(typeMatch)
         )[0] as UpdateStory;
@@ -120,10 +120,10 @@ const main = async () => {
         program.moveUp !== undefined;
     const hasUpdate = Object.keys(update).length > 0 || hasPositionUpdate;
     debug('constructed story update', update);
-    let gitID: string[] = [];
+    const gitID: string[] = [];
     if (program.fromGit || !program.args.length) {
         debug('fetching story ID from git');
-        var branch = '';
+        let branch = '';
         try {
             branch = execSync('git branch').toString('utf-8');
         } catch (e) {
@@ -131,7 +131,7 @@ const main = async () => {
         }
         if (branch.match(/\*.*[0-9]+/)) {
             debug('parsing story ID from git branch:', branch);
-            let id = parseInt(branch.match(/\*.*/)[0].match(/\/(ch|sc-)([0-9]+)/)[2], 10);
+            const id = parseInt(branch.match(/\*.*/)[0].match(/\/(ch|sc-)([0-9]+)/)[2], 10);
             debug('parsed story ID from git branch:', id);
             if (id) {
                 gitID.push(id.toString());
@@ -142,7 +142,7 @@ const main = async () => {
             process.exit(2);
         }
     }
-    let argIDs = program.args.map((a) => (a.match(/\d+/) || [])[0]);
+    const argIDs = program.args.map((a) => (a.match(/\d+/) || [])[0]);
     argIDs.concat(gitID).map(async (_id) => {
         const id = parseInt(_id, 10);
         let story: Story;
@@ -181,8 +181,8 @@ const main = async () => {
             if (program.taskComplete) {
                 debug('calculating task(s) to complete');
                 const descMatch = new RegExp(program.taskComplete, 'i');
-                let tasks = story.tasks.filter((t: Task) => t.description.match(descMatch));
-                let updatedTaskIds = tasks.map((t: Task) => t.id);
+                const tasks = story.tasks.filter((t: Task) => t.description.match(descMatch));
+                const updatedTaskIds = tasks.map((t: Task) => t.id);
                 debug('request tasks complete', updatedTaskIds);
                 await Promise.all(
                     tasks.map((t: Task) => client.updateTask(id, t.id, { complete: !t.complete }))
@@ -202,12 +202,12 @@ const main = async () => {
             if (hasUpdate) {
                 if (hasPositionUpdate) {
                     debug('calculating move up/down');
-                    let siblings: Story[] = await storyLib.listStories({
+                    const siblings: Story[] = await storyLib.listStories({
                         state: story.workflow_state_id.toString(),
                         sort: 'state.position:asc,position:asc',
                     });
-                    let siblingIds = siblings.map((s) => s.id);
-                    let storyIndex = siblingIds.indexOf(~~id);
+                    const siblingIds = siblings.map((s) => s.id);
+                    const storyIndex = siblingIds.indexOf(~~id);
                     if (program.moveAfter) {
                         update.after_id = ~~program.moveAfter;
                     } else if (program.moveBefore) {
@@ -227,7 +227,7 @@ const main = async () => {
                     debug('constructed story position update', update);
                 }
                 debug('request story update');
-                let changed = await client.updateStory(id, update);
+                const changed = await client.updateStory(id, update);
                 debug('response story update');
                 story = Object.assign({}, story, changed);
             }

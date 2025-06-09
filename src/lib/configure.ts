@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 
 function getConfigDir(suffix: string) {
-    let configBaseDir =
+    const configBaseDir =
         process.env.XDG_CONFIG_HOME ||
         path.resolve(process.env.XDG_DATA_HOME || os.homedir(), '.config');
     return path.resolve(configBaseDir, suffix);
@@ -108,7 +108,7 @@ export const updateConfig = (newConfig: Config) => {
 
 const saveWorkspace = (name: string, workspace: any) => {
     const extantConfig = loadCachedConfig();
-    let workspaces = extantConfig.workspaces || {};
+    const workspaces = extantConfig.workspaces || {};
     workspaces[name] = workspace;
     return saveConfig({ workspaces, ...extantConfig });
 };

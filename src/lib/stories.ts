@@ -1,11 +1,6 @@
-import { loadConfig } from './configure';
-
-import client from './client';
-
-import chalk from 'chalk';
-
 import { execSync } from 'child_process';
 
+import chalk from 'chalk';
 import debugging from 'debug';
 import {
     Epic,
@@ -22,6 +17,9 @@ import {
     Workflow,
     WorkflowState,
 } from '@shortcut/client';
+
+import client from './client';
+import { loadConfig } from './configure';
 
 const debug = debugging('club');
 const config = loadConfig();
@@ -55,7 +53,7 @@ export interface StoryHydrated extends Story {
 }
 
 async function fetchEntities(): Promise<Entities> {
-    let [projectsById, statesById, membersById, groupsById, epicsById, iterationsById, labels] =
+    const [projectsById, statesById, membersById, groupsById, epicsById, iterationsById, labels] =
         await Promise.all([
             client
                 .listProjects()
@@ -173,7 +171,7 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
 
 const isNumber = (val: string | number) => !!(val || val === 0) && !isNaN(Number(val.toString()));
 
-const findEntity = <_, V>(entities: Map<string | number, V>, id: string | number) => {
+const findEntity = <V>(entities: Map<string | number, V>, id: string | number) => {
     // entities can be either a map of string ids or a map of number ids
     // id, when passed in, is often a string coming from user input
     // so we need to check both types to find the entity.
@@ -226,13 +224,13 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
     if (program.estimate) {
         estimate = parseNumberComparator(program.estimate);
     }
-    let regexLabel = new RegExp(program.label, 'i');
-    let regexState = new RegExp(program.state, 'i');
-    let regexOwner = new RegExp(program.owner, 'i');
-    let regexText = new RegExp(program.text, 'i');
-    let regexType = new RegExp(program.type, 'i');
-    let regexEpic = new RegExp(program.epic, 'i');
-    let regexIteration = new RegExp(program.iteration, 'i');
+    const regexLabel = new RegExp(program.label, 'i');
+    const regexState = new RegExp(program.state, 'i');
+    const regexOwner = new RegExp(program.owner, 'i');
+    const regexText = new RegExp(program.text, 'i');
+    const regexType = new RegExp(program.type, 'i');
+    const regexEpic = new RegExp(program.epic, 'i');
+    const regexIteration = new RegExp(program.iteration, 'i');
 
     return stories
         .map((story: Story) => hydrateStory(entities, story))
@@ -357,6 +355,7 @@ const printFormattedStory = (program: any) => {
                 .replace(/%o/, owners.join(', ') || '_')
                 .replace(
                     /%r/,
+                    // eslint-disable-next-line no-constant-binary-expression
                     `${story.requester.profile.name} (${story.requester.profile.mention_name})` ||
                         '_'
                 )
@@ -450,7 +449,6 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
         return c;
     });
     story.comments
-        // @ts-ignore deleted is not currently part of the published library
         .filter((comment) => !comment.deleted)
         .map((c) => {
             const author = entities.membersById.get(c.author_id);
@@ -468,7 +466,7 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
 
 const formatLong = (str: string) => str.split('\n').join('\n         ');
 
-const parseDateComparator: (arg: string) => (date: string) => boolean = (arg) => {
+const parseDateComparator: (arg: string) => (date: string) => boolean = (arg: string) => {
     const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 30 } };
     const parsedDate = new Date(arg.slice(match.index));
     const comparator = arg.slice(0, match.index);
@@ -504,7 +502,7 @@ const parseNumberComparator: (arg: string) => (n: number) => boolean = (arg) => 
 
 const buildStoryBranch = (story: StoryHydrated, prefix: string = '') => {
     prefix = prefix || `${config.mentionName}/sc-${story.id}/${story.story_type}-`;
-    let slug = story.name
+    const slug = story.name
         .toLowerCase()
         .replace(/\W/g, '-')
         .replace(/[^a-z0-9-]/g, '')

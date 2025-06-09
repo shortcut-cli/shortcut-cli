@@ -1,9 +1,5 @@
 #!/usr/bin/env node
-import storyLib, { StoryHydrated } from '../lib/stories';
-
 import { exec } from 'child_process';
-
-import client from '../lib/client';
 
 import {
     CreateStoryParams,
@@ -14,8 +10,11 @@ import {
     Story,
     WorkflowState,
 } from '@shortcut/client';
-import spinner from '../lib/spinner';
 import * as commander from 'commander';
+
+import storyLib from '../lib/stories';
+import client from '../lib/client';
+import spinner from '../lib/spinner';
 import { loadConfig } from '../lib/configure';
 
 const config = loadConfig();
@@ -55,7 +54,7 @@ const program = commander
 const main = async () => {
     const entities = await storyLib.fetchEntities();
     if (!program.idonly) spin.start();
-    let update = {
+    const update = {
         name: program.title,
         story_type: program.type,
         description: `${program.description}`,

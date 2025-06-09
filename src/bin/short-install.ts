@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
-// @ts-ignore
 import * as prompt from 'prompt';
-
-import { Config, loadCachedConfig, updateConfig } from '../lib/configure';
 import * as commander from 'commander';
 import { ShortcutClient } from '@shortcut/client';
+
+import { Config, loadCachedConfig, updateConfig } from '../lib/configure';
 
 const extant = loadCachedConfig();
 const log = console.log;
 
 const program = commander
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     .version(require('../../package').version)
     .description('Install access token and other settings for the Shortcut API')
     .option('-f, --force', 'Force install/reinstall')

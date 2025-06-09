@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
-
 import * as commander from 'commander';
-import client from '../lib/client';
-
-import spinner from '../lib/spinner';
 import { Workflow, WorkflowState } from '@shortcut/client';
+
+import client from '../lib/client';
+import spinner from '../lib/spinner';
 
 const spin = spinner();
 const log = console.log;

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import configure from '../lib/configure';
 import * as commander from 'commander';
+
+import configure from '../lib/configure';
 import storyLib from '../lib/stories';
+import { StoryHydrated } from '../lib/stories';
 
 import { program as searchProgram } from './short-search';
-import { StoryHydrated } from '../lib/stories';
 
 const config = configure.loadConfig();
 const log = console.log;
