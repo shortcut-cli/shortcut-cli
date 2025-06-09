@@ -9,7 +9,8 @@
     "strict": false,
     "target": "es5",
     "outDir": "build",
-    "inlineSourceMap": true
+    "inlineSourceMap": true,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*"
