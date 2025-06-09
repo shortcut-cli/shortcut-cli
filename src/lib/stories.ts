@@ -466,7 +466,7 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
 
 const formatLong = (str: string) => str.split('\n').join('\n         ');
 
-const parseDateComparator: (arg: string) => (date: string) => boolean = (arg: string) => {
+const parseDateComparator: (arg: string) => (date: string) => boolean = (arg) => {
     const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 30 } };
     const parsedDate = new Date(arg.slice(match.index));
     const comparator = arg.slice(0, match.index);
