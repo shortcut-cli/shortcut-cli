@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import * as commander from 'commander';
+import commander from 'commander';
 
 import configure from '../lib/configure';
 import storyLib from '../lib/stories';
-import { StoryHydrated } from '../lib/stories';
+import type { StoryHydrated } from '../lib/stories';
 
 import { program as searchProgram } from './short-search';
 

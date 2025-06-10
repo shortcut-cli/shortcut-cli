@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 
 import chalk from 'chalk';
 import debugging from 'debug';
-import {
+import type {
     Epic,
     EpicSlim,
     Group,

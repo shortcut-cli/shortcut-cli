@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import * as commander from 'commander';
+import commander from 'commander';
 import chalk from 'chalk';
-import { Project } from '@shortcut/client';
+import type { Project } from '@shortcut/client';
 
 import spinner from '../lib/spinner';
 import client from '../lib/client';

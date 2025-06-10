@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import * as commander from 'commander';
+import commander from 'commander';
 
 import spinner from '../lib/spinner';
 import configure from '../lib/configure';
-import storyLib, { StoryHydrated } from '../lib/stories';
+import storyLib, { type StoryHydrated } from '../lib/stories';
 
 const spin = spinner('Finding... %s ');
 const log = console.log;
@@ -88,6 +88,9 @@ export const main = async () => {
     }
 };
 
-if (require.main === module) {
+// We previously used `require.main === module` to check if this file was run directly,
+// but now we check if the script name includes 'short-search' to ensure it runs only when intended,
+// because our bundle doesn't support `require.main` in the same way.
+if (process.argv[1]?.includes('short-search')) {
     main();
 }

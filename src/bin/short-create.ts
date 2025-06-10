@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { exec } from 'child_process';
 
-import {
+import type {
     CreateStoryParams,
     Epic,
     Group,
@@ -10,7 +10,7 @@ import {
     Story,
     WorkflowState,
 } from '@shortcut/client';
-import * as commander from 'commander';
+import commander from 'commander';
 
 import storyLib from '../lib/stories';
 import client from '../lib/client';

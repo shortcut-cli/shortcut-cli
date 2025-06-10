@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import { execSync } from 'child_process';
-import * as os from 'os';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as https from 'https';
+import os from 'os';
+import path from 'path';
+import fs from 'fs';
+import https from 'https';
 
-import * as commander from 'commander';
+import commander from 'commander';
 import chalk from 'chalk';
 import debugging from 'debug';
-import {
+import type {
     Epic,
     UploadedFile,
     Iteration,
@@ -19,7 +19,7 @@ import {
 } from '@shortcut/client';
 
 import client from '../lib/client';
-import storyLib, { StoryHydrated, Entities } from '../lib/stories';
+import storyLib, { type StoryHydrated, type Entities } from '../lib/stories';
 import { loadConfig } from '../lib/configure';
 import spinner from '../lib/spinner';
 
