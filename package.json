@@ -1,6 +1,6 @@
 {
   "name": "@shortcut-cli/shortcut-cli",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "A community-driven command line tool for viewing, creating, and updating shortcut.com stories",
   "engines": {
     "node": ">=16"
