@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "build:watch": "npm run build --watch",
+    "build:watch": "npm run build -- --watch",
     "prepublishOnly": "npm run clean && npm run build",
     "clean": "rm -rf build",
     "start": "node -r source-map-support/register build/bin/short.js",
