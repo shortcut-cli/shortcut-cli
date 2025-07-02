@@ -11,7 +11,7 @@ const spin = spinner();
 
 const parseKeyVal = (input: string, separator = '='): [string, string] => {
     const parts = input.split(separator);
-    const key = parts.shift() as string;
+    const key = parts.shift();
     const value = parts.join(separator);
     return [key, value];
 };
@@ -42,6 +42,7 @@ const program = commander
         log('Examples:');
         log(`  $ short api /search/iterations -f page_size=10 -f query=123`);
         log(`  $ short api /stories -X POST -f 'name=My new story' -f project_id=123`);
+        log('  # jq can be used to shorten the response output.')
         log(`  $ short api /search/iterations -f page_size=10 -f query=123 | jq '.data[] | {id, name}'`);
     })
     .parse(process.argv);

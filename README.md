@@ -18,6 +18,7 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
     -   [Epics](#epics)
     -   [Workflows](#workflows)
     -   [Projects](#projects)
+    -   [API](#api)
 -   [Development](#development)
 -   [Acknowledgments](#acknowledgments)
 
@@ -74,6 +75,7 @@ SHORTCUT_API_TOKEN=foobar short story 3300
     epics           list epics and their states
     projects        list or search projects
     workspace       list stories matching saved workspace query
+    api             make a request to the Shortcut API
     help [cmd]      display help for [cmd]
 ```
 
@@ -352,6 +354,29 @@ Templating variables:
     -d, --detailed       List more details for each project
     -t, --title [query]  List projects with name/title containing query
     -h, --help           output usage information
+```
+
+### API
+
+```
+  Usage: short api <path> [options]
+
+  Make a request to the Shortcut API.
+
+
+  Options:
+
+    -X, --method <method>      The HTTP method to use. (default: "GET")
+    -H, --header <header>      Add a header to the request (e.g., "Content-Type: application/json"). Can be specified multiple times.
+    -f, --raw-field <key=value>  Add a string parameter. Can be specified multiple times.
+    -h, --help                 output usage information
+
+
+  Examples:
+    $ short api /search/iterations -f page_size=10 -f query=123
+    $ short api /stories -X POST -f 'name=My new story' -f project_id=123
+    # jq can be used to shorten the response output.
+    $ short api /search/iterations -f page_size=10 -f query=123 | jq '.data[] | {id, name}'
 ```
 
 ## Development
