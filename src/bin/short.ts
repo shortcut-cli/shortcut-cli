@@ -28,4 +28,5 @@ commander
         isDefault: true,
     })
     .alias('w')
+    .command('api <path> [options]', 'make a request to the Shortcut API')
     .parse(process.argv);
