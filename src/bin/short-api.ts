@@ -42,8 +42,10 @@ const program = commander
         log('Examples:');
         log(`  $ short api /search/iterations -f page_size=10 -f query=123`);
         log(`  $ short api /stories -X POST -f 'name=My new story' -f project_id=123`);
-        log('  # jq can be used to shorten the response output.')
-        log(`  $ short api /search/iterations -f page_size=10 -f query=123 | jq '.data[] | {id, name}'`);
+        log('  # jq can be used to shorten the response output.');
+        log(
+            `  $ short api /search/iterations -f page_size=10 -f query=123 | jq '.data[] | {id, name}'`
+        );
     })
     .parse(process.argv);
 
