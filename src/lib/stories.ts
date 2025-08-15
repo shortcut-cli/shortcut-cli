@@ -171,7 +171,10 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
 
 const isNumber = (val: string | number) => !!(val || val === 0) && !isNaN(Number(val.toString()));
 
-const findEntity = <V extends { name: string }>(entities: Map<string | number, V>, id: string | number) => {
+const findEntity = <V extends { name: string }>(
+    entities: Map<string | number, V>,
+    id: string | number
+) => {
     // entities can be either a map of string ids or a map of number ids
     // id, when passed in, is often a string coming from user input
     // so we need to check both types to find the entity.
