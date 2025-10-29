@@ -34,18 +34,42 @@ let CONFIG_CACHE = null as Config;
  */
 export const loadConfig: () => Config = () => {
     const config = loadCachedConfig();
+
     if (!config || config === ({} as Config) || !config.token) {
-        console.error("Please run 'short install' to configure Shortcut API access.");
+        console.error("Please run 'short install' to configure Shortcut API access or set SHORTCUT_API_TOKEN.");
         process.exit(11);
     }
 
-    if (!config.urlSlug) {
-        console.error(
-            'Your config must be updated with data from Shortcut. ' +
-                "Please run 'short install --refresh'."
-        );
-        process.exit(12);
+    const envUrlSlug = process.env.SHORTCUT_URL_SLUG || process.env.CLUBHOUSE_URL_SLUG;
+    if (!config.urlSlug && envUrlSlug) {
+        config.urlSlug = envUrlSlug;
     }
+
+    const envMentionName = process.env.SHORTCUT_MENTION_NAME || process.env.CLUBHOUSE_MENTION_NAME;
+    if (!config.mentionName && envMentionName) {
+        config.mentionName = envMentionName;
+    }
+
+    if (!config.urlSlug) {
+        console.warn(
+            "shortcut-cli: URL slug not configured. Set SHORTCUT_URL_SLUG or run 'short install --refresh' for full functionality."
+        );
+        config.urlSlug = '';
+    }
+
+    if (!config.mentionName) {
+        console.warn(
+            "shortcut-cli: Mention name not configured. Set SHORTCUT_MENTION_NAME or run 'short install --refresh' for full functionality."
+        );
+        config.mentionName = '';
+    }
+
+    if (!config.workspaces) {
+        config.workspaces = {};
+    }
+
+    CONFIG_CACHE = { ...config };
+
     return config;
 };
 
@@ -73,7 +97,10 @@ export const loadCachedConfig: () => Config = () => {
         }
     }
     if (token) {
-        config = { token, ...config };
+        config = { ...config, token };
+    }
+    if (!config.workspaces) {
+        config.workspaces = {};
     }
     CONFIG_CACHE = { ...config };
     return config;

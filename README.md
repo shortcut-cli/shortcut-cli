@@ -52,6 +52,20 @@ You may also provide a Shortcut API token via environment variable `SHORTCUT_API
 SHORTCUT_API_TOKEN=foobar short story 3300
 ```
 
+To skip `short install` entirely, set the additional environment variables used for URL and mention-name substitutions:
+
+-   `SHORTCUT_URL_SLUG` – your workspace slug, e.g. `acme-co`
+-   `SHORTCUT_MENTION_NAME` – your personal mention name used in branches, e.g. `mike`
+
+With these env vars in place you can run commands directly:
+
+```sh
+SHORTCUT_API_TOKEN=foobar \
+SHORTCUT_URL_SLUG=acme-co \
+SHORTCUT_MENTION_NAME=mike \
+short story 3300
+```
+
 ```
   Usage: short [options] [command]
 
