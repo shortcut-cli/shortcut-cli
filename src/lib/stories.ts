@@ -332,7 +332,7 @@ const printFormattedStory = (program: any) => {
         const owners = story.owners.map(
             (o: Member) => `${o.profile.name} (${o.profile.mention_name})`
         );
-        const url = `https://app.shortcut.com/story/${story.id}`;
+        const url = storyURL(story);
         const project = story.project ? `${story.project.name} (#${story.project.id})` : 'None';
         log(
             format
