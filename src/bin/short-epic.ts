@@ -13,7 +13,12 @@ const config = loadConfig();
 const spin = spinner();
 const log = console.log;
 
-const program = commander.usage('[command] [options]').description('create or view epics');
+const program = commander
+    .usage('[ID|command] [options]')
+    .description('create or view epics')
+    .option('-f, --format [template]', 'Format epic output by template', '')
+    .option('-O, --open', 'Open epic in browser')
+    .option('-q, --quiet', 'Print only epic output, no loading dialog');
 
 // Create subcommand
 program
@@ -33,6 +38,14 @@ program
     .action(createEpic);
 
 program.parse(process.argv);
+
+// Handle viewing an epic by ID (default action when no subcommand matches)
+if (program.args.length > 0 && typeof program.args[0] === 'string') {
+    const epicId = parseInt(program.args[0], 10);
+    if (!isNaN(epicId)) {
+        viewEpic(epicId, program);
+    }
+}
 
 async function createEpic(options: any) {
     const entities = await storyLib.fetchEntities();
@@ -119,29 +132,104 @@ async function createEpic(options: any) {
     }
 }
 
-function printEpic(epic: Epic) {
-    log(`#${epic.id} ${epic.name}`);
-    if (epic.description) {
-        log(`Description:\t${epic.description}`);
+async function viewEpic(epicId: number, options: any) {
+    if (!options.quiet) spin.start();
+
+    let epic: Epic;
+    try {
+        epic = await client.getEpic(epicId).then((r) => r.data);
+    } catch (e: any) {
+        if (!options.quiet) spin.stop(true);
+        log('Error fetching epic:', e.message || e);
+        process.exit(1);
     }
-    log(`State:\t\t${epic.state}`);
-    if (epic.milestone_id) {
-        log(`Milestone:\t${epic.milestone_id}`);
+
+    if (!options.quiet) spin.stop(true);
+
+    if (epic) {
+        printEpic(epic, options.format);
+        if (options.open) {
+            const url = `https://app.shortcut.com/${config.urlSlug}/epic/${epic.id}`;
+            exec('open ' + url);
+        }
     }
-    if (epic.deadline) {
-        log(`Deadline:\t${epic.deadline}`);
+}
+
+function printEpic(epic: Epic, format?: string) {
+    if (format) {
+        // Custom formatting
+        const output = format
+            .replace(/%id/g, `${epic.id}`)
+            .replace(/%t/g, `${epic.name}`)
+            .replace(/%d/g, `${epic.description || ''}`)
+            .replace(/%s/g, `${epic.state}`)
+            .replace(/%m/g, `${epic.milestone_id || '_'}`)
+            .replace(/%dl/g, `${epic.deadline || '_'}`)
+            .replace(/%ps/g, `${epic.planned_start_date || '_'}`)
+            .replace(/%p/g, `${epic.stats?.num_points || 0}`)
+            .replace(/%pp/g, `${epic.stats?.num_points_started || 0}`)
+            .replace(/%pd/g, `${epic.stats?.num_points_done || 0}`)
+            .replace(
+                /%c/g,
+                `${Math.round(((epic.stats?.num_points_done || 0) / (epic.stats?.num_points || 1)) * 100)}%`
+            )
+            .replace(/%a/g, `${epic.archived}`)
+            .replace(/%st/g, `${epic.started_at || '_'}`)
+            .replace(/%co/g, `${epic.completed_at || '_'}`)
+            .replace(/%cr/g, `${epic.created_at || '_'}`)
+            .replace(/%u/g, `${epic.updated_at || '_'}`)
+            .replace(/%url/g, `https://app.shortcut.com/${config.urlSlug}/epic/${epic.id}`);
+        log(output);
+    } else {
+        // Default formatting
+        log(`#${epic.id} ${epic.name}`);
+        if (epic.description) {
+            log(`Description:\t${epic.description}`);
+        }
+        log(`State:\t\t${epic.state}`);
+        if (epic.stats) {
+            log(`Points:\t\t${epic.stats.num_points || 0}`);
+            log(`Points Started:\t${epic.stats.num_points_started || 0}`);
+            log(`Points Done:\t${epic.stats.num_points_done || 0}`);
+            const completion = Math.round(
+                ((epic.stats.num_points_done || 0) / (epic.stats.num_points || 1)) * 100
+            );
+            log(`Completion:\t${completion}%`);
+        }
+        if (epic.milestone_id) {
+            log(`Milestone:\t${epic.milestone_id}`);
+        }
+        if (epic.deadline) {
+            log(`Deadline:\t${epic.deadline}`);
+        }
+        if (epic.planned_start_date) {
+            log(`Planned Start:\t${epic.planned_start_date}`);
+        }
+        if (epic.started_at) {
+            log(`Started:\t${epic.started_at}`);
+        }
+        if (epic.completed_at) {
+            log(`Completed:\t${epic.completed_at}`);
+        }
+        if (epic.owner_ids && epic.owner_ids.length > 0) {
+            log(`Owners:\t\t${epic.owner_ids.join(', ')}`);
+        }
+        if (epic.group_ids && epic.group_ids.length > 0) {
+            log(`Teams:\t\t${epic.group_ids.join(', ')}`);
+        }
+        if (epic.labels && epic.labels.length > 0) {
+            log(`Labels:\t\t${epic.labels.map((l) => l.name).join(', ')}`);
+        }
+        if (epic.objective_ids && epic.objective_ids.length > 0) {
+            log(`Objectives:\t${epic.objective_ids.join(', ')}`);
+        }
+        if (epic.archived) {
+            log(`Archived:\t${epic.archived}`);
+        }
+        log(`Created:\t${epic.created_at}`);
+        if (epic.updated_at && epic.updated_at !== epic.created_at) {
+            log(`Updated:\t${epic.updated_at}`);
+        }
+        log(`URL:\t\thttps://app.shortcut.com/${config.urlSlug}/epic/${epic.id}`);
     }
-    if (epic.planned_start_date) {
-        log(`Planned Start:\t${epic.planned_start_date}`);
-    }
-    if (epic.owner_ids && epic.owner_ids.length > 0) {
-        log(`Owners:\t\t${epic.owner_ids.join(', ')}`);
-    }
-    if (epic.group_ids && epic.group_ids.length > 0) {
-        log(`Teams:\t\t${epic.group_ids.join(', ')}`);
-    }
-    if (epic.labels && epic.labels.length > 0) {
-        log(`Labels:\t\t${epic.labels.map((l) => l.name).join(', ')}`);
-    }
-    log(`URL:\t\thttps://app.shortcut.com/epic/${epic.id}`);
 }
