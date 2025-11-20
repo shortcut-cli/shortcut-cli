@@ -65,6 +65,7 @@ const program = commander
     .option('-q, --quiet', 'Print only story output, no loading dialog', '')
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-t, --title [text]', 'Update title/name of story', '')
+    .option('-T, --team [id|name]', 'Update team/group of story', '')
     .option('--task [text]', 'Create new task on story')
     .option('--task-complete [text]', 'Toggle completion of task on story matching text')
     .option('-y, --type [name]', 'Update type of story', '')
@@ -112,6 +113,9 @@ const main = async () => {
     }
     if (program.label) {
         update.labels = storyLib.findLabelNames(entities, program.label);
+    }
+    if (program.team) {
+        update.group_id = (storyLib.findGroup(entities, program.team) || ({} as any)).id;
     }
     const hasPositionUpdate =
         program.moveAfter !== undefined ||
