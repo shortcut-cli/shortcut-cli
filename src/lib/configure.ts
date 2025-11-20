@@ -36,7 +36,9 @@ export const loadConfig: () => Config = () => {
     const config = loadCachedConfig();
 
     if (!config || config === ({} as Config) || !config.token) {
-        console.error("Please run 'short install' to configure Shortcut API access or set SHORTCUT_API_TOKEN.");
+        console.error(
+            "Please run 'short install' to configure Shortcut API access or set SHORTCUT_API_TOKEN."
+        );
         process.exit(11);
     }
 
