@@ -143,5 +143,5 @@ function printEpic(epic: Epic) {
     if (epic.labels && epic.labels.length > 0) {
         log(`Labels:\t\t${epic.labels.map((l) => l.name).join(', ')}`);
     }
-    log(`URL:\t\thttps://app.shortcut.com/epic/${epic.id}`);
+    log(`URL:\t\t${epic.app_url}`);
 }
