@@ -22,6 +22,7 @@ commander
     .alias('wf')
     .command('epics [options]', 'list epics and their states')
     .alias('e')
+    .command('epic [command] [options]', 'create or view an epic')
     .command('projects [options]', 'list projects and their states')
     .alias('p')
     .command('workspace [NAME] [options]', 'list stories matching saved workspace query', {
