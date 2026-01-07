@@ -8,19 +8,20 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
 
 ## Table of Contents
 
--   [Usage & Commands](#usage)
-    -   [Install](#install)
-    -   [Search](#search)
-    -   [Story](#story)
-    -   [Story Creation](#story-creation)
-    -   [Workspace](#workspace)
-    -   [Members](#members)
-    -   [Epics](#epics)
-    -   [Workflows](#workflows)
-    -   [Projects](#projects)
-    -   [API](#api)
--   [Development](#development)
--   [Acknowledgments](#acknowledgments)
+- [Usage & Commands](#usage)
+    - [Install](#install)
+    - [Search](#search)
+    - [Story](#story)
+    - [Story Creation](#story-creation)
+    - [Workspace](#workspace)
+    - [Members](#members)
+    - [Epics](#epics)
+    - [Docs](#docs)
+    - [Workflows](#workflows)
+    - [Projects](#projects)
+    - [API](#api)
+- [Development](#development)
+- [Acknowledgments](#acknowledgments)
 
 ## Usage
 
@@ -54,8 +55,8 @@ SHORTCUT_API_TOKEN=foobar short story 3300
 
 To skip `short install` entirely, set the additional environment variables used for URL and mention-name substitutions:
 
--   `SHORTCUT_URL_SLUG` – your workspace slug, e.g. `acme-co`
--   `SHORTCUT_MENTION_NAME` – your personal mention name used in branches, e.g. `mike`
+- `SHORTCUT_URL_SLUG` – your workspace slug, e.g. `acme-co`
+- `SHORTCUT_MENTION_NAME` – your personal mention name used in branches, e.g. `mike`
 
 With these env vars in place you can run commands directly:
 
@@ -87,6 +88,8 @@ short story 3300
     create          create a story
     workflows       list workflows and their states
     epics           list epics and their states
+    docs            list and search docs
+    doc             view, create, update, or delete a doc
     projects        list or search projects
     workspace       list stories matching saved workspace query
     api             make a request to the Shortcut API
@@ -320,6 +323,29 @@ Comment: This is a comment
     -h, --help                output usage information
 ```
 
+#### Epic Creation
+
+```
+  Usage: short epic create [options]
+
+  create a new epic
+
+
+  Options:
+
+    -n, --name [text]          Set name of epic, required
+    -d, --description [text]   Set description of epic
+    -s, --state [name]         Set state of epic (to do, in progress, done)
+    --deadline [date]          Set deadline for epic (YYYY-MM-DD)
+    --planned-start [date]     Set planned start date (YYYY-MM-DD)
+    -o, --owners [id|name]     Set owners of epic, comma-separated
+    -T, --team [id|name]       Set team of epic
+    -l, --label [id|name]      Set labels of epic, comma-separated
+    -I, --idonly               Print only ID of epic result
+    -O, --open                 Open epic in browser
+    -h, --help                 output usage information
+```
+
 #### Epic Output Formatting
 
 Templating variables:
@@ -338,6 +364,97 @@ Templating variables:
 %a       Print archived status of epic
 %st      Print started status of epic
 %co      Print completed status of epic
+```
+
+### Docs
+
+```
+  Usage: short docs [options]
+
+  List and search Shortcut Docs. By default, lists all docs you have access to.
+  Use --title to search docs by title.
+
+
+  Options:
+
+    -a, --archived      Search for archived docs (requires --title)
+    -m, --mine          Search for docs created by me (requires --title)
+    -f, --following     Search for docs I am following (requires --title)
+    -t, --title [text]  Search docs by title (required for search filters)
+    -q, --quiet         Print only doc output, no loading dialog
+    -I, --idonly        Print only IDs of doc results
+    -h, --help          output usage information
+```
+
+#### Doc View, Create, Update, Delete
+
+```
+  Usage: short doc [command] [options]
+
+  view, create, or update a doc
+
+
+  Commands:
+
+    view [options] <id>    view a doc by ID
+    create [options]       create a new doc
+    update [options] <id>  update an existing doc
+    delete [options] <id>  delete a doc
+```
+
+View a doc:
+
+```
+  Usage: short doc view <id> [options]
+
+  Options:
+
+    --html       Include HTML content in output
+    -O, --open   Open doc in browser
+    -q, --quiet  Print only doc content, no metadata
+    -h, --help   output usage information
+```
+
+You can also view a doc directly by ID: `short doc <uuid>`
+
+Create a doc:
+
+```
+  Usage: short doc create [options]
+
+  Options:
+
+    -t, --title <text>    Set title of doc (required)
+    -c, --content <text>  Set content of doc (required)
+    --markdown            Treat content as markdown (default is HTML)
+    -I, --idonly          Print only ID of doc result
+    -O, --open            Open doc in browser
+    -h, --help            output usage information
+```
+
+Update a doc:
+
+```
+  Usage: short doc update <id> [options]
+
+  Options:
+
+    -t, --title <text>    Update title of doc
+    -c, --content <text>  Update content of doc
+    --markdown            Treat content as markdown (default is HTML)
+    -O, --open            Open doc in browser
+    -h, --help            output usage information
+```
+
+Delete a doc:
+
+```
+  Usage: short doc delete <id> [options]
+
+  Options:
+
+    --confirm   Confirm deletion (required)
+    -h, --help  output usage information
 ```
 
 ### Workflows
@@ -409,11 +526,11 @@ npm start -- story 1234
 
 ## Acknowledgments
 
--   [Repository for this code](https://github.com/shortcut-cli/shortcut-cli)
--   [NPM registry for this code](https://www.npmjs.com/package/@shortcut-cli/shortcut-cli)
--   [Shortcut API](https://shortcut.com/api/rest/v3)
--   Official [@shortcut/client](https://github.com/useshortcut/shortcut-client-js)
--   [joshbeckman](https://github.com/joshbeckman), [j-martin](https://github.com/j-martin), [joshmfrankel](https://github.com/joshmfrankel), and [ohe](https://github.com/ohe) who created and contributed to this project
+- [Repository for this code](https://github.com/shortcut-cli/shortcut-cli)
+- [NPM registry for this code](https://www.npmjs.com/package/@shortcut-cli/shortcut-cli)
+- [Shortcut API](https://shortcut.com/api/rest/v3)
+- Official [@shortcut/client](https://github.com/useshortcut/shortcut-client-js)
+- [joshbeckman](https://github.com/joshbeckman), [j-martin](https://github.com/j-martin), [joshmfrankel](https://github.com/joshmfrankel), and [ohe](https://github.com/ohe) who created and contributed to this project
 
 ## Contributors
 
