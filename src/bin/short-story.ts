@@ -153,7 +153,7 @@ const main = async () => {
         try {
             if (program.comment) {
                 debug('request comment create');
-                await client.createStoryComment(id, program.comment);
+                await client.createStoryComment(id, { text: program.comment });
                 debug('response comment create');
             }
         } catch (e) {
