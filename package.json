@@ -5,19 +5,20 @@
     "engines": {
         "node": ">=18"
     },
+    "packageManager": "pnpm@10.28.0",
     "files": [
         "build"
     ],
     "scripts": {
         "build": "tsdown",
-        "build:watch": "npm run build -- --watch",
-        "prepublishOnly": "npm run clean && npm run build",
+        "build:watch": "pnpm run build --watch",
+        "prepublishOnly": "pnpm run clean && pnpm run build",
         "clean": "rm -rf build",
         "start": "node -r source-map-support/register build/bin/short.js",
-        "test": "npm run test:format",
+        "test": "pnpm run test:format",
         "test:format": "prettier --list-different src/**/*.ts",
         "format": "prettier --write src/**/*.ts",
-        "ci": "npm run build && npm run test",
+        "ci": "pnpm run build && pnpm run test",
         "lint": "eslint .",
         "type-check": "tsc --noEmit"
     },
