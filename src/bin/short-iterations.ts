@@ -21,7 +21,7 @@ const log = console.log;
 const spin = spinner();
 
 const program = new Command()
-    .description('Display iterations (sprints) available for stories')
+    .description('Display iterations available for stories')
     .option('-S, --status [status]', 'Filter by status (unstarted, started, done)', '')
     .option('-T, --team [id|name]', 'Filter by team/group id or name', '')
     .option('-C, --current', 'Show only current/active iterations', false)

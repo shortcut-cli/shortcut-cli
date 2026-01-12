@@ -374,7 +374,7 @@ Templating variables:
 ```
   Usage: short iterations [options]
 
-  Display iterations (sprints) available for stories
+  Display iterations available for stories
 
 
   Options:

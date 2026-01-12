@@ -25,7 +25,7 @@ program
     .command('epics [options]', 'list epics and their states')
     .alias('e')
     .command('epic [command] [options]', 'create or view an epic')
-    .command('iterations [options]', 'list iterations (sprints)')
+    .command('iterations [options]', 'list iterations')
     .alias('i')
     .command('iteration [command] [options]', 'view, create, update, or delete an iteration')
     .command('docs [options]', 'list and search docs')
