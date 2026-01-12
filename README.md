@@ -515,13 +515,13 @@ Delete a doc:
 You can use TypeScript watcher which will recompile your code automatically:
 
 ```sh
-npm run build:watch
+pnpm run build:watch
 ```
 
 You can run shortcut-cli with TypeScript map enabled:
 
 ```sh
-npm start -- story 1234
+pnpm start -- story 1234
 ```
 
 ## Acknowledgments
