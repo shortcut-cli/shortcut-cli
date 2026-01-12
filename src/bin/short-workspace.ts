@@ -27,6 +27,11 @@ const program = new Command()
 
 const opts = program.opts<WorkspaceOptions>();
 
+const toArgs = (obj: object): string =>
+    Object.entries(obj)
+        .map(([k, v]) => `--${k} '${v}'`)
+        .join(' ');
+
 const main = async () => {
     if (!config || !config.token) {
         log('Not installed yet.');
@@ -81,9 +86,5 @@ const main = async () => {
     }
     stories.map(storyLib.printFormattedStory(additionalArgs));
 };
-main();
 
-const toArgs = (obj: object) =>
-    Object.entries(obj)
-        .map(([k, v]) => `--${k} '${v}'`)
-        .join(' ');
+main();
