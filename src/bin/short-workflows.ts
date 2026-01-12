@@ -1,18 +1,24 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
-import commander from 'commander';
+import { Command } from 'commander';
 import type { Workflow, WorkflowState } from '@shortcut/client';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
 
+interface WorkflowsOptions {
+    search?: string;
+}
+
 const spin = spinner();
 const log = console.log;
 
-const program = commander
+const program = new Command()
     .description('Display workflows/states available for stories')
     .option('-s, --search [query]', 'List states containing query', '')
     .parse(process.argv);
+
+const opts = program.opts<WorkflowsOptions>();
 
 const main = async () => {
     spin.start();
@@ -28,7 +34,7 @@ const printWf = (wf: Workflow) => {
 };
 
 const printWfState = (state: WorkflowState) => {
-    if (!state.name.match(new RegExp(program.search, 'i'))) {
+    if (!state.name.match(new RegExp(opts.search ?? '', 'i'))) {
         return;
     }
     log(chalk.bold(`    #${state.id}`) + ` ${state.name}`);

@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-import commander from 'commander';
+import { Command } from 'commander';
 
 import { version, description } from '../../package.json';
 
 process.on('unhandledRejection', console.log);
 
-commander
+const program = new Command();
+
+program
     .version(version)
     .description(description)
     .command('install [options]', 'install and configure API access')

@@ -5,18 +5,10 @@ import path from 'path';
 import fs from 'fs';
 import https from 'https';
 
-import commander from 'commander';
+import { Command } from 'commander';
 import chalk from 'chalk';
 import debugging from 'debug';
-import type {
-    Epic,
-    UploadedFile,
-    Iteration,
-    Story,
-    Task,
-    WorkflowState,
-    UpdateStory,
-} from '@shortcut/client';
+import type { UploadedFile, Story, Task, UpdateStory, CreateStoryParams } from '@shortcut/client';
 
 import client from '../lib/client';
 import storyLib, { type StoryHydrated, type Entities } from '../lib/stories';
@@ -29,7 +21,40 @@ const log = console.log;
 const logError = console.error;
 const debug = debugging('short');
 
-const program = commander
+interface StoryOptions {
+    archived?: boolean;
+    comment?: string;
+    description?: string;
+    download?: boolean;
+    downloadDir?: string;
+    estimate?: string;
+    epic?: string;
+    iteration?: string;
+    format?: string;
+    fromGit?: boolean;
+    gitBranch?: boolean;
+    gitBranchShort?: boolean;
+    idonly?: boolean;
+    label?: string;
+    moveAfter?: string;
+    moveBefore?: string;
+    moveDown?: string;
+    moveUp?: string;
+    owners?: string;
+    open?: boolean;
+    openEpic?: boolean;
+    openIteration?: boolean;
+    openProject?: boolean;
+    quiet?: boolean;
+    state?: string;
+    title?: string;
+    team?: string;
+    task?: string;
+    taskComplete?: string;
+    type?: string;
+}
+
+const program = new Command()
     .usage('[options] <id>')
     .description('Update and/or display story details')
     .option('-a, --archived', 'Update story as archived')
@@ -71,61 +96,58 @@ const program = commander
     .option('-y, --type [name]', 'Update type of story', '')
     .parse(process.argv);
 
+const opts = program.opts<StoryOptions>();
+
 const main = async () => {
     const entities = await storyLib.fetchEntities();
-    if (!(program.idonly || program.quiet)) spin.start();
+    if (!(opts.idonly || opts.quiet)) spin.start();
     debug('constructing story update');
-    const update = {} as UpdateStory;
-    if (program.archived) {
+    const update: UpdateStory = {};
+    if (opts.archived) {
         update.archived = true;
     }
-    if (program.state) {
-        update.workflow_state_id = (
-            storyLib.findState(entities, program.state) || ({} as WorkflowState)
-        ).id;
+    if (opts.state) {
+        update.workflow_state_id = storyLib.findState(entities, opts.state)?.id;
     }
-    if (program.estimate) {
-        update.estimate = parseInt(program.estimate, 10);
+    if (opts.estimate) {
+        update.estimate = parseInt(opts.estimate, 10);
     }
-    if (program.title) {
-        update.name = program.title;
+    if (opts.title) {
+        update.name = opts.title;
     }
-    if (program.description) {
-        update.description = `${program.description}`;
+    if (opts.description) {
+        update.description = `${opts.description}`;
     }
-    if (program.type) {
-        const typeMatch = new RegExp(program.type, 'i');
-        // @ts-expect-error -- ?
-        update.story_type = ['feature', 'bug', 'chore'].filter(
-            (t) => !!t.match(typeMatch)
-        )[0] as UpdateStory;
+    if (opts.type) {
+        type StoryType = NonNullable<CreateStoryParams['story_type']>;
+        const storyTypes = ['feature', 'bug', 'chore'] as const satisfies readonly StoryType[];
+        const typeMatch = new RegExp(opts.type, 'i');
+        update.story_type = storyTypes.find((t) => t.match(typeMatch));
     }
-    if (program.owners) {
-        update.owner_ids = storyLib.findOwnerIds(entities, program.owners);
+    if (opts.owners) {
+        update.owner_ids = storyLib.findOwnerIds(entities, opts.owners);
     }
-    if (program.epic) {
-        update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
+    if (opts.epic) {
+        update.epic_id = storyLib.findEpic(entities, opts.epic)?.id;
     }
-    if (program.iteration) {
-        update.iteration_id = (
-            storyLib.findIteration(entities, program.iteration) || ({} as Iteration)
-        ).id;
+    if (opts.iteration) {
+        update.iteration_id = storyLib.findIteration(entities, opts.iteration)?.id;
     }
-    if (program.label) {
-        update.labels = storyLib.findLabelNames(entities, program.label);
+    if (opts.label) {
+        update.labels = storyLib.findLabelNames(entities, opts.label);
     }
-    if (program.team) {
-        update.group_id = (storyLib.findGroup(entities, program.team) || ({} as any)).id;
+    if (opts.team) {
+        update.group_id = storyLib.findGroup(entities, opts.team)?.id;
     }
     const hasPositionUpdate =
-        program.moveAfter !== undefined ||
-        program.moveBefore !== undefined ||
-        program.moveDown !== undefined ||
-        program.moveUp !== undefined;
+        opts.moveAfter !== undefined ||
+        opts.moveBefore !== undefined ||
+        opts.moveDown !== undefined ||
+        opts.moveUp !== undefined;
     const hasUpdate = Object.keys(update).length > 0 || hasPositionUpdate;
     debug('constructed story update', update);
     const gitID: string[] = [];
-    if (program.fromGit || !program.args.length) {
+    if (opts.fromGit || !program.args.length) {
         debug('fetching story ID from git');
         let branch = '';
         try {
@@ -151,9 +173,9 @@ const main = async () => {
         const id = parseInt(_id, 10);
         let story: Story;
         try {
-            if (program.comment) {
+            if (opts.comment) {
                 debug('request comment create');
-                await client.createStoryComment(id, { text: program.comment });
+                await client.createStoryComment(id, { text: opts.comment });
                 debug('response comment create');
             }
         } catch (e) {
@@ -162,9 +184,9 @@ const main = async () => {
             process.exit(3);
         }
         try {
-            if (program.task) {
+            if (opts.task) {
                 debug('request task create');
-                await client.createTask(id, { description: program.task });
+                await client.createTask(id, { description: opts.task });
                 debug('response task create');
             }
         } catch (e) {
@@ -182,9 +204,9 @@ const main = async () => {
             process.exit(4);
         }
         try {
-            if (program.taskComplete) {
+            if (opts.taskComplete) {
                 debug('calculating task(s) to complete');
-                const descMatch = new RegExp(program.taskComplete, 'i');
+                const descMatch = new RegExp(opts.taskComplete, 'i');
                 const tasks = story.tasks.filter((t: Task) => t.description.match(descMatch));
                 const updatedTaskIds = tasks.map((t: Task) => t.id);
                 debug('request tasks complete', updatedTaskIds);
@@ -212,20 +234,17 @@ const main = async () => {
                     });
                     const siblingIds = siblings.map((s) => s.id);
                     const storyIndex = siblingIds.indexOf(~~id);
-                    if (program.moveAfter) {
-                        update.after_id = ~~program.moveAfter;
-                    } else if (program.moveBefore) {
-                        update.before_id = ~~program.moveBefore;
-                    } else if (program.moveUp) {
+                    if (opts.moveAfter) {
+                        update.after_id = ~~opts.moveAfter;
+                    } else if (opts.moveBefore) {
+                        update.before_id = ~~opts.moveBefore;
+                    } else if (opts.moveUp) {
                         update.before_id =
-                            siblingIds[Math.max(0, storyIndex - (~~program.moveUp || 1))];
-                    } else if (program.moveDown) {
+                            siblingIds[Math.max(0, storyIndex - (~~opts.moveUp || 1))];
+                    } else if (opts.moveDown) {
                         update.after_id =
                             siblingIds[
-                                Math.min(
-                                    siblings.length - 1,
-                                    storyIndex + (~~program.moveDown || 1)
-                                )
+                                Math.min(siblings.length - 1, storyIndex + (~~opts.moveDown || 1))
                             ];
                     }
                     debug('constructed story position update', update);
@@ -243,34 +262,34 @@ const main = async () => {
         if (story) {
             story = storyLib.hydrateStory(entities, story);
         }
-        if (!program.idonly) spin.stop(true);
+        if (!opts.idonly) spin.stop(true);
         if (story) {
             printStory(story, entities);
-            if (program.open) {
+            if (opts.open) {
                 openURL(storyLib.storyURL(story));
             }
-            if (program.openEpic) {
+            if (opts.openEpic) {
                 if (!story.epic_id) {
                     logError('This story is not part of an epic.');
                     process.exit(21);
                 }
                 openURL(storyLib.buildURL('epic', story.epic_id));
             }
-            if (program.openIteration) {
+            if (opts.openIteration) {
                 if (!story.iteration_id) {
                     logError('This story is not part of an iteration.');
                     process.exit(22);
                 }
                 openURL(storyLib.buildURL('iteration', story.iteration_id));
             }
-            if (program.openProject) {
+            if (opts.openProject) {
                 openURL(storyLib.buildURL('project', story.project_id));
             }
         }
-        if (program.download) {
+        if (opts.download) {
             downloadFiles(story);
         }
-        if (story && program.gitBranch) {
+        if (story && opts.gitBranch) {
             if (!config.mentionName) {
                 stopSpinner();
                 storyLib.checkoutStoryBranch(story, `${story.story_type}-${story.id}-`); // TODO: Remove this deprecation in next release
@@ -281,7 +300,7 @@ const main = async () => {
                 process.exit(10);
             }
             storyLib.checkoutStoryBranch(story);
-        } else if (story && program.gitBranchShort) {
+        } else if (story && opts.gitBranchShort) {
             storyLib.checkoutStoryBranch(story, `${config.mentionName}/sc-${story.id}/`);
         }
     });
@@ -294,13 +313,13 @@ const openURL = (url: string) => {
 };
 
 const stopSpinner = () => {
-    if (!(program.idonly || program.quiet)) spin.stop(true);
+    if (!(opts.idonly || opts.quiet)) spin.stop(true);
 };
 
 const downloadFiles = (story: Story) =>
     story.files.map((file: UploadedFile) => {
         https.get(storyLib.fileURL(file), (res) => {
-            const filePath = path.join(program.downloadDir, file.name);
+            const filePath = path.join(opts.downloadDir ?? '.', file.name);
             log(chalk.bold('Downloading file to: ') + filePath);
             const stream = fs.createWriteStream(filePath);
             res.pipe(stream);
@@ -309,11 +328,11 @@ const downloadFiles = (story: Story) =>
     });
 
 const printStory = (story: StoryHydrated, entities: Entities) => {
-    if (program.idonly) {
+    if (opts.idonly) {
         return log(story.id);
     }
-    if (program.format) {
-        return storyLib.printFormattedStory(program)(story);
+    if (opts.format) {
+        return storyLib.printFormattedStory(opts)(story);
     }
     storyLib.printDetailedStory(story, entities);
 };

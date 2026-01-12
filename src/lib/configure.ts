@@ -19,15 +19,15 @@ const legacyConfigDirs = [
 ];
 
 export interface Config {
-    mentionName: string;
-    urlSlug: string;
-    token: string;
+    mentionName?: string;
+    urlSlug?: string;
+    token?: string;
     // Object used by short workspace.
     // This is unrelated to the concept of Shortcut Workspaces.
-    workspaces: { [key: string]: object };
+    workspaces?: { [key: string]: object };
 }
 
-let CONFIG_CACHE = null as Config;
+let CONFIG_CACHE: Config | null = null;
 
 /**
  * Config load function to be used in most-cases.
@@ -35,7 +35,7 @@ let CONFIG_CACHE = null as Config;
 export const loadConfig: () => Config = () => {
     const config = loadCachedConfig();
 
-    if (!config || config === ({} as Config) || !config.token) {
+    if (!config || !config.token) {
         console.error(
             "Please run 'short install' to configure Shortcut API access or set SHORTCUT_API_TOKEN."
         );
@@ -78,11 +78,11 @@ export const loadConfig: () => Config = () => {
 /**
  * Only use this function directly if you need to avoid the config check.
  */
-export const loadCachedConfig: () => Config = () => {
+export const loadCachedConfig = (): Config => {
     if (CONFIG_CACHE) {
         return { ...CONFIG_CACHE };
     }
-    let config = {} as Config;
+    let config: Config = {};
     const token = process.env.SHORTCUT_API_TOKEN || process.env.CLUBHOUSE_API_TOKEN;
     legacyConfigDirs.forEach((dir) => {
         if (fs.existsSync(dir)) {
@@ -135,9 +135,9 @@ export const updateConfig = (newConfig: Config) => {
     return saveConfig({ ...newConfig, ...extantConfig });
 };
 
-const saveWorkspace = (name: string, workspace: any) => {
+const saveWorkspace = (name: string, workspace: object): boolean => {
     const extantConfig = loadCachedConfig();
-    const workspaces = extantConfig.workspaces || {};
+    const workspaces = extantConfig.workspaces ?? {};
     workspaces[name] = workspace;
     return saveConfig({ workspaces, ...extantConfig });
 };

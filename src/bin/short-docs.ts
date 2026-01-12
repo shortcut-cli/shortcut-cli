@@ -1,14 +1,23 @@
 #!/usr/bin/env node
-import commander from 'commander';
+import { Command } from 'commander';
 import type { DocSlim } from '@shortcut/client';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
 
+interface DocsOptions {
+    archived?: boolean;
+    mine?: boolean;
+    following?: boolean;
+    title?: string;
+    quiet?: boolean;
+    idonly?: boolean;
+}
+
 const spin = spinner('Loading docs... %s ');
 const log = console.log;
 
-const program = commander
+const program = new Command()
     .description(
         `List and search Shortcut Docs. By default, lists all docs you have access to.
   Use --title to search docs by title.`
@@ -22,30 +31,32 @@ const program = commander
     .option('-I, --idonly', 'Print only IDs of doc results')
     .parse(process.argv);
 
+const opts = program.opts<DocsOptions>();
+
 const main = async () => {
-    if (!program.quiet) spin.start();
+    if (!opts.quiet) spin.start();
 
     let docs: DocSlim[] = [];
 
     try {
         // Use search endpoint if title is provided
-        if (program.title) {
+        if (opts.title) {
             const searchParams: {
                 title: string;
                 archived?: boolean;
                 created_by_me?: boolean;
                 followed_by_me?: boolean;
             } = {
-                title: program.title,
+                title: opts.title,
             };
 
-            if (program.archived !== undefined) {
-                searchParams.archived = !!program.archived;
+            if (opts.archived !== undefined) {
+                searchParams.archived = !!opts.archived;
             }
-            if (program.mine) {
+            if (opts.mine) {
                 searchParams.created_by_me = true;
             }
-            if (program.following) {
+            if (opts.following) {
                 searchParams.followed_by_me = true;
             }
 
@@ -53,23 +64,24 @@ const main = async () => {
             docs = result.data.data;
         } else {
             // Warn if search filters are used without title
-            if (program.archived || program.mine || program.following) {
-                if (!program.quiet) spin.stop(true);
+            if (opts.archived || opts.mine || opts.following) {
+                if (!opts.quiet) spin.stop(true);
                 log('Note: --archived, --mine, and --following require --title for searching.');
                 log('Listing all docs instead...');
-                if (!program.quiet) spin.start();
+                if (!opts.quiet) spin.start();
             }
             // List all docs
             const result = await client.listDocs();
             docs = result.data;
         }
-    } catch (e: any) {
-        if (!program.quiet) spin.stop(true);
-        log('Error fetching docs:', e.message || e);
+    } catch (e: unknown) {
+        if (!opts.quiet) spin.stop(true);
+        const error = e as { message?: string };
+        log('Error fetching docs:', error.message ?? String(e));
         process.exit(1);
     }
 
-    if (!program.quiet) spin.stop(true);
+    if (!opts.quiet) spin.stop(true);
 
     if (docs.length === 0) {
         log('No docs found.');
@@ -80,7 +92,7 @@ const main = async () => {
 };
 
 const printDoc = (doc: DocSlim) => {
-    if (program.idonly) {
+    if (opts.idonly) {
         return log(doc.id);
     }
     log(`${doc.id} ${doc.title || '(Untitled)'}`);

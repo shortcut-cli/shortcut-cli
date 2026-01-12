@@ -1,15 +1,25 @@
 #!/usr/bin/env node
-import commander from 'commander';
+import { Command } from 'commander';
 import chalk from 'chalk';
 import type { Epic } from '@shortcut/client';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
 
+interface EpicsOptions {
+    archived?: boolean;
+    completed?: boolean;
+    detailed?: boolean;
+    format?: string;
+    milestone?: string;
+    title?: string;
+    started?: boolean;
+}
+
 const log = console.log;
 const spin = spinner();
 
-const program = commander
+const program = new Command()
     .description('Display epics available for stories')
     .option('-a, --archived', 'List only epics including archived', '')
     .option('-c, --completed', 'List only epics that have been completed', '')
@@ -20,25 +30,27 @@ const program = commander
     .option('-s, --started', 'List epics that have been started', '')
     .parse(process.argv);
 
+const opts = program.opts<EpicsOptions>();
+
 const main = async () => {
     spin.start();
     const epics = await client.listEpics(null).then((r) => r.data);
     spin.stop(true);
-    const textMatch = new RegExp(program.title, 'i');
+    const textMatch = new RegExp(opts.title ?? '', 'i');
     epics
         .filter((epic: Epic) => {
             return (
                 !!`${epic.name} ${epic.name}`.match(textMatch) &&
-                !!(program.milestone ? epic.milestone_id == program.milestone : true)
+                !!(opts.milestone ? String(epic.milestone_id) === opts.milestone : true)
             );
         })
         .map(printItem);
 };
 
 const printItem = (epic: Epic) => {
-    if (epic.archived && !program.archived) return;
-    if (!epic.started && program.started) return;
-    if (!epic.completed && program.completed) return;
+    if (epic.archived && !opts.archived) return;
+    if (!epic.started && opts.started) return;
+    if (!epic.completed && opts.completed) return;
 
     let defaultFormat = `#%id %t\nMilestone:\t%m\nState:\t\t%s\nDeadline:\t%dl\n`;
     defaultFormat += `Points:\t\t%p\nPoints Started: %ps\nPoints Done:\t%pd\nCompletion:\t%c\n`;
@@ -51,11 +63,11 @@ const printItem = (epic: Epic) => {
     if (epic.completed) {
         defaultFormat += `Completed:\t%co\n`;
     }
-    if (program.detailed) {
+    if (opts.detailed) {
         defaultFormat += `Description:\t%d\n`;
     }
 
-    const format = program.format || defaultFormat;
+    const format = opts.format || defaultFormat;
     log(
         format
             .replace(/%id/, chalk.bold(`${epic.id}`))

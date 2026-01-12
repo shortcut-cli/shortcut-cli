@@ -3,16 +3,16 @@ import { execSync } from 'child_process';
 import chalk from 'chalk';
 import debugging from 'debug';
 import type {
-    Epic,
+    CreateLabelParams,
     EpicSlim,
     Group,
-    Iteration,
     IterationSlim,
     Label,
     Member,
     Project,
     Story,
     StorySearchResult,
+    StorySlim,
     UploadedFile,
     Workflow,
     WorkflowState,
@@ -40,6 +40,32 @@ export interface Entities {
 }
 
 /**
+ * Options for filtering and displaying stories
+ */
+export interface StoryListOptions {
+    args?: string[];
+    archived?: boolean;
+    created?: string;
+    updated?: string;
+    estimate?: string;
+    label?: string;
+    state?: string;
+    owner?: string;
+    text?: string;
+    type?: string;
+    epic?: string;
+    iteration?: string;
+    project?: string;
+    sort?: string;
+    format?: string;
+}
+
+/**
+ * Base story type that works with both Story and StorySlim
+ */
+export type StoryBase = Story | StorySlim;
+
+/**
  * Augmented story to be displayed
  */
 export interface StoryHydrated extends Story {
@@ -48,7 +74,7 @@ export interface StoryHydrated extends Story {
     project?: Project;
     state?: WorkflowState;
     group?: Group;
-    owners?: Member[];
+    owners?: (Member | undefined)[];
     requester?: Member;
 }
 
@@ -62,7 +88,9 @@ async function fetchEntities(): Promise<Entities> {
             client
                 .listWorkflows()
                 .then((r) => r.data)
-                .then((wfs: Workflow[]) => wfs.reduce((states, wf) => states.concat(wf.states), []))
+                .then((wfs: Workflow[]) =>
+                    wfs.reduce<WorkflowState[]>((states, wf) => states.concat(wf.states), [])
+                )
                 .then(mapByItemId),
             client
                 .listMembers(null)
@@ -90,14 +118,14 @@ async function fetchEntities(): Promise<Entities> {
     return { projectsById, statesById, membersById, groupsById, epicsById, iterationsById, labels };
 }
 
-const listStories = async (program: any) => {
+const listStories = async (options: StoryListOptions): Promise<StoryHydrated[]> => {
     debug('request workflows, members, projects, epics');
     const entities = await fetchEntities();
 
-    const stories = await fetchStories(program, entities);
+    const stories = await fetchStories(options, entities);
 
     debug('filtering stories');
-    return filterStories(program, stories, entities).sort(sortStories(program));
+    return filterStories(options, stories, entities).sort(sortStories(options));
 };
 
 function mapByItemId<T extends HasId>(items: T[]): Map<number, T> {
@@ -108,26 +136,29 @@ function mapByItemStringId<T extends HasId>(items: T[]): Map<string, T> {
     return items.reduce((map, obj) => map.set(obj.id, obj), new Map());
 }
 
-async function fetchStories(program: any, entities: Entities): Promise<Story[]> {
-    if ((program.args || []).length) {
+async function fetchStories(
+    options: StoryListOptions,
+    entities: Entities
+): Promise<(Story | StorySlim)[]> {
+    if ((options.args ?? []).length) {
         debug('using the search endpoint');
-        return searchStories(program);
+        return searchStories(options);
     }
 
     debug('filtering projects');
-    const regexProject = new RegExp(program.project, 'i');
-    const projectIds = [...entities.projectsById.values()].filter(
-        (p) => !!(p.id + p.name).match(regexProject)
-    );
+    const regexProject = new RegExp(options.project ?? '', 'i');
+    const projects = entities.projectsById ? [...entities.projectsById.values()] : [];
+    const projectIds = projects.filter((p) => !!(p.id + p.name).match(regexProject));
 
     debug('request all stories for project(s)', projectIds.map((p) => p.name).join(', '));
     return Promise.all(projectIds.map((p) => client.listStories(p.id, null))).then(
-        (projectStories) => projectStories.reduce((acc, stories) => acc.concat(stories.data), [])
+        (projectStories) =>
+            projectStories.reduce<StorySlim[]>((acc, stories) => acc.concat(stories.data), [])
     );
 }
 
-async function searchStories(program: any): Promise<Story[]> {
-    const query = program.args.join(' ').replace('%self%', config.mentionName);
+async function searchStories(options: StoryListOptions): Promise<Story[]> {
+    const query = (options.args ?? []).join(' ').replace('%self%', config.mentionName ?? '');
     let result = await client.searchStories({ query });
     let stories: Story[] = result.data.data.map(storySearchResultToStory);
     while (result.data.next) {
@@ -152,19 +183,16 @@ const storySearchResultToStory = (storySearchResult: StorySearchResult): Story =
     };
 };
 
-const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
-    entities: Entities,
-    story: Story
-) => {
+const hydrateStory = (entities: Entities, story: StoryBase): StoryHydrated => {
     debug('hydrating story');
     const augmented = story as StoryHydrated;
-    augmented.project = entities.projectsById.get(story.project_id);
-    augmented.state = entities.statesById.get(story.workflow_state_id);
-    augmented.epic = entities.epicsById.get(story.epic_id);
-    augmented.iteration = entities.iterationsById.get(story.iteration_id);
-    augmented.owners = story.owner_ids.map((id) => entities.membersById.get(id));
-    augmented.requester = entities.membersById.get(story.requested_by_id);
-    augmented.group = entities.groupsById.get(story.group_id);
+    augmented.project = entities.projectsById?.get(story.project_id);
+    augmented.state = entities.statesById?.get(story.workflow_state_id);
+    augmented.epic = entities.epicsById?.get(story.epic_id);
+    augmented.iteration = entities.iterationsById?.get(story.iteration_id);
+    augmented.owners = story.owner_ids.map((id) => entities.membersById?.get(id));
+    augmented.requester = entities.membersById?.get(story.requested_by_id);
+    augmented.group = entities.groupsById?.get(story.group_id);
     debug('hydrated story');
     return augmented;
 };
@@ -172,9 +200,10 @@ const hydrateStory: (entities: Entities, story: Story) => StoryHydrated = (
 const isNumber = (val: string | number) => !!(val || val === 0) && !isNaN(Number(val.toString()));
 
 const findEntity = <V extends { name: string }>(
-    entities: Map<string | number, V>,
+    entities: Map<string | number, V> | undefined,
     id: string | number
-) => {
+): V | undefined => {
+    if (!entities) return undefined;
     // entities can be either a map of string ids or a map of number ids
     // id, when passed in, is often a string coming from user input
     // so we need to check both types to find the entity.
@@ -188,83 +217,86 @@ const findEntity = <V extends { name: string }>(
     return Array.from(entities.values()).filter((s) => !!s.name.match(match))[0];
 };
 
-const findProject = (entities: Entities, project: number) =>
+const findProject = (entities: Entities, project: string | number) =>
     findEntity(entities.projectsById, project);
 
-const findGroup = (entities: Entities, group: number) => findEntity(entities.groupsById, group);
+const findGroup = (entities: Entities, group: string | number) =>
+    findEntity(entities.groupsById, group);
 
-const findState = (entities: Entities, state: number) => findEntity(entities.statesById, state);
+const findState = (entities: Entities, state: string | number) =>
+    findEntity(entities.statesById, state);
 
-const findEpic = (entities: Entities, epicName: number) => findEntity(entities.epicsById, epicName);
+const findEpic = (entities: Entities, epicName: string | number) =>
+    findEntity(entities.epicsById, epicName);
 
-const findIteration = (entities: Entities, iterationName: number) =>
-    findEntity(entities.statesById, iterationName);
+const findIteration = (entities: Entities, iterationName: string | number) =>
+    findEntity(entities.iterationsById, iterationName);
 
-const findOwnerIds = (entities: Entities, owners: string) => {
+const findOwnerIds = (entities: Entities, owners: string): string[] => {
     const ownerMatch = new RegExp(owners.split(',').join('|'), 'i');
-    return Array.from(entities.membersById.values())
+    const members = entities.membersById ? Array.from(entities.membersById.values()) : [];
+    return members
         .filter((m) => !!`${m.id} ${m.profile.name} ${m.profile.mention_name}`.match(ownerMatch))
         .map((m) => m.id);
 };
 
-const findLabelNames = (entities: Entities, label: string) => {
+const findLabelNames = (entities: Entities, label: string): CreateLabelParams[] => {
     const labelMatch = new RegExp(label.split(',').join('|'), 'i');
-    return entities.labels
+    return (entities.labels ?? [])
         .filter((m) => !!`${m.id} ${m.name}`.match(labelMatch))
-        .map((m) => ({ name: m.name }) as Label);
+        .map((m) => ({ name: m.name }));
 };
 
-const filterStories = (program: any, stories: Story[], entities: Entities) => {
-    let created_at: any;
-    if (program.created) {
-        created_at = parseDateComparator(program.created);
+const filterStories = (
+    options: StoryListOptions,
+    stories: StoryBase[],
+    entities: Entities
+): StoryHydrated[] => {
+    type DateComparator = (date: string) => boolean;
+    type NumberComparator = (n: number | null) => boolean;
+
+    let createdAtFilter: DateComparator | undefined;
+    if (options.created) {
+        createdAtFilter = parseDateComparator(options.created);
     }
-    let updated_at: any;
-    if (program.updated) {
-        updated_at = parseDateComparator(program.updated);
+    let updatedAtFilter: DateComparator | undefined;
+    if (options.updated) {
+        updatedAtFilter = parseDateComparator(options.updated);
     }
-    let estimate: any;
-    if (program.estimate) {
-        estimate = parseNumberComparator(program.estimate);
+    let estimateFilter: NumberComparator | undefined;
+    if (options.estimate) {
+        estimateFilter = parseNumberComparator(options.estimate);
     }
-    const regexLabel = new RegExp(program.label, 'i');
-    const regexState = new RegExp(program.state, 'i');
-    const regexOwner = new RegExp(program.owner, 'i');
-    const regexText = new RegExp(program.text, 'i');
-    const regexType = new RegExp(program.type, 'i');
-    const regexEpic = new RegExp(program.epic, 'i');
-    const regexIteration = new RegExp(program.iteration, 'i');
+    const regexLabel = new RegExp(options.label ?? '', 'i');
+    const regexState = new RegExp(options.state ?? '', 'i');
+    const regexOwner = new RegExp(options.owner ?? '', 'i');
+    const regexText = new RegExp(options.text ?? '', 'i');
+    const regexType = new RegExp(options.type ?? '', 'i');
+    const regexEpic = new RegExp(options.epic ?? '', 'i');
+    const regexIteration = new RegExp(options.iteration ?? '', 'i');
 
     return stories
-        .map((story: Story) => hydrateStory(entities, story))
+        .map((story) => hydrateStory(entities, story))
         .filter((s) => {
-            if (!program.archived && s.archived) {
+            if (!options.archived && s.archived) {
                 return false;
             }
             if (!(s.labels.map((l) => `${l.id},${l.name}`).join(',') + '').match(regexLabel)) {
                 return false;
             }
-            if (
-                !(s.workflow_state_id + ' ' + (s.state || ({} as WorkflowState)).name).match(
-                    regexState
-                )
-            ) {
+            if (!(s.workflow_state_id + ' ' + (s.state?.name ?? '')).match(regexState)) {
                 return false;
             }
-            if (!(s.epic_id + ' ' + (s.epic || ({} as Epic)).name).match(regexEpic)) {
+            if (!(s.epic_id + ' ' + (s.epic?.name ?? '')).match(regexEpic)) {
                 return false;
             }
-            if (
-                !(s.iteration_id + ' ' + (s.iteration || ({} as Iteration)).name).match(
-                    regexIteration
-                )
-            ) {
+            if (!(s.iteration_id + ' ' + (s.iteration?.name ?? '')).match(regexIteration)) {
                 return false;
             }
-            if (program.owner) {
+            if (options.owner) {
                 const owned =
-                    s.owners.filter((o) => {
-                        return !!`${o.profile.name} ${o.profile.mention_name}`.match(regexOwner);
+                    s.owners?.filter((o) => {
+                        return !!`${o?.profile.name} ${o?.profile.mention_name}`.match(regexOwner);
                     }).length > 0;
                 if (!owned) return false;
             }
@@ -274,32 +306,35 @@ const filterStories = (program: any, stories: Story[], entities: Entities) => {
             if (!s.story_type.match(regexType)) {
                 return false;
             }
-            if (created_at && !created_at(s.created_at)) {
+            if (createdAtFilter && !createdAtFilter(s.created_at)) {
                 return false;
             }
-            if (updated_at && !updated_at(s.updated_at)) {
+            if (updatedAtFilter && !updatedAtFilter(s.updated_at)) {
                 return false;
             }
-            return !(estimate && !estimate(s.estimate));
+            return !(estimateFilter && !estimateFilter(s.estimate));
         });
 };
 
-const sortStories = (program: any) => {
-    const fields = (program.sort || '').split(',').map((s: string) => {
-        return s.split(':').map((ss) => ss.split('.'));
+const sortStories = (options: StoryListOptions) => {
+    type SortField = [string[], string[]?];
+    const fields: SortField[] = (options.sort ?? '').split(',').map((s) => {
+        const parts = s.split(':');
+        return [parts[0].split('.'), parts[1]?.split('.')];
     });
-    const pluck = (acc: any, val: any) => {
-        if (acc[val] === undefined) return {};
-        return acc[val];
+    const pluck = (acc: Record<string, unknown>, val: string): Record<string, unknown> => {
+        const value = acc[val];
+        if (value === undefined) return {};
+        return value as Record<string, unknown>;
     };
     debug('sorting stories');
-    return (a: Story, b: Story) => {
-        return fields.reduce((acc: any, field: any) => {
+    return (a: StoryHydrated, b: StoryHydrated): number => {
+        return fields.reduce((acc: number, field: SortField) => {
             if (acc !== 0) return acc;
-            const ap = field[0].reduce(pluck, a);
-            const bp = field[0].reduce(pluck, b);
+            const ap = field[0].reduce(pluck, a as unknown as Record<string, unknown>);
+            const bp = field[0].reduce(pluck, b as unknown as Record<string, unknown>);
             if (ap === bp) return 0;
-            const direction = (field[1] || [''])[0].match(/des/i) ? 1 : -1;
+            const direction = (field[1]?.[0] ?? '').match(/des/i) ? 1 : -1;
             if (ap > bp) {
                 if (direction > 0) return -1;
             } else {
@@ -310,8 +345,12 @@ const sortStories = (program: any) => {
     };
 };
 
-const printFormattedStory = (program: any) => {
-    return (story: StoryHydrated) => {
+interface PrintOptions {
+    format?: string;
+}
+
+const printFormattedStory = (options: PrintOptions) => {
+    return (story: StoryHydrated): StoryHydrated => {
         const defaultFormat = `#%id %t
     \tType:       %y/%e
     \tTeam:       %T
@@ -327,13 +366,17 @@ const printFormattedStory = (program: any) => {
     \tUpdated:    %updated
     \tArchived:   %a
     `;
-        const format = program.format || defaultFormat;
-        const labels = story.labels.map((l: Label) => `${l.name} (#${l.id})`);
-        const owners = story.owners.map(
-            (o: Member) => `${o.profile.name} (${o.profile.mention_name})`
-        );
+        const format = options.format || defaultFormat;
+        const labels = story.labels.map((l) => `${l.name} (#${l.id})`);
+        const owners =
+            story.owners?.map((o) =>
+                o ? `${o.profile.name} (${o.profile.mention_name})` : 'Unknown'
+            ) ?? [];
         const url = storyURL(story);
         const project = story.project ? `${story.project.name} (#${story.project.id})` : 'None';
+        const requesterStr = story.requester
+            ? `${story.requester.profile.name} (${story.requester.profile.mention_name})`
+            : '_';
         log(
             format
                 .replace(/%j/, JSON.stringify({ ...story, url }, null, 2))
@@ -344,28 +387,20 @@ const printFormattedStory = (program: any) => {
                 .replace(/%l/, labels.join(', ') || '_')
                 .replace(
                     /%epic/,
-                    story.epic_id ? `${(story.epic || ({} as Epic)).name} (#${story.epic_id})` : '_'
+                    story.epic_id ? `${story.epic?.name ?? ''} (#${story.epic_id})` : '_'
                 )
                 .replace(/%e/, `${story.estimate || '_'}`)
                 .replace(
                     /%i/,
                     story.iteration_id
-                        ? `${(story.iteration || ({} as Iteration)).name} (#${story.iteration_id})`
+                        ? `${story.iteration?.name ?? ''} (#${story.iteration_id})`
                         : '_'
                 )
                 .replace(/%p/, project)
                 .replace(/%T/, story.group?.name || '_')
                 .replace(/%o/, owners.join(', ') || '_')
-                .replace(
-                    /%r/,
-                    // eslint-disable-next-line no-constant-binary-expression
-                    `${story.requester.profile.name} (${story.requester.profile.mention_name})` ||
-                        '_'
-                )
-                .replace(
-                    /%s/,
-                    `${(story.state || ({} as WorkflowState)).name} (#${story.workflow_state_id})`
-                )
+                .replace(/%r/, requesterStr)
+                .replace(/%s/, `${story.state?.name ?? ''} (#${story.workflow_state_id})`)
                 .replace(/%c/, `${story.created_at}`)
                 .replace(
                     /%updated/,
@@ -391,25 +426,27 @@ const buildURL = (...segments: (string | number)[]): string => {
     ].join('/');
 };
 
-const storyURL = (story: Story) => buildURL('story', story.id);
+const storyURL = (story: StoryBase) => buildURL('story', story.id);
 
-const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
+const printDetailedStory = (story: StoryHydrated, entities: Entities = {}): void => {
     const labels = story.labels.map((l) => {
         return chalk.bold(`#${l.id}`) + ` ${l.name}`;
     });
-    const owners = story.owners.map((o) => {
-        const mentionName = chalk.bold(`${o.profile.mention_name}`);
-        return `${o.profile.name} (${mentionName})`;
-    });
+    const owners =
+        story.owners?.map((o) => {
+            if (!o) return 'Unknown';
+            const mentionName = chalk.bold(`${o.profile.mention_name}`);
+            return `${o.profile.name} (${mentionName})`;
+        }) ?? [];
 
     log(chalk.blue.bold(`#${story.id}`) + chalk.blue(` ${story.name}`));
     log(chalk.bold('Desc:') + `      ${formatLong(story.description || '_')}`);
     log(chalk.bold('Team:') + `      ${story.group?.name || '_'}`);
     log(chalk.bold('Owners:') + `    ${owners.join(', ') || '_'}`);
-    log(
-        chalk.bold('Requester:') +
-            ` ${story.requester.profile.name} (${story.requester.profile.mention_name})`
-    );
+    const requesterStr = story.requester
+        ? `${story.requester.profile.name} (${story.requester.profile.mention_name})`
+        : '_';
+    log(chalk.bold('Requester:') + ` ${requesterStr}`);
     log(chalk.bold('Type:') + `      ${story.story_type}/${story.estimate || '_'}`);
     log(chalk.bold('Label:') + `     ${labels.join(', ') || '_'}`);
     if (story.project) {
@@ -430,7 +467,11 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     } else {
         log(chalk.bold('Iteration:') + ' _');
     }
-    log(chalk.bold('State:') + chalk.bold(`     #${story.workflow_state_id} `) + story.state.name);
+    log(
+        chalk.bold('State:') +
+            chalk.bold(`     #${story.workflow_state_id} `) +
+            (story.state?.name ?? '')
+    );
     log(chalk.bold('Created:') + `   ${story.created_at}`);
     if (story.created_at !== story.updated_at) {
         log(chalk.bold('Updated:') + `   ${story.updated_at}`);
@@ -442,28 +483,36 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}) => {
     if (story.completed) {
         log(chalk.bold('Completed:  ') + chalk.bold(`${story.completed_at}`));
     }
-    story.tasks.map((c) => {
-        log(
-            chalk.bold('Task:     ') +
-                (c.complete ? '[X]' : '[ ]') +
-                ' ' +
-                formatLong(c.description)
-        );
-        return c;
-    });
-    story.comments
-        .filter((comment) => !comment.deleted)
-        .map((c) => {
-            const author = entities.membersById.get(c.author_id);
-            log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
-            log(`          ${author.profile.name} ` + chalk.bold('at:') + ` ${c.updated_at}`);
+    // Only full Story has tasks, comments, and files
+    if ('tasks' in story) {
+        story.tasks.map((c) => {
+            log(
+                chalk.bold('Task:     ') +
+                    (c.complete ? '[X]' : '[ ]') +
+                    ' ' +
+                    formatLong(c.description)
+            );
             return c;
         });
-    story.files.map((file) => {
-        log(chalk.bold('File:') + `     ${file.name}`);
-        log(`          ${file.url}`);
-        return file;
-    });
+    }
+    if ('comments' in story) {
+        story.comments
+            .filter((comment) => !comment.deleted)
+            .map((c) => {
+                const author = entities.membersById?.get(c.author_id);
+                log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
+                const authorName = author?.profile.name ?? 'Unknown';
+                log(`          ${authorName} ` + chalk.bold('at:') + ` ${c.updated_at}`);
+                return c;
+            });
+    }
+    if ('files' in story) {
+        story.files.map((file) => {
+            log(chalk.bold('File:') + `     ${file.name}`);
+            log(`          ${file.url}`);
+            return file;
+        });
+    }
     log();
 };
 

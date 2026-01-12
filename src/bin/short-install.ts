@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import prompt from 'prompt';
-import commander from 'commander';
+import { Command } from 'commander';
 import { ShortcutClient } from '@shortcut/client';
 
 import { type Config, loadCachedConfig, updateConfig } from '../lib/configure';
@@ -10,12 +10,14 @@ import { version } from '../../package.json';
 const extant = loadCachedConfig();
 const log = console.log;
 
-const program = commander
+const program = new Command()
     .version(version)
     .description('Install access token and other settings for the Shortcut API')
     .option('-f, --force', 'Force install/reinstall')
     .option('-r, --refresh', 'Refresh the configuration with details from Shortcut.')
     .parse(process.argv);
+
+const opts = program.opts<{ force?: boolean; refresh?: boolean }>();
 
 const enrichConfigWithMemberDetails = async (config: Config) => {
     log('Fetching user/member details from Shortcut...');
@@ -30,9 +32,9 @@ const enrichConfigWithMemberDetails = async (config: Config) => {
 };
 
 const main = async () => {
-    if (program.refresh) {
+    if (opts.refresh) {
         updateConfig(await enrichConfigWithMemberDetails(extant));
-    } else if (!extant.token || program.force) {
+    } else if (!extant.token || opts.force) {
         const schema = {
             properties: {
                 token: {
@@ -43,7 +45,7 @@ const main = async () => {
             },
         };
         prompt.start({ message: 'Shortcut' });
-        prompt.get(schema, async (err: Error, result: any) => {
+        prompt.get(schema, async (err: Error | null, result: { token: string }) => {
             if (err) return log(err);
             const config = await enrichConfigWithMemberDetails(result);
             log('Saving config...');

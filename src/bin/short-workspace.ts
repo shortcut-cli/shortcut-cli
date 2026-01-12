@@ -1,22 +1,36 @@
 #!/usr/bin/env node
-import commander from 'commander';
+import { Command } from 'commander';
 
 import configure from '../lib/configure';
 import storyLib from '../lib/stories';
 import type { StoryHydrated } from '../lib/stories';
 
-import { program as searchProgram } from './short-search';
+import { program as searchProgram, type SearchOptions } from './short-search';
+
+interface WorkspaceOptions {
+    list?: boolean;
+    quiet?: boolean;
+    name?: string;
+    unset?: string;
+}
 
 const config = configure.loadConfig();
 const log = console.log;
 
-const program = commander
+const program = new Command()
     .description('List stories matching saved workspace query')
     .option('-l, --list', 'List saved workspaces')
     .option('-q, --quiet', 'Print only workspace story output, no loading dialog', '')
     .option('-n, --name [name]', 'Load named workspace', '')
     .option('-u, --unset [name]', 'Force unset saved workspace')
     .parse(process.argv);
+
+const opts = program.opts<WorkspaceOptions>();
+
+const toArgs = (obj: object): string =>
+    Object.entries(obj)
+        .map(([k, v]) => `--${k} '${v}'`)
+        .join(' ');
 
 const main = async () => {
     if (!config || !config.token) {
@@ -29,22 +43,22 @@ const main = async () => {
         log('  short search [options] --save');
         log('to create your first one.');
         return;
-    } else if (program.list) {
+    } else if (opts.list) {
         log('Workspaces:');
         Object.keys(config.workspaces).map((w) => {
             log(' ', w + ':', toArgs(config.workspaces[w]));
         });
         return;
-    } else if (program.unset) {
-        const success = configure.removeWorkspace(program.unset);
+    } else if (opts.unset) {
+        const success = configure.removeWorkspace(opts.unset);
         if (success) {
-            log('Successfully removed %s workspace', program.unset);
+            log('Successfully removed %s workspace', opts.unset);
         } else {
-            log('Failed to remove %s workspace', program.unset);
+            log('Failed to remove %s workspace', opts.unset);
         }
         return;
     }
-    const name: string = `${program.name || program.args[0] || 'default'}`;
+    const name: string = `${opts.name || program.args[0] || 'default'}`;
     const workspace = config.workspaces[name];
     if (!workspace) {
         log('No workspace saved with name', name);
@@ -54,12 +68,13 @@ const main = async () => {
         return;
     }
     const found = searchProgram.parse(process.argv);
-    const findOpts = found.options.map((o: any) => o.name());
-    const additionalArgs = findOpts.reduce((acc: any, val: any) => {
-        acc[val] = found[val] || acc[val] || found[val];
-        return acc;
-    }, workspace);
-    if (!program.quiet) {
+    const foundOpts = found.opts<SearchOptions>();
+    // Merge workspace defaults with command-line overrides
+    const additionalArgs: SearchOptions = {
+        ...workspace,
+        ...Object.fromEntries(Object.entries(foundOpts).filter(([, v]) => v !== undefined)),
+    };
+    if (!opts.quiet) {
         log('Loading %s workspace ...', name);
         log();
     }
@@ -71,9 +86,5 @@ const main = async () => {
     }
     stories.map(storyLib.printFormattedStory(additionalArgs));
 };
-main();
 
-const toArgs = (obj: any) =>
-    Object.keys(obj)
-        .map((k) => `--${k} '${obj[k]}'`)
-        .join(' ');
+main();

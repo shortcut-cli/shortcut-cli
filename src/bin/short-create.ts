@@ -1,26 +1,38 @@
 #!/usr/bin/env node
 import { exec } from 'child_process';
 
-import type {
-    CreateStoryParams,
-    Epic,
-    Group,
-    Iteration,
-    Project,
-    Story,
-    WorkflowState,
-} from '@shortcut/client';
-import commander from 'commander';
+import type { CreateStoryParams, Story } from '@shortcut/client';
+import { Command, Option } from 'commander';
 
 import storyLib from '../lib/stories';
 import client from '../lib/client';
 import spinner from '../lib/spinner';
 import { loadConfig } from '../lib/configure';
 
+type StoryType = NonNullable<CreateStoryParams['story_type']>;
+
+interface CreateOptions {
+    description?: string;
+    estimate?: string;
+    epic?: string;
+    gitBranch?: boolean;
+    gitBranchShort?: boolean;
+    iteration?: string;
+    idonly?: boolean;
+    label?: string;
+    owners?: string;
+    open?: boolean;
+    project?: string;
+    team?: string;
+    title?: string;
+    state?: string;
+    type?: StoryType;
+}
+
 const config = loadConfig();
 const spin = spinner();
 const log = console.log;
-const program = commander
+const program = new Command()
     .usage('[options]')
     .description('create a story with provided details')
     .option('-d, --description [text]', 'Set description of story', '')
@@ -48,52 +60,53 @@ const program = commander
         'Set workflow state of story, required if --project is not set',
         ''
     )
-    .option('-y, --type [name]', 'Set type of story, default: feature', 'feature')
+    .addOption(
+        new Option('-y, --type <name>', 'Set type of story')
+            .choices(['feature', 'bug', 'chore'] as const satisfies readonly StoryType[])
+            .default('feature' satisfies StoryType)
+    )
     .parse(process.argv);
+
+const opts = program.opts<CreateOptions>();
 
 const main = async () => {
     const entities = await storyLib.fetchEntities();
-    if (!program.idonly) spin.start();
-    const update = {
-        name: program.title,
-        story_type: program.type,
-        description: `${program.description}`,
-        estimate: program.estimate || undefined,
-    } as CreateStoryParams;
-    if (program.project) {
-        update.project_id = (storyLib.findProject(entities, program.project) || ({} as Project)).id;
+    if (!opts.idonly) spin.start();
+    const update: CreateStoryParams = {
+        name: opts.title,
+        story_type: opts.type,
+        description: `${opts.description}`,
+    };
+    if (opts.project) {
+        update.project_id = storyLib.findProject(entities, opts.project)?.id;
     }
-    if (program.team) {
-        update.group_id = (storyLib.findGroup(entities, program.team) || ({} as Group)).id;
+    if (opts.team) {
+        update.group_id = storyLib.findGroup(entities, opts.team)?.id;
     }
-    if (program.state) {
-        update.workflow_state_id = (
-            storyLib.findState(entities, program.state) || ({} as WorkflowState)
-        ).id;
+    if (opts.state) {
+        update.workflow_state_id = storyLib.findState(entities, opts.state)?.id;
     }
-    if (program.epic) {
-        update.epic_id = (storyLib.findEpic(entities, program.epic) || ({} as Epic)).id;
+    if (opts.epic) {
+        update.epic_id = storyLib.findEpic(entities, opts.epic)?.id;
     }
-    if (program.iteration) {
-        update.iteration_id = (
-            storyLib.findIteration(entities, program.iteration) || ({} as Iteration)
-        ).id;
+    if (opts.iteration) {
+        update.iteration_id = storyLib.findIteration(entities, opts.iteration)?.id;
     }
-    if (program.estimate) {
-        update.estimate = parseInt(program.estimate, 10);
+    if (opts.estimate) {
+        update.estimate = parseInt(opts.estimate, 10);
     }
-    if (program.owners) {
-        update.owner_ids = storyLib.findOwnerIds(entities, program.owners);
+    if (opts.owners) {
+        update.owner_ids = storyLib.findOwnerIds(entities, opts.owners);
     }
-    if (program.label) {
-        update.labels = storyLib.findLabelNames(entities, program.label);
+    if (opts.label) {
+        update.labels = storyLib.findLabelNames(entities, opts.label);
     }
     let story: Story;
     if (!update.name) {
-        if (!program.idonly) spin.stop(true);
+        if (!opts.idonly) spin.stop(true);
         log('Must provide --title');
     } else if (!update.project_id && !update.workflow_state_id) {
-        if (!program.idonly) spin.stop(true);
+        if (!opts.idonly) spin.stop(true);
         log('Must provide --project or --state');
     } else {
         try {
@@ -102,16 +115,16 @@ const main = async () => {
             log('Error creating story');
         }
     }
-    if (!program.idonly) spin.stop(true);
+    if (!opts.idonly) spin.stop(true);
     if (story) {
         const hydrateStory = storyLib.hydrateStory(entities, story);
         storyLib.printDetailedStory(hydrateStory);
-        if (program.gitBranch) {
+        if (opts.gitBranch) {
             storyLib.checkoutStoryBranch(hydrateStory);
-        } else if (program.gitBranchShort) {
+        } else if (opts.gitBranchShort) {
             storyLib.checkoutStoryBranch(hydrateStory, `${config.mentionName}/sc-${story.id}/`);
         }
-        if (program.open) {
+        if (opts.open) {
             exec('open ' + storyLib.storyURL(story));
         }
     }

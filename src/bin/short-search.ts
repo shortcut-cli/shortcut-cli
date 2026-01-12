@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import commander from 'commander';
+import { Command } from 'commander';
 
 import spinner from '../lib/spinner';
 import configure from '../lib/configure';
@@ -8,7 +8,26 @@ import storyLib, { type StoryHydrated } from '../lib/stories';
 const spin = spinner('Finding... %s ');
 const log = console.log;
 
-export const program = commander
+export interface SearchOptions {
+    archived?: boolean;
+    created?: string;
+    quiet?: boolean;
+    label?: string;
+    owner?: string;
+    project?: string;
+    state?: string;
+    epic?: string;
+    iteration?: string;
+    save?: string | boolean;
+    text?: string;
+    estimate?: string;
+    updated?: string;
+    type?: string;
+    sort?: string;
+    format?: string;
+}
+
+export const program = new Command()
     .description(
         `Search through Shortcut stories. Arguments (non-flag/options) will be
   passed to Shortcut story search API as search operators. Passing '%self%' as
@@ -53,16 +72,17 @@ export const program = commander
     )
     .option('-f, --format [template]', 'Format each story output by template', '');
 
-const getWorkspaceOptions = (program: any) => {
-    const blacklistedKeys = ['Command', 'commands', 'Option', 'options', 'rawArgs', 'save'];
-    return Object.entries(program)
-        .filter(([key]) => !(blacklistedKeys.includes(key) || key.startsWith('_')))
+const getWorkspaceOptions = (opts: SearchOptions) => {
+    const blacklistedKeys = ['save'];
+    return Object.entries(opts)
+        .filter(([key]) => !blacklistedKeys.includes(key))
         .reduce((obj, [key, val]) => Object.assign(obj, { [key]: val }), {});
 };
 
 export const main = async () => {
     program.parse(process.argv);
-    if (!program.quiet) {
+    const opts = program.opts<SearchOptions>();
+    if (!opts.quiet) {
         if (!program.args.length) {
             log('Fetching all stories for search since no search operators were passed ...');
         }
@@ -70,20 +90,20 @@ export const main = async () => {
     }
     let stories: StoryHydrated[] = [];
     try {
-        stories = await storyLib.listStories(program);
+        stories = await storyLib.listStories({ ...opts, args: program.args });
     } catch (e) {
         log('Error fetching stories:', e);
     }
-    if (!program.quiet) spin.stop(true);
+    if (!opts.quiet) spin.stop(true);
 
-    stories.map(storyLib.printFormattedStory(program));
+    stories.map(storyLib.printFormattedStory(opts));
 
-    if (!program.save) {
+    if (!opts.save) {
         return;
     }
 
-    const name = program.save === true ? 'default' : program.save;
-    if (configure.saveWorkspace(name, getWorkspaceOptions(program))) {
+    const name = opts.save === true ? 'default' : opts.save;
+    if (configure.saveWorkspace(name, getWorkspaceOptions(opts))) {
         log('Saved query as %s workspace', name);
     }
 };
