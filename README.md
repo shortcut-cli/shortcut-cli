@@ -89,7 +89,7 @@ short story 3300
     create          create a story
     workflows       list workflows and their states
     epics           list epics and their states
-    iterations      list iterations (sprints)
+    iterations      list iterations
     iteration       view, create, update, or delete an iteration
     docs            list and search docs
     doc             view, create, update, or delete a doc
