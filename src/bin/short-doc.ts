@@ -3,16 +3,43 @@ import { exec } from 'child_process';
 import os from 'os';
 
 import type { Doc, CreateDoc, UpdateDoc } from '@shortcut/client';
-import commander from 'commander';
+import { Command } from 'commander';
 import chalk from 'chalk';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
 
+interface ViewDocOptions {
+    html?: boolean;
+    open?: boolean;
+    quiet?: boolean;
+}
+
+interface CreateDocOptions {
+    title?: string;
+    content?: string;
+    markdown?: boolean;
+    idonly?: boolean;
+    open?: boolean;
+}
+
+interface UpdateDocOptions {
+    title?: string;
+    content?: string;
+    markdown?: boolean;
+    open?: boolean;
+}
+
+interface DeleteDocOptions {
+    confirm?: boolean;
+}
+
 const spin = spinner();
 const log = console.log;
 
-const program = commander.usage('[command] [options]').description('view, create, or update a doc');
+const program = new Command()
+    .usage('[command] [options]')
+    .description('view, create, or update a doc');
 
 program
     .command('view <id>')
@@ -74,7 +101,7 @@ function isUUID(str: string): boolean {
     return uuidRegex.test(str);
 }
 
-async function viewDoc(id: string, options: any) {
+async function viewDoc(id: string, options: ViewDocOptions) {
     if (!options.quiet) spin.start();
 
     let doc: Doc;
@@ -84,9 +111,10 @@ async function viewDoc(id: string, options: any) {
             params.content_format = 'html';
         }
         doc = await client.getDoc(id, params).then((r) => r.data);
-    } catch (e: any) {
+    } catch (e: unknown) {
         if (!options.quiet) spin.stop(true);
-        log('Error fetching doc:', e.message || e);
+        const error = e as { message?: string };
+        log('Error fetching doc:', error.message ?? String(e));
         process.exit(1);
     }
 
@@ -104,7 +132,7 @@ async function viewDoc(id: string, options: any) {
     }
 }
 
-async function createDoc(options: any) {
+async function createDoc(options: CreateDocOptions) {
     if (!options.title) {
         log('Must provide --title');
         process.exit(1);
@@ -127,9 +155,10 @@ async function createDoc(options: any) {
         const result = await client.createDoc(docData);
         // createDoc returns DocSlim, so we need to fetch the full doc
         doc = await client.getDoc(result.data.id).then((r) => r.data);
-    } catch (e: any) {
+    } catch (e: unknown) {
         if (!options.idonly) spin.stop(true);
-        log('Error creating doc:', e.message || e);
+        const error = e as { message?: string };
+        log('Error creating doc:', error.message ?? String(e));
         process.exit(1);
     }
 
@@ -147,7 +176,7 @@ async function createDoc(options: any) {
     }
 }
 
-async function updateDoc(id: string, options: any) {
+async function updateDoc(id: string, options: UpdateDocOptions) {
     if (!options.title && !options.content) {
         log('Must provide --title and/or --content to update');
         process.exit(1);
@@ -167,9 +196,10 @@ async function updateDoc(id: string, options: any) {
     let doc: Doc;
     try {
         doc = await client.updateDoc(id, docData).then((r) => r.data);
-    } catch (e: any) {
+    } catch (e: unknown) {
         spin.stop(true);
-        log('Error updating doc:', e.message || e);
+        const error = e as { message?: string };
+        log('Error updating doc:', error.message ?? String(e));
         process.exit(1);
     }
 
@@ -183,7 +213,7 @@ async function updateDoc(id: string, options: any) {
     }
 }
 
-async function deleteDoc(id: string, options: any) {
+async function deleteDoc(id: string, options: DeleteDocOptions) {
     if (!options.confirm) {
         log('Deletion requires --confirm flag');
         log('Usage: short doc delete <id> --confirm');
@@ -194,9 +224,10 @@ async function deleteDoc(id: string, options: any) {
 
     try {
         await client.deleteDoc(id, {});
-    } catch (e: any) {
+    } catch (e: unknown) {
         spin.stop(true);
-        log('Error deleting doc:', e.message || e);
+        const error = e as { message?: string };
+        log('Error deleting doc:', error.message ?? String(e));
         process.exit(1);
     }
 

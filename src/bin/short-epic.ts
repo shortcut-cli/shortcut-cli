@@ -2,18 +2,32 @@
 import { exec } from 'child_process';
 
 import type { CreateEpic, Epic } from '@shortcut/client';
-import commander from 'commander';
+import { Command } from 'commander';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
 import { loadConfig } from '../lib/configure';
 import storyLib from '../lib/stories';
 
+interface EpicCreateOptions {
+    name?: string;
+    description?: string;
+    state?: string;
+    deadline?: string;
+    plannedStart?: string;
+    owners?: string;
+    team?: string;
+    label?: string;
+    milestone?: string;
+    idonly?: boolean;
+    open?: boolean;
+}
+
 const config = loadConfig();
 const spin = spinner();
 const log = console.log;
 
-const program = commander.usage('[command] [options]').description('create or view epics');
+const program = new Command().usage('[command] [options]').description('create or view epics');
 
 // Create subcommand
 program
@@ -34,7 +48,7 @@ program
 
 program.parse(process.argv);
 
-async function createEpic(options: any) {
+async function createEpic(options: EpicCreateOptions) {
     const entities = await storyLib.fetchEntities();
     if (!options.idonly) spin.start();
 
@@ -97,9 +111,10 @@ async function createEpic(options: any) {
     } else {
         try {
             epic = await client.createEpic(epicData).then((r) => r.data);
-        } catch (e: any) {
+        } catch (e: unknown) {
             if (!options.idonly) spin.stop(true);
-            log('Error creating epic:', e.message || e);
+            const error = e as { message?: string };
+            log('Error creating epic:', error.message ?? String(e));
             process.exit(1);
         }
     }
