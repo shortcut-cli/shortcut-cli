@@ -1,8 +1,7 @@
 import { defineConfig } from 'tsdown';
-import { globSync } from 'glob';
 
 export default defineConfig({
-    entry: globSync('src/**/*.ts'),
+    entry: ['src/**/*.ts'],
     outDir: 'build',
     format: 'cjs',
     clean: true,
