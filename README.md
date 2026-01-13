@@ -16,6 +16,7 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
     - [Workspace](#workspace)
     - [Members](#members)
     - [Epics](#epics)
+    - [Iterations](#iterations)
     - [Docs](#docs)
     - [Workflows](#workflows)
     - [Projects](#projects)
@@ -88,6 +89,8 @@ short story 3300
     create          create a story
     workflows       list workflows and their states
     epics           list epics and their states
+    iterations      list iterations
+    iteration       view, create, update, or delete an iteration
     docs            list and search docs
     doc             view, create, update, or delete a doc
     projects        list or search projects
@@ -364,6 +367,122 @@ Templating variables:
 %a       Print archived status of epic
 %st      Print started status of epic
 %co      Print completed status of epic
+```
+
+### Iterations
+
+```
+  Usage: short iterations [options]
+
+  Display iterations available for stories
+
+
+  Options:
+
+    -S, --status [status]     Filter by status (unstarted, started, done)
+    -T, --team [id|name]      Filter by team/group id or name
+    -C, --current             Show only current/active iterations
+    -t, --title [query]       Filter iterations with name containing query
+    -d, --detailed            Show more details for each iteration
+    -f, --format [template]   Format each iteration output by template
+    -h, --help                output usage information
+```
+
+#### Iteration View, Create, Update, Delete
+
+```
+  Usage: short iteration [command] [options]
+
+  view, create, update, or delete iterations
+
+
+  Commands:
+
+    view <id>     view an iteration by id
+    create        create a new iteration
+    update <id>   update an existing iteration
+    delete <id>   delete an iteration
+    stories <id>  list stories in an iteration
+```
+
+View an iteration:
+
+```
+  Usage: short iteration view <id> [options]
+
+  Options:
+
+    -O, --open   Open iteration in browser
+    -h, --help   output usage information
+```
+
+Create an iteration:
+
+```
+  Usage: short iteration create [options]
+
+  Options:
+
+    -n, --name [text]         Set name of iteration (required)
+    -d, --description [text]  Set description of iteration
+    --start-date [date]       Set start date (YYYY-MM-DD, required)
+    --end-date [date]         Set end date (YYYY-MM-DD, required)
+    -T, --team [id|name]      Set team/group of iteration
+    -I, --idonly              Print only ID of iteration result
+    -O, --open                Open iteration in browser
+    -h, --help                output usage information
+```
+
+Update an iteration:
+
+```
+  Usage: short iteration update <id> [options]
+
+  Options:
+
+    -n, --name [text]         Set name of iteration
+    -d, --description [text]  Set description of iteration
+    --start-date [date]       Set start date (YYYY-MM-DD)
+    --end-date [date]         Set end date (YYYY-MM-DD)
+    -T, --team [id|name]      Set team/group of iteration
+    -O, --open                Open iteration in browser
+    -h, --help                output usage information
+```
+
+Delete an iteration:
+
+```
+  Usage: short iteration delete <id>
+```
+
+List stories in an iteration:
+
+```
+  Usage: short iteration stories <id> [options]
+
+  Options:
+
+    -f, --format [template]   Format each story output by template
+    -h, --help                output usage information
+```
+
+#### Iteration Output Formatting
+
+Templating variables:
+
+```
+%id          Print ID of iteration
+%t           Print title/name of iteration
+%s           Print iteration status
+%start       Print iteration start date
+%end         Print iteration end date
+%teams       Print teams assigned to iteration
+%stories     Print total number of stories
+%done        Print number of completed stories
+%points      Print total points
+%pdone       Print completed points
+%completion  Print completion percentage
+%url         Print URL of iteration
 ```
 
 ### Docs
