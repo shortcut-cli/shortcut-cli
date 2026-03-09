@@ -355,6 +355,7 @@ Comment: This is a comment
 
     create             create a new label
     update <idOrName>  update an existing label
+    epics <idOrName>   list epics for a label by id or name
     stories <idOrName>  list stories for a label by id or name
 ```
 
@@ -398,12 +399,19 @@ List stories for a label:
     -h, --help               output usage information
 ```
 
+List epics for a label:
+
+```
+  Usage: short label epics <idOrName>
+```
+
 Example:
 
 ```sh
 npx short labels --search client
 npx short label create --name "triage-needed" --color "#3366cc"
 npx short label update triage-needed --description "Queue for manual review"
+npx short label epics client_web
 npx short label stories client_web
 ```
 
