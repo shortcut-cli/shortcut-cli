@@ -260,6 +260,12 @@ Tasks:
 npx short story tasks 17
 ```
 
+Sub-tasks:
+
+```sh
+npx short story sub-tasks 17
+```
+
 Update examples:
 
 ```sh
