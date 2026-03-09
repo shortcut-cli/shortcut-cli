@@ -269,6 +269,12 @@ Sub-tasks:
 npx short story sub-tasks 17
 ```
 
+Relations:
+
+```sh
+npx short story relation add 17 44 --type relates-to
+```
+
 Update examples:
 
 ```sh

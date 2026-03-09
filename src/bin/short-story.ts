@@ -9,6 +9,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import debugging from 'debug';
 import type {
+    CreateStoryLink,
     CreateStoryParams,
     History,
     Story,
@@ -61,6 +62,16 @@ if (process.argv[2] === 'sub-tasks') {
         logError('Error fetching story sub-tasks', e);
         process.exit(1);
     });
+}
+
+if (process.argv[2] === 'relation' && process.argv[3] === 'add') {
+    handledSubcommand = true;
+    addStoryRelation(process.argv[4], process.argv[5], process.argv[6], process.argv[7]).catch(
+        (e) => {
+            logError('Error creating story relation', e);
+            process.exit(1);
+        }
+    );
 }
 
 interface StoryOptions {
@@ -485,6 +496,43 @@ async function showStorySubTasks(idArg?: string) {
     }
 }
 
+async function addStoryRelation(
+    storyIdArg?: string,
+    relatedIdArg?: string,
+    typeFlag?: string,
+    typeValue?: string
+) {
+    const storyId = parseInt(storyIdArg || '', 10);
+    const relatedId = parseInt(relatedIdArg || '', 10);
+    const relationType = typeFlag === '--type' ? typeValue : undefined;
+
+    if (!storyId || !relatedId || !relationType) {
+        logError('Usage: short story relation add <storyId> <relatedId> --type <type>');
+        process.exit(2);
+    }
+
+    const normalized = normalizeRelationType(storyId, relatedId, relationType);
+    if (!normalized) {
+        logError(
+            'Invalid relation type. Use one of: blocks, blocked-by, duplicates, duplicated-by, relates-to'
+        );
+        process.exit(2);
+    }
+
+    spin.start();
+    try {
+        const link = await client.createStoryLink(normalized).then((r) => r.data);
+        spin.stop(true);
+        log(
+            `Added relation: story #${link.subject_id} ${link.verb} story #${link.object_id} (#${link.id})`
+        );
+    } catch (e) {
+        spin.stop(true);
+        logError(`Error creating story relation ${storyId} -> ${relatedId}`);
+        process.exit(4);
+    }
+}
+
 const openURL = (url: string) => {
     const open = os.platform() === 'darwin' ? 'open' : 'xdg-open';
     execSync(`${open} '${url}'`);
@@ -598,6 +646,32 @@ const printStoryTask = (task: Task, entities: Entities) => {
     }
     log();
 };
+
+function normalizeRelationType(
+    storyId: number,
+    relatedId: number,
+    type: string
+): CreateStoryLink | undefined {
+    const normalized = type.toLowerCase().replace(/[_\s]+/g, '-');
+
+    if (normalized === 'blocks') {
+        return { subject_id: storyId, object_id: relatedId, verb: 'blocks' };
+    }
+    if (normalized === 'blocked-by') {
+        return { subject_id: relatedId, object_id: storyId, verb: 'blocks' };
+    }
+    if (normalized === 'duplicates') {
+        return { subject_id: storyId, object_id: relatedId, verb: 'duplicates' };
+    }
+    if (normalized === 'duplicated-by') {
+        return { subject_id: relatedId, object_id: storyId, verb: 'duplicates' };
+    }
+    if (normalized === 'relates-to' || normalized === 'relates') {
+        return { subject_id: storyId, object_id: relatedId, verb: 'relates to' };
+    }
+
+    return undefined;
+}
 
 const summarizeHistoryAction = (action: Record<string, unknown>): string => {
     const entityType = String(action.entity_type || 'item');
