@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import type { CreateLabelParams, Label, UpdateLabel } from '@shortcut/client';
+import type { CreateLabelParams, EpicSlim, Label, UpdateLabel } from '@shortcut/client';
 import { Command } from 'commander';
 import chalk from 'chalk';
 
@@ -38,6 +38,11 @@ program
     .option('-d, --detailed', 'Show more details for each story')
     .option('-f, --format [template]', 'Format each story output by template', '')
     .action(listLabelStories);
+
+program
+    .command('epics <idOrName>')
+    .description('list epics for a label by id or name')
+    .action(listLabelEpics);
 
 program.parse(process.argv);
 
@@ -170,6 +175,34 @@ async function listLabelStories(
     }
 }
 
+async function listLabelEpics(idOrName: string) {
+    spin.start();
+    try {
+        const entities = await storyLib.fetchEntities();
+        const label = storyLib.findLabel(entities, idOrName);
+        if (!label) {
+            spin.stop(true);
+            log(`Label ${idOrName} not found`);
+            process.exit(1);
+        }
+
+        const epics = await client.listLabelEpics(label.id).then((r) => r.data);
+        spin.stop(true);
+
+        if (epics.length === 0) {
+            log(`No epics found for label #${label.id} ${label.name}`);
+            return;
+        }
+
+        epics.forEach(printEpic);
+    } catch (e: unknown) {
+        spin.stop(true);
+        const error = e as { message?: string };
+        log(`Error fetching label epics: ${error.message ?? String(e)}`);
+        process.exit(1);
+    }
+}
+
 function printLabel(label: Label) {
     log(chalk.bold(`#${label.id}`) + chalk.blue(` ${label.name}`));
     if (label.color) {
@@ -181,5 +214,14 @@ function printLabel(label: Label) {
     if (label.archived) {
         log(chalk.bold('Archived:      ') + ` ${label.archived}`);
     }
+    log();
+}
+
+function printEpic(epic: EpicSlim) {
+    log(chalk.bold(`#${epic.id}`) + chalk.blue(` ${epic.name}`));
+    log(chalk.bold('State:         ') + ` ${epic.state}`);
+    log(chalk.bold('Started:       ') + ` ${epic.started}`);
+    log(chalk.bold('Completed:     ') + ` ${epic.completed}`);
+    log(chalk.bold('URL:           ') + ` ${epic.app_url}`);
     log();
 }
