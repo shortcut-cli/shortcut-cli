@@ -22,6 +22,8 @@ program
     .alias('m')
     .command('labels [options]', 'list labels')
     .command('label [command] [options]', 'view stories for a label')
+    .command('custom-fields [options]', 'list custom fields')
+    .command('custom-field <id> [options]', 'view a custom field')
     .command('workflows [options]', 'list workflows and their states')
     .alias('wf')
     .command('epics [options]', 'list epics and their states')
