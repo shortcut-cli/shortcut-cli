@@ -232,6 +232,12 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     -h, --help                output usage information
 ```
 
+History:
+
+```sh
+npx short story history 17
+```
+
 Example output:
 
 ```

@@ -8,7 +8,14 @@ import https from 'https';
 import { Command } from 'commander';
 import chalk from 'chalk';
 import debugging from 'debug';
-import type { UploadedFile, Story, Task, UpdateStory, CreateStoryParams } from '@shortcut/client';
+import type {
+    CreateStoryParams,
+    History,
+    Story,
+    Task,
+    UpdateStory,
+    UploadedFile,
+} from '@shortcut/client';
 
 import client from '../lib/client';
 import storyLib, { type StoryHydrated, type Entities } from '../lib/stories';
@@ -20,6 +27,13 @@ const spin = spinner();
 const log = console.log;
 const logError = console.error;
 const debug = debugging('short');
+
+if (process.argv[2] === 'history') {
+    showStoryHistory(process.argv[3]).catch((e) => {
+        logError('Error fetching story history', e);
+        process.exit(1);
+    });
+}
 
 interface StoryOptions {
     archived?: boolean;
@@ -307,6 +321,32 @@ const main = async () => {
     stopSpinner();
 };
 
+async function showStoryHistory(idArg?: string) {
+    const id = parseInt(idArg || '', 10);
+    if (!id) {
+        logError('Usage: short story history <id>');
+        process.exit(2);
+    }
+
+    spin.start();
+    try {
+        const history = await client.storyHistory(id).then((r) => r.data);
+        spin.stop(true);
+
+        if (history.length === 0) {
+            log(`No history found for story #${id}`);
+            process.exit(0);
+        }
+
+        history.forEach(printHistoryItem);
+        process.exit(0);
+    } catch (e) {
+        spin.stop(true);
+        logError(`Error fetching story history ${id}`);
+        process.exit(4);
+    }
+}
+
 const openURL = (url: string) => {
     const open = os.platform() === 'darwin' ? 'open' : 'xdg-open';
     execSync(`${open} '${url}'`);
@@ -335,6 +375,37 @@ const printStory = (story: StoryHydrated, entities: Entities) => {
         return storyLib.printFormattedStory(opts)(story);
     }
     storyLib.printDetailedStory(story, entities);
+};
+
+const printHistoryItem = (item: History) => {
+    const actor = item.actor_name || item.member_id || 'Unknown';
+    log(chalk.blue.bold(`${item.changed_at}`) + ` ${actor}`);
+    item.actions.forEach((action) => {
+        log(`- ${summarizeHistoryAction(action as unknown as Record<string, unknown>)}`);
+    });
+    log();
+};
+
+const summarizeHistoryAction = (action: Record<string, unknown>): string => {
+    const entityType = String(action.entity_type || 'item');
+    const actionType = String(action.action || 'changed');
+    const name = typeof action.name === 'string' ? action.name : undefined;
+    const description = typeof action.description === 'string' ? action.description : undefined;
+
+    if (actionType === 'update' && action.changes && typeof action.changes === 'object') {
+        const fields = Object.keys(action.changes as Record<string, unknown>);
+        if (fields.length > 0) {
+            return `updated ${entityType} ${name ? `"${name}" ` : ''}(fields: ${fields.join(', ')})`;
+        }
+    }
+
+    if (name) {
+        return `${actionType} ${entityType} "${name}"`;
+    }
+    if (description) {
+        return `${actionType} ${entityType} "${description}"`;
+    }
+    return `${actionType} ${entityType}`;
 };
 
 main();
