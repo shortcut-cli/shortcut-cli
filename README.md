@@ -16,6 +16,7 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
     - [Workspace](#workspace)
     - [Members](#members)
     - [Epics](#epics)
+    - [Objectives](#objectives)
     - [Iterations](#iterations)
     - [Docs](#docs)
     - [Workflows](#workflows)
@@ -91,6 +92,8 @@ short story 3300
     epics           list epics and their states
     iterations      list iterations
     iteration       view, create, update, or delete an iteration
+    objectives      list objectives and their states
+    objective       view, create, or update objectives
     docs            list and search docs
     doc             view, create, update, or delete a doc
     projects        list or search projects
@@ -326,7 +329,35 @@ Comment: This is a comment
     -h, --help                output usage information
 ```
 
-#### Epic Creation
+#### Epic Commands
+
+```
+  Usage: short epic [command] [options]
+
+  create, view, or update epics
+
+
+  Commands:
+
+    create        create a new epic
+    view <id>     view an epic by id
+    update <id>   update an existing epic
+```
+
+You can use `short epic` to create, view, or update a single epic.
+
+View an epic:
+
+```
+  Usage: short epic view <id> [options]
+
+  Options:
+
+    -O, --open   Open epic in browser
+    -h, --help   output usage information
+```
+
+Create an epic:
 
 ```
   Usage: short epic create [options]
@@ -344,7 +375,31 @@ Comment: This is a comment
     -o, --owners [id|name]     Set owners of epic, comma-separated
     -T, --team [id|name]       Set team of epic
     -l, --label [id|name]      Set labels of epic, comma-separated
+    -M, --milestone [id]       Set milestone of epic (deprecated, use objectives)
+    --objectives [id|name]     Set objectives of epic, comma-separated
     -I, --idonly               Print only ID of epic result
+    -O, --open                 Open epic in browser
+    -h, --help                 output usage information
+```
+
+Update an epic:
+
+```
+  Usage: short epic update <id> [options]
+
+  Options:
+
+    -n, --name [text]          Set name of epic
+    -d, --description [text]   Set description of epic
+    -s, --state [name]         Set state of epic (to do, in progress, done)
+    --deadline [date]          Set deadline for epic (YYYY-MM-DD)
+    --planned-start [date]     Set planned start date (YYYY-MM-DD)
+    -o, --owners [id|name]     Set owners of epic, comma-separated
+    -T, --team [id|name]       Set team of epic
+    -l, --label [id|name]      Set labels of epic, comma-separated
+    -M, --milestone [id]       Set milestone of epic (deprecated, use objectives)
+    --objectives [id|name]     Set objectives of epic, comma-separated
+    -a, --archived             Archive epic
     -O, --open                 Open epic in browser
     -h, --help                 output usage information
 ```
@@ -364,9 +419,102 @@ Templating variables:
 %ps      Print epic total points started
 %pd      Print epic total points done
 %c       Print epic total completion percentage
-%a       Print archived status of epic
+%ar      Print archived status of epic
 %st      Print started status of epic
 %co      Print completed status of epic
+```
+
+### Objectives
+
+```
+  Usage: short objectives [options] [SEARCH OPERATORS]
+
+  List and search Shortcut objectives. By default, lists all objectives.
+  Passing search operators will use the Shortcut objective search API and
+  page through all results.
+
+
+  Options:
+
+    -a, --archived          List only objectives including archived
+    -c, --completed         List only objectives that have been completed
+    -d, --detailed          List more details for each objective
+    -f, --format [template] Format each objective output by template
+    -s, --started           List objectives that have been started
+    -S, --state [state]     Filter objectives by state
+    -t, --title [query]     Filter objectives with name/title containing query
+    -h, --help              output usage information
+```
+
+#### Objective Commands
+
+```
+  Usage: short objective [command] [options]
+
+  view, create, or update objectives
+
+
+  Commands:
+
+    view <id>     view an objective by id
+    create        create a new objective
+    update <id>   update an existing objective
+    epics <id>    list epics in an objective
+```
+
+You can use `short objective` to view, create, or update a single objective.
+
+View an objective:
+
+```
+  Usage: short objective view <id> [options]
+
+  Options:
+
+    -O, --open   Open objective in browser
+    -h, --help   output usage information
+```
+
+You can also view an objective directly by ID: `short objective <id>`
+
+Create an objective:
+
+```
+  Usage: short objective create [options]
+
+  Options:
+
+    -n, --name [text]          Set name of objective, required
+    -d, --description [text]   Set description of objective
+    -s, --state [name]         Set state of objective (to do, in progress, done)
+    --started-at [date]        Set started override (ISO date or YYYY-MM-DD)
+    --completed-at [date]      Set completed override (ISO date or YYYY-MM-DD)
+    -I, --idonly               Print only ID of objective result
+    -O, --open                 Open objective in browser
+    -h, --help                 output usage information
+```
+
+Update an objective:
+
+```
+  Usage: short objective update <id> [options]
+
+  Options:
+
+    -n, --name [text]          Set name of objective
+    -d, --description [text]   Set description of objective
+    -s, --state [name]         Set state of objective (to do, in progress, done)
+    --started-at [date]        Set started override (ISO date or YYYY-MM-DD)
+    --completed-at [date]      Set completed override (ISO date or YYYY-MM-DD)
+    -a, --archived             Archive objective
+    -O, --open                 Open objective in browser
+    -h, --help                 output usage information
+```
+
+List epics in an objective:
+
+```
+  Usage: short objective epics <id>
 ```
 
 ### Iterations
