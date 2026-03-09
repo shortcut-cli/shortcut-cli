@@ -55,6 +55,14 @@ if (process.argv[2] === 'tasks') {
     });
 }
 
+if (process.argv[2] === 'sub-tasks') {
+    handledSubcommand = true;
+    showStorySubTasks(process.argv[3]).catch((e) => {
+        logError('Error fetching story sub-tasks', e);
+        process.exit(1);
+    });
+}
+
 interface StoryOptions {
     archived?: boolean;
     comment?: string;
@@ -444,6 +452,35 @@ async function showStoryTasks(idArg?: string) {
     } catch (e) {
         spin.stop(true);
         logError(`Error fetching story tasks ${id}`);
+        process.exit(4);
+    }
+}
+
+async function showStorySubTasks(idArg?: string) {
+    const id = parseInt(idArg || '', 10);
+    if (!id) {
+        logError('Usage: short story sub-tasks <id>');
+        process.exit(2);
+    }
+
+    spin.start();
+    try {
+        const entities = await storyLib.fetchEntities();
+        const stories = await client.listStorySubTasks(id).then((r) => r.data);
+        spin.stop(true);
+
+        if (!stories.length) {
+            log(`No sub-tasks found for story #${id}`);
+            process.exit(0);
+        }
+
+        stories
+            .map((story) => storyLib.hydrateStory(entities, story))
+            .forEach(storyLib.printFormattedStory({}));
+        process.exit(0);
+    } catch (e) {
+        spin.stop(true);
+        logError(`Error fetching story sub-tasks ${id}`);
         process.exit(4);
     }
 }
