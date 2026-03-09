@@ -39,6 +39,7 @@ interface StoryOptions {
     archived?: boolean;
     comment?: string;
     description?: string;
+    deadline?: string;
     download?: boolean;
     downloadDir?: string;
     estimate?: string;
@@ -46,6 +47,7 @@ interface StoryOptions {
     iteration?: string;
     format?: string;
     fromGit?: boolean;
+    follower?: string;
     gitBranch?: boolean;
     gitBranchShort?: boolean;
     idonly?: boolean;
@@ -59,7 +61,9 @@ interface StoryOptions {
     openEpic?: boolean;
     openIteration?: boolean;
     openProject?: boolean;
+    externalLink?: string;
     quiet?: boolean;
+    requester?: string;
     state?: string;
     title?: string;
     team?: string;
@@ -74,6 +78,7 @@ const program = new Command()
     .option('-a, --archived', 'Update story as archived')
     .option('-c, --comment [text]', 'Add comment to story', '')
     .option('-d, --description [text]', 'Update description of story', '')
+    .option('--deadline [date]', 'Update due date of story (YYYY-MM-DD)', '')
     .option('-D, --download', 'Download all attached files', '')
     .option('--download-dir [path]', 'Directory to download files to', '.')
     .option('-e, --estimate [number]', 'Update estimate of story', '')
@@ -81,6 +86,7 @@ const program = new Command()
     .option('-i, --iteration [id|name]', 'Set iteration of story')
     .option('-f, --format [template]', 'Format the story output by template', '')
     .option('--from-git', 'Fetch story parsed by ID from current git branch')
+    .option('--follower [id|name]', 'Update followers of story, comma-separated', '')
     .option(
         '--git-branch',
         'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
@@ -101,7 +107,9 @@ const program = new Command()
     .option('--oe, --open-epic', "Open story's epic in browser")
     .option('--oi, --open-iteration', "Open story's iteration in browser")
     .option('--op, --open-project', "Open story's project in browser")
+    .option('--external-link [url]', 'Add external link to story, comma-separated', '')
     .option('-q, --quiet', 'Print only story output, no loading dialog', '')
+    .option('--requester [id|name]', 'Update requester of story', '')
     .option('-s, --state [id|name]', 'Update workflow state of story', '')
     .option('-t, --title [text]', 'Update title/name of story', '')
     .option('-T, --team [id|name]', 'Update team/group of story', '')
@@ -132,6 +140,9 @@ const main = async () => {
     if (opts.description) {
         update.description = `${opts.description}`;
     }
+    if (opts.deadline) {
+        update.deadline = normalizeDate(opts.deadline);
+    }
     if (opts.type) {
         type StoryType = NonNullable<CreateStoryParams['story_type']>;
         const storyTypes = ['feature', 'bug', 'chore'] as const satisfies readonly StoryType[];
@@ -140,6 +151,9 @@ const main = async () => {
     }
     if (opts.owners) {
         update.owner_ids = storyLib.findOwnerIds(entities, opts.owners);
+    }
+    if (opts.follower) {
+        update.follower_ids = storyLib.findOwnerIds(entities, opts.follower);
     }
     if (opts.epic) {
         update.epic_id = storyLib.findEpic(entities, opts.epic)?.id;
@@ -153,12 +167,15 @@ const main = async () => {
     if (opts.team) {
         update.group_id = storyLib.findGroup(entities, opts.team)?.id;
     }
+    if (opts.requester) {
+        update.requested_by_id = storyLib.findMember(entities, opts.requester)?.id;
+    }
     const hasPositionUpdate =
         opts.moveAfter !== undefined ||
         opts.moveBefore !== undefined ||
         opts.moveDown !== undefined ||
         opts.moveUp !== undefined;
-    const hasUpdate = Object.keys(update).length > 0 || hasPositionUpdate;
+    const hasUpdate = Object.keys(update).length > 0 || hasPositionUpdate || !!opts.externalLink;
     debug('constructed story update', update);
     const gitID: string[] = [];
     if (opts.fromGit || !program.args.length) {
@@ -212,6 +229,15 @@ const main = async () => {
             debug('request story');
             story = await client.getStory(id).then((r) => r.data);
             debug('response story');
+            if (opts.externalLink) {
+                const links = opts.externalLink
+                    .split(',')
+                    .map((link) => link.trim())
+                    .filter(Boolean);
+                update.external_links = Array.from(
+                    new Set([...(story.external_links || []), ...links])
+                );
+            }
         } catch (e) {
             stopSpinner();
             logError('Error fetching story', id);
@@ -406,6 +432,13 @@ const summarizeHistoryAction = (action: Record<string, unknown>): string => {
         return `${actionType} ${entityType} "${description}"`;
     }
     return `${actionType} ${entityType}`;
+};
+
+const normalizeDate = (value: string): string => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return new Date(`${value}T00:00:00.000Z`).toISOString();
+    }
+    return new Date(value).toISOString();
 };
 
 main();
