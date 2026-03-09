@@ -16,6 +16,7 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
     - [Workspace](#workspace)
     - [Members](#members)
     - [Labels](#labels)
+    - [Custom Fields](#custom-fields)
     - [Epics](#epics)
     - [Objectives](#objectives)
     - [Iterations](#iterations)
@@ -89,6 +90,8 @@ short story 3300
     members         list members
     labels          list labels
     label           view stories for a label
+    custom-fields   list custom fields
+    custom-field    view a custom field
     story           view or manipulate a story or stories
     create          create a story
     workflows       list workflows and their states
@@ -413,6 +416,34 @@ npx short label create --name "triage-needed" --color "#3366cc"
 npx short label update triage-needed --description "Queue for manual review"
 npx short label epics client_web
 npx short label stories client_web
+```
+
+### Custom Fields
+
+```
+  Usage: short custom-fields [options]
+
+  Display custom fields available for stories
+
+
+  Options:
+
+    -d, --disabled        List custom fields including disabled
+    -s, --search [query]  List custom fields with name containing query
+    -h, --help            output usage information
+```
+
+```
+  Usage: short custom-field <id> [options]
+
+  view a custom field by id
+```
+
+Example:
+
+```sh
+npx short custom-fields --search priority
+npx short custom-field 123e4567-e89b-12d3-a456-426614174000
 ```
 
 ### Epics
