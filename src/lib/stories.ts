@@ -9,6 +9,7 @@ import type {
     IterationSlim,
     Label,
     Member,
+    Objective,
     Project,
     Story,
     StorySearchResult,
@@ -35,6 +36,7 @@ export interface Entities {
     membersById?: Map<string, Member>;
     groupsById?: Map<string, Group>;
     epicsById?: Map<number, EpicSlim>;
+    objectivesById?: Map<number, Objective>;
     iterationsById?: Map<number, IterationSlim>;
     labels?: Label[];
 }
@@ -79,43 +81,64 @@ export interface StoryHydrated extends Story {
 }
 
 async function fetchEntities(): Promise<Entities> {
-    const [projectsById, statesById, membersById, groupsById, epicsById, iterationsById, labels] =
-        await Promise.all([
-            client
-                .listProjects()
-                .then((r) => r.data)
-                .then(mapByItemId),
-            client
-                .listWorkflows()
-                .then((r) => r.data)
-                .then((wfs: Workflow[]) =>
-                    wfs.reduce<WorkflowState[]>((states, wf) => states.concat(wf.states), [])
-                )
-                .then(mapByItemId),
-            client
-                .listMembers(null)
-                .then((r) => r.data)
-                .then(mapByItemStringId),
-            client
-                .listGroups()
-                .then((r) => r.data)
-                .then(mapByItemStringId),
-            client
-                .listEpics(null)
-                .then((r) => r.data)
-                .then(mapByItemId),
-            client
-                .listIterations(null)
-                .then((r) => r.data)
-                .then(mapByItemId),
-            client.listLabels(null).then((r) => r.data),
-        ]).catch((err) => {
-            log(`Error fetching workflows: ${err}`);
-            process.exit(2);
-        });
+    const [
+        projectsById,
+        statesById,
+        membersById,
+        groupsById,
+        epicsById,
+        objectivesById,
+        iterationsById,
+        labels,
+    ] = await Promise.all([
+        client
+            .listProjects()
+            .then((r) => r.data)
+            .then(mapByItemId),
+        client
+            .listWorkflows()
+            .then((r) => r.data)
+            .then((wfs: Workflow[]) =>
+                wfs.reduce<WorkflowState[]>((states, wf) => states.concat(wf.states), [])
+            )
+            .then(mapByItemId),
+        client
+            .listMembers(null)
+            .then((r) => r.data)
+            .then(mapByItemStringId),
+        client
+            .listGroups()
+            .then((r) => r.data)
+            .then(mapByItemStringId),
+        client
+            .listEpics(null)
+            .then((r) => r.data)
+            .then(mapByItemId),
+        client
+            .listObjectives()
+            .then((r) => r.data)
+            .then(mapByItemId),
+        client
+            .listIterations(null)
+            .then((r) => r.data)
+            .then(mapByItemId),
+        client.listLabels(null).then((r) => r.data),
+    ]).catch((err) => {
+        log(`Error fetching workflows: ${err}`);
+        process.exit(2);
+    });
 
     debug('response workflows, members, groups, projects, epics, iterations');
-    return { projectsById, statesById, membersById, groupsById, epicsById, iterationsById, labels };
+    return {
+        projectsById,
+        statesById,
+        membersById,
+        groupsById,
+        epicsById,
+        objectivesById,
+        iterationsById,
+        labels,
+    };
 }
 
 const listStories = async (options: StoryListOptions): Promise<StoryHydrated[]> => {
@@ -229,8 +252,20 @@ const findState = (entities: Entities, state: string | number) =>
 const findEpic = (entities: Entities, epicName: string | number) =>
     findEntity(entities.epicsById, epicName);
 
+const findObjective = (entities: Entities, objectiveName: string | number) =>
+    findEntity(entities.objectivesById, objectiveName);
+
 const findIteration = (entities: Entities, iterationName: string | number) =>
     findEntity(entities.iterationsById, iterationName);
+
+const findObjectiveIds = (entities: Entities, objectives: string): number[] => {
+    return objectives
+        .split(',')
+        .map((objective) => objective.trim())
+        .filter(Boolean)
+        .map((objective) => findObjective(entities, objective)?.id)
+        .filter((id): id is number => typeof id === 'number');
+};
 
 const findOwnerIds = (entities: Entities, owners: string): string[] => {
     const ownerMatch = new RegExp(owners.split(',').join('|'), 'i');
@@ -582,6 +617,8 @@ export default {
     findGroup,
     findState,
     findEpic,
+    findObjective,
+    findObjectiveIds,
     findIteration,
     findOwnerIds,
     findLabelNames,

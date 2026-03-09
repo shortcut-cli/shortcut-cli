@@ -52,11 +52,8 @@ const printItem = (epic: Epic) => {
     if (!epic.started && opts.started) return;
     if (!epic.completed && opts.completed) return;
 
-    let defaultFormat = `#%id %t\nMilestone:\t%m\nState:\t\t%s\nDeadline:\t%dl\n`;
+    let defaultFormat = `#%id %t\nMilestone:\t%m\nState:\t\t%s\nArchived:\t%ar\nDeadline:\t%dl\n`;
     defaultFormat += `Points:\t\t%p\nPoints Started: %ps\nPoints Done:\t%pd\nCompletion:\t%c\n`;
-    if (epic.archived) {
-        defaultFormat += `Archived:\t%ar\n`;
-    }
     if (epic.started) {
         defaultFormat += `Started:\t%st\n`;
     }
@@ -79,11 +76,11 @@ const printItem = (epic: Epic) => {
             .replace(/%p/, `${epic.stats.num_points}`)
             .replace(/%ps/, `${epic.stats.num_points_started}`)
             .replace(/%pd/, `${epic.stats.num_points_done}`)
+            .replace(/%ar/, `${epic.archived}`)
             .replace(
                 /%c/,
                 `${Math.round((epic.stats.num_points_done / (epic.stats.num_points || 1)) * 100)}%`
             )
-            .replace(/%a/, `${epic.archived}`)
             .replace(/%st/, `${epic.started_at}`)
             .replace(/%co/, `${epic.completed_at}`)
     );
