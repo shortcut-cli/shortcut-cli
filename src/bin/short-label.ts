@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import type { CreateLabelParams, Label } from '@shortcut/client';
+import type { CreateLabelParams, Label, UpdateLabel } from '@shortcut/client';
 import { Command } from 'commander';
 import chalk from 'chalk';
 
@@ -22,6 +22,15 @@ program
     .option('-c, --color [hex]', 'Set label color in hex format like #3366cc', '')
     .option('-I, --idonly', 'Print only ID of label result')
     .action(createLabel);
+
+program
+    .command('update <idOrName>')
+    .description('update an existing label')
+    .option('-n, --name [text]', 'Set name of label', '')
+    .option('-d, --description [text]', 'Set description of label', '')
+    .option('-c, --color [hex]', 'Set label color in hex format like #3366cc', '')
+    .option('-a, --archived', 'Archive label')
+    .action(updateLabel);
 
 program
     .command('stories <idOrName>')
@@ -67,6 +76,56 @@ async function createLabel(options: {
         if (!options.idonly) spin.stop(true);
         const error = e as { message?: string };
         log(`Error creating label: ${error.message ?? String(e)}`);
+        process.exit(1);
+    }
+}
+
+async function updateLabel(
+    idOrName: string,
+    options: {
+        name?: string;
+        description?: string;
+        color?: string;
+        archived?: boolean;
+    }
+) {
+    spin.start();
+    try {
+        const entities = await storyLib.fetchEntities();
+        const label = storyLib.findLabel(entities, idOrName);
+        if (!label) {
+            spin.stop(true);
+            log(`Label ${idOrName} not found`);
+            process.exit(1);
+        }
+
+        const input: UpdateLabel = {};
+        if (options.name) {
+            input.name = options.name;
+        }
+        if (options.description) {
+            input.description = options.description;
+        }
+        if (options.color) {
+            input.color = options.color;
+        }
+        if (options.archived) {
+            input.archived = true;
+        }
+
+        if (Object.keys(input).length === 0) {
+            spin.stop(true);
+            log('No updates provided. Use --name, --description, --color, or --archived');
+            process.exit(1);
+        }
+
+        const updatedLabel = await client.updateLabel(label.id, input).then((r) => r.data);
+        spin.stop(true);
+        printLabel(updatedLabel);
+    } catch (e: unknown) {
+        spin.stop(true);
+        const error = e as { message?: string };
+        log(`Error updating label: ${error.message ?? String(e)}`);
         process.exit(1);
     }
 }

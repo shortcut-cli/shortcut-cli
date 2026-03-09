@@ -354,6 +354,7 @@ Comment: This is a comment
   Commands:
 
     create             create a new label
+    update <idOrName>  update an existing label
     stories <idOrName>  list stories for a label by id or name
 ```
 
@@ -368,6 +369,20 @@ Create a label:
     -d, --description [text]  Set description of label
     -c, --color [hex]         Set label color in hex format like #3366cc
     -I, --idonly              Print only ID of label result
+    -h, --help                output usage information
+```
+
+Update a label:
+
+```
+  Usage: short label update <idOrName> [options]
+
+  Options:
+
+    -n, --name [text]         Set name of label
+    -d, --description [text]  Set description of label
+    -c, --color [hex]         Set label color in hex format like #3366cc
+    -a, --archived            Archive label
     -h, --help                output usage information
 ```
 
@@ -388,6 +403,7 @@ Example:
 ```sh
 npx short labels --search client
 npx short label create --name "triage-needed" --color "#3366cc"
+npx short label update triage-needed --description "Queue for manual review"
 npx short label stories client_web
 ```
 
