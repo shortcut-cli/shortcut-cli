@@ -219,12 +219,16 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     --move-down [n]           Move story position downward by n stories
     --move-up [n]             Move story position upward by n stories
     -c, --comment [text]      Add comment to story
+    --deadline [date]         Update due date of story (YYYY-MM-DD)
+    --external-link [url]     Add external link to story, comma-separated
+    --follower [id|name]      Update followers of story, comma-separated
     -o, --owners [id|name]    Update owners of story, comma-separated
     -O, --open                Open story in browser
     --oe, --open-epic         Open story's epic in browser
     --oi, --open-iteration    Open story's iteration in browser
     --op, --open-project      Open story's project in browser
     -q, --quiet               Print only story output, no loading dialog
+    --requester [id|name]     Update requester of story
     -t, --title [text]        Update title of story
     --task [text]             Create new task on story
     --task-complete [text]    Toggle completion of story task matching text
@@ -236,6 +240,14 @@ History:
 
 ```sh
 npx short story history 17
+```
+
+Update examples:
+
+```sh
+npx short story 17 --deadline 2026-03-31
+npx short story 17 --requester test3969 --follower test3969
+npx short story 17 --external-link "https://example.com/spec"
 ```
 
 Example output:

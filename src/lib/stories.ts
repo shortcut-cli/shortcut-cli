@@ -246,6 +246,17 @@ const findProject = (entities: Entities, project: string | number) =>
 const findGroup = (entities: Entities, group: string | number) =>
     findEntity(entities.groupsById, group);
 
+const findMember = (entities: Entities, member: string | number): Member | undefined => {
+    if (!entities.membersById) return undefined;
+    if (entities.membersById.get(String(member))) {
+        return entities.membersById.get(String(member));
+    }
+    const match = new RegExp(`${member}`, 'i');
+    return Array.from(entities.membersById.values()).find(
+        (m) => !!`${m.id} ${m.profile.name} ${m.profile.mention_name}`.match(match)
+    );
+};
+
 const findState = (entities: Entities, state: string | number) =>
     findEntity(entities.statesById, state);
 
@@ -615,6 +626,7 @@ export default {
     hydrateStory,
     findProject,
     findGroup,
+    findMember,
     findState,
     findEpic,
     findObjective,
