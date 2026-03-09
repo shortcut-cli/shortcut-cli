@@ -20,6 +20,8 @@ program
     .alias('c')
     .command('members [options]', 'list members')
     .alias('m')
+    .command('labels [options]', 'list labels')
+    .command('label [command] [options]', 'view stories for a label')
     .command('workflows [options]', 'list workflows and their states')
     .alias('wf')
     .command('epics [options]', 'list epics and their states')
