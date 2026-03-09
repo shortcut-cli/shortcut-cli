@@ -349,6 +349,7 @@ npx short epics --objectives "Our first Tactical Objective"
     create        create a new epic
     view <id>     view an epic by id
     update <id>   update an existing epic
+    stories <id>  list stories in an epic
 ```
 
 You can use `short epic` to create, view, or update a single epic.
@@ -409,6 +410,24 @@ Update an epic:
     -a, --archived             Archive epic
     -O, --open                 Open epic in browser
     -h, --help                 output usage information
+```
+
+List stories in an epic:
+
+```
+  Usage: short epic stories <id> [options]
+
+  Options:
+
+    -d, --detailed           Show more details for each story
+    -f, --format [template]  Format each story output by template
+    -h, --help               output usage information
+```
+
+Example:
+
+```sh
+npx short epic stories 36
 ```
 
 #### Epic Output Formatting
