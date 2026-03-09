@@ -248,6 +248,12 @@ History:
 npx short story history 17
 ```
 
+Comments:
+
+```sh
+npx short story comments 17
+```
+
 Update examples:
 
 ```sh

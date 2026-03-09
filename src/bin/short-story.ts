@@ -12,6 +12,7 @@ import type {
     CreateStoryParams,
     History,
     Story,
+    StoryComment,
     Task,
     UpdateStory,
     UploadedFile,
@@ -28,9 +29,20 @@ const log = console.log;
 const logError = console.error;
 const debug = debugging('short');
 
+let handledSubcommand = false;
+
 if (process.argv[2] === 'history') {
+    handledSubcommand = true;
     showStoryHistory(process.argv[3]).catch((e) => {
         logError('Error fetching story history', e);
+        process.exit(1);
+    });
+}
+
+if (process.argv[2] === 'comments') {
+    handledSubcommand = true;
+    showStoryComments(process.argv[3]).catch((e) => {
+        logError('Error fetching story comments', e);
         process.exit(1);
     });
 }
@@ -121,6 +133,7 @@ const program = new Command()
 const opts = program.opts<StoryOptions>();
 
 const main = async () => {
+    if (handledSubcommand) return;
     const entities = await storyLib.fetchEntities();
     if (!(opts.idonly || opts.quiet)) spin.start();
     debug('constructing story update');
@@ -373,6 +386,33 @@ async function showStoryHistory(idArg?: string) {
     }
 }
 
+async function showStoryComments(idArg?: string) {
+    const id = parseInt(idArg || '', 10);
+    if (!id) {
+        logError('Usage: short story comments <id>');
+        process.exit(2);
+    }
+
+    spin.start();
+    try {
+        const entities = await storyLib.fetchEntities();
+        const story = await client.getStory(id).then((r) => r.data);
+        spin.stop(true);
+
+        if (!story.comments.length) {
+            log(`No comments found for story #${id}`);
+            process.exit(0);
+        }
+
+        printStoryComments(story.comments, entities);
+        process.exit(0);
+    } catch (e) {
+        spin.stop(true);
+        logError(`Error fetching story comments ${id}`);
+        process.exit(4);
+    }
+}
+
 const openURL = (url: string) => {
     const open = os.platform() === 'darwin' ? 'open' : 'xdg-open';
     execSync(`${open} '${url}'`);
@@ -410,6 +450,55 @@ const printHistoryItem = (item: History) => {
         log(`- ${summarizeHistoryAction(action as unknown as Record<string, unknown>)}`);
     });
     log();
+};
+
+const printStoryComments = (comments: StoryComment[], entities: Entities) => {
+    const repliesByParent = new Map<number, StoryComment[]>();
+    const roots: StoryComment[] = [];
+
+    comments.forEach((comment) => {
+        if (comment.parent_id) {
+            const replies = repliesByParent.get(comment.parent_id) || [];
+            replies.push(comment);
+            repliesByParent.set(comment.parent_id, replies);
+        } else {
+            roots.push(comment);
+        }
+    });
+
+    roots
+        .sort((a, b) => a.position - b.position)
+        .forEach((comment) => printStoryComment(comment, entities, repliesByParent, 0));
+};
+
+const printStoryComment = (
+    comment: StoryComment,
+    entities: Entities,
+    repliesByParent: Map<number, StoryComment[]>,
+    depth: number
+) => {
+    const indent = '  '.repeat(depth);
+    const author = comment.author_id
+        ? entities.membersById?.get(comment.author_id)?.profile
+        : undefined;
+    const authorText = author
+        ? `${author.name} (${author.mention_name})`
+        : comment.author_id || 'Unknown';
+
+    log(`${indent}${chalk.bold('#' + comment.id)} ${authorText}`);
+    log(`${indent}Created: ${comment.created_at}`);
+    if (comment.updated_at && comment.updated_at !== comment.created_at) {
+        log(`${indent}Updated: ${comment.updated_at}`);
+    }
+    if (comment.blocker) {
+        log(`${indent}Blocker: true`);
+    }
+    log(`${indent}${comment.deleted ? '[deleted]' : comment.text || '_'}`);
+    log(`${indent}URL: ${comment.app_url}`);
+    log();
+
+    const replies = (repliesByParent.get(comment.id) || []).sort((a, b) => a.position - b.position);
+    replies.forEach((reply) => printStoryComment(reply, entities, repliesByParent, depth + 1));
 };
 
 const summarizeHistoryAction = (action: Record<string, unknown>): string => {
