@@ -14,7 +14,7 @@ program
     .command('search [options] [SEARCH OPERATORS]', 'search stories with optional query')
     .alias('s')
     .command('find [options] [SEARCH OPERATORS]', '[DEPRECATED] search stories with optional query')
-    .command('story ID [options]', 'view or manipulate stories')
+    .command('story [ID|command] [options]', 'view or manipulate stories')
     .alias('st')
     .command('create [options]', 'create a story')
     .alias('c')
