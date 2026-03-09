@@ -324,9 +324,16 @@ Comment: This is a comment
     -d, --detailed            List more details for each epic
     -f, --format [template]   Format epic output by template
     -M, --milestone [ID]      List only epics with the given milestone ID
+    --objectives [id|name]    List epics linked to objective id/name, comma-separated
     -t, --title [query]       List epics with name/title containing query
     -s, --started             List epics that have been started
     -h, --help                output usage information
+```
+
+Example:
+
+```sh
+npx short epics --objectives "Our first Tactical Objective"
 ```
 
 #### Epic Commands
@@ -412,6 +419,7 @@ Templating variables:
 %id      Print ID of epic
 %t       Print title/name of epic
 %m       Print milestone of epic
+%obj     Print linked objectives of epic
 %s       Print epic state
 %dl      Print epic deadline
 %d       Print epic description
