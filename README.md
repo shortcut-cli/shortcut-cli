@@ -348,12 +348,27 @@ Comment: This is a comment
 ```
   Usage: short label [command] [options]
 
-  view stories for a label
+  create labels or view stories for a label
 
 
   Commands:
 
+    create             create a new label
     stories <idOrName>  list stories for a label by id or name
+```
+
+Create a label:
+
+```
+  Usage: short label create [options]
+
+  Options:
+
+    -n, --name [text]         Set name of label, required
+    -d, --description [text]  Set description of label
+    -c, --color [hex]         Set label color in hex format like #3366cc
+    -I, --idonly              Print only ID of label result
+    -h, --help                output usage information
 ```
 
 List stories for a label:
@@ -372,6 +387,7 @@ Example:
 
 ```sh
 npx short labels --search client
+npx short label create --name "triage-needed" --color "#3366cc"
 npx short label stories client_web
 ```
 

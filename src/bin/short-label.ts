@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+import type { CreateLabelParams, Label } from '@shortcut/client';
 import { Command } from 'commander';
+import chalk from 'chalk';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
@@ -10,7 +12,16 @@ const log = console.log;
 
 const program = new Command()
     .usage('[command] [options]')
-    .description('view related stories for a label');
+    .description('create labels or view stories for a label');
+
+program
+    .command('create')
+    .description('create a new label')
+    .option('-n, --name [text]', 'Set name of label, required', '')
+    .option('-d, --description [text]', 'Set description of label', '')
+    .option('-c, --color [hex]', 'Set label color in hex format like #3366cc', '')
+    .option('-I, --idonly', 'Print only ID of label result')
+    .action(createLabel);
 
 program
     .command('stories <idOrName>')
@@ -20,6 +31,45 @@ program
     .action(listLabelStories);
 
 program.parse(process.argv);
+
+async function createLabel(options: {
+    name?: string;
+    description?: string;
+    color?: string;
+    idonly?: boolean;
+}) {
+    if (!options.name) {
+        log('Must provide --name');
+        process.exit(1);
+    }
+
+    if (!options.idonly) spin.start();
+    try {
+        const input: CreateLabelParams = {
+            name: options.name,
+        };
+        if (options.description) {
+            input.description = options.description;
+        }
+        if (options.color) {
+            input.color = options.color;
+        }
+
+        const label = await client.createLabel(input).then((r) => r.data);
+        if (!options.idonly) spin.stop(true);
+
+        if (options.idonly) {
+            log(label.id);
+            return;
+        }
+        printLabel(label);
+    } catch (e: unknown) {
+        if (!options.idonly) spin.stop(true);
+        const error = e as { message?: string };
+        log(`Error creating label: ${error.message ?? String(e)}`);
+        process.exit(1);
+    }
+}
 
 async function listLabelStories(
     idOrName: string,
@@ -59,4 +109,18 @@ async function listLabelStories(
         log(`Error fetching label stories: ${error.message ?? String(e)}`);
         process.exit(1);
     }
+}
+
+function printLabel(label: Label) {
+    log(chalk.bold(`#${label.id}`) + chalk.blue(` ${label.name}`));
+    if (label.color) {
+        log(chalk.bold('Color:         ') + ` ${label.color}`);
+    }
+    if (label.description) {
+        log(chalk.bold('Description:   ') + ` ${label.description}`);
+    }
+    if (label.archived) {
+        log(chalk.bold('Archived:      ') + ` ${label.archived}`);
+    }
+    log();
 }
