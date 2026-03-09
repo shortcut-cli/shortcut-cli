@@ -257,6 +257,14 @@ const findMember = (entities: Entities, member: string | number): Member | undef
     );
 };
 
+const findLabel = (entities: Entities, label: string | number): Label | undefined => {
+    const labels = entities.labels ?? [];
+    const exact = labels.find((l) => `${l.id}` === `${label}`);
+    if (exact) return exact;
+    const match = new RegExp(`${label}`, 'i');
+    return labels.find((l) => !!`${l.id} ${l.name}`.match(match));
+};
+
 const findState = (entities: Entities, state: string | number) =>
     findEntity(entities.statesById, state);
 
@@ -627,6 +635,7 @@ export default {
     findProject,
     findGroup,
     findMember,
+    findLabel,
     findState,
     findEpic,
     findObjective,

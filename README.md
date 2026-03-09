@@ -15,6 +15,7 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
     - [Story Creation](#story-creation)
     - [Workspace](#workspace)
     - [Members](#members)
+    - [Labels](#labels)
     - [Epics](#epics)
     - [Objectives](#objectives)
     - [Iterations](#iterations)
@@ -86,6 +87,8 @@ short story 3300
     install         install and configure API access
     search          search stories with optional query
     members         list members
+    labels          list labels
+    label           view stories for a label
     story           view or manipulate a story or stories
     create          create a story
     workflows       list workflows and their states
@@ -325,6 +328,51 @@ Comment: This is a comment
     -s, --search [query]  List members with name containing query
     -d, --disabled        List members including disabled
     -h, --help            output usage information
+```
+
+### Labels
+
+```
+  Usage: short labels [options]
+
+  Display labels available for stories and epics
+
+
+  Options:
+
+    -a, --archived        List labels including archived
+    -s, --search [query]  List labels with name containing query
+    -h, --help            output usage information
+```
+
+```
+  Usage: short label [command] [options]
+
+  view stories for a label
+
+
+  Commands:
+
+    stories <idOrName>  list stories for a label by id or name
+```
+
+List stories for a label:
+
+```
+  Usage: short label stories <idOrName> [options]
+
+  Options:
+
+    -d, --detailed           Show more details for each story
+    -f, --format [template]  Format each story output by template
+    -h, --help               output usage information
+```
+
+Example:
+
+```sh
+npx short labels --search client
+npx short label stories client_web
 ```
 
 ### Epics
