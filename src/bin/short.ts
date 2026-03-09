@@ -20,6 +20,8 @@ program
     .alias('c')
     .command('members [options]', 'list members')
     .alias('m')
+    .command('teams [options]', 'list teams')
+    .command('team [command] [options]', 'view a team or list its stories')
     .command('labels [options]', 'list labels')
     .command('label [command] [options]', 'view stories for a label')
     .command('custom-fields [options]', 'list custom fields')

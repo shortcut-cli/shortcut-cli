@@ -15,6 +15,7 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
     - [Story Creation](#story-creation)
     - [Workspace](#workspace)
     - [Members](#members)
+    - [Teams](#teams)
     - [Labels](#labels)
     - [Custom Fields](#custom-fields)
     - [Epics](#epics)
@@ -88,6 +89,8 @@ short story 3300
     install         install and configure API access
     search          search stories with optional query
     members         list members
+    teams           list teams
+    team            view a team or list its stories
     labels          list labels
     label           view stories for a label
     custom-fields   list custom fields
@@ -349,6 +352,45 @@ Comment: This is a comment
     -s, --search [query]  List members with name containing query
     -d, --disabled        List members including disabled
     -h, --help            output usage information
+```
+
+### Teams
+
+```
+  Usage: short teams [options]
+
+  Display teams available for stories and epics
+
+
+  Options:
+
+    -a, --archived        List teams including archived
+    -s, --search [query]  List teams with name containing query
+    -h, --help            output usage information
+```
+
+```
+  Usage: short team [command] [options]
+
+  view a team or list its stories
+
+
+  Commands:
+
+    view <idOrName>     view a team by id or name
+    stories <idOrName>  list stories for a team by id or name
+```
+
+View a team:
+
+```sh
+npx short team test-team
+```
+
+List team stories:
+
+```sh
+npx short team stories test-team
 ```
 
 ### Labels

@@ -244,7 +244,10 @@ const findProject = (entities: Entities, project: string | number) =>
     findEntity(entities.projectsById, project);
 
 const findGroup = (entities: Entities, group: string | number) =>
-    findEntity(entities.groupsById, group);
+    entities.groupsById?.get(String(group)) ||
+    Array.from(entities.groupsById?.values() || []).find(
+        (g) => !!`${g.id} ${g.name} ${g.mention_name}`.match(new RegExp(`${group}`, 'i'))
+    );
 
 const findMember = (entities: Entities, member: string | number): Member | undefined => {
     if (!entities.membersById) return undefined;
