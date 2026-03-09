@@ -350,6 +350,7 @@ npx short epics --objectives "Our first Tactical Objective"
     view <id>     view an epic by id
     update <id>   update an existing epic
     stories <id>  list stories in an epic
+    comments <id> list comments on an epic
 ```
 
 You can use `short epic` to create, view, or update a single epic.
@@ -428,6 +429,23 @@ Example:
 
 ```sh
 npx short epic stories 36
+```
+
+List comments on an epic:
+
+```
+  Usage: short epic comments <id> [options]
+
+  Options:
+
+    -d, --detailed  Show nested replies for each comment
+    -h, --help      output usage information
+```
+
+Example:
+
+```sh
+npx short epic comments 16
 ```
 
 #### Epic Output Formatting

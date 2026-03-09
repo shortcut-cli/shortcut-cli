@@ -2,7 +2,7 @@
 import { exec } from 'child_process';
 import os from 'os';
 
-import type { CreateEpic, Epic, UpdateEpic } from '@shortcut/client';
+import type { CreateEpic, Epic, Member, ThreadedComment, UpdateEpic } from '@shortcut/client';
 import { Command } from 'commander';
 
 import client from '../lib/client';
@@ -43,6 +43,10 @@ interface EpicUpdateOptions {
 interface EpicStoriesOptions {
     detailed?: boolean;
     format?: string;
+}
+
+interface EpicCommentsOptions {
+    detailed?: boolean;
 }
 
 const config = loadConfig();
@@ -99,6 +103,12 @@ program
     .option('-d, --detailed', 'Show more details for each story')
     .option('-f, --format [template]', 'Format each story output by template', '')
     .action(listEpicStories);
+
+program
+    .command('comments <id>')
+    .description('list comments on an epic')
+    .option('-d, --detailed', 'Show nested replies for each comment')
+    .action(listEpicComments);
 
 program.parse(process.argv);
 
@@ -307,6 +317,33 @@ async function listEpicStories(id: string, options: EpicStoriesOptions) {
     }
 }
 
+async function listEpicComments(id: string, options: EpicCommentsOptions) {
+    spin.start();
+    try {
+        const entities = await storyLib.fetchEntities();
+        const comments = await client.listEpicComments(parseInt(id, 10)).then((r) => r.data);
+        spin.stop(true);
+
+        if (comments.length === 0) {
+            log(`No comments found on epic #${id}`);
+            return;
+        }
+
+        comments.forEach((comment) =>
+            printEpicComment(comment, entities.membersById, options.detailed)
+        );
+    } catch (e: unknown) {
+        spin.stop(true);
+        const error = e as { response?: { status?: number }; message?: string };
+        if (error.response?.status === 404) {
+            log(`Epic #${id} not found`);
+        } else {
+            log('Error fetching epic comments:', error.message ?? String(e));
+        }
+        process.exit(1);
+    }
+}
+
 function normalizeEpicState(state?: string): CreateEpic['state'] | undefined {
     if (!state) return undefined;
 
@@ -350,6 +387,32 @@ function printEpic(epic: Epic) {
         log(`Labels:\t\t${epic.labels.map((label) => label.name).join(', ')}`);
     }
     log(`URL:\t\t${epic.app_url}`);
+}
+
+function printEpicComment(
+    comment: ThreadedComment,
+    membersById?: Map<string, Member>,
+    detailed?: boolean,
+    depth: number = 0
+) {
+    const indent = '  '.repeat(depth);
+    const author = membersById?.get(comment.author_id)?.profile;
+    const authorName = author ? `${author.name} (${author.mention_name})` : comment.author_id;
+
+    log(`${indent}#${comment.id} ${authorName}`);
+    log(`${indent}Created: ${comment.created_at}`);
+    if (comment.updated_at !== comment.created_at) {
+        log(`${indent}Updated: ${comment.updated_at}`);
+    }
+    log(`${indent}${comment.deleted ? '[deleted]' : comment.text || '_'}`);
+    log(`${indent}URL: ${comment.app_url}`);
+    log();
+
+    if (detailed) {
+        comment.comments.forEach((reply) =>
+            printEpicComment(reply, membersById, detailed, depth + 1)
+        );
+    }
 }
 
 function openURL(url: string) {
