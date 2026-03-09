@@ -40,6 +40,11 @@ interface EpicUpdateOptions {
     open?: boolean;
 }
 
+interface EpicStoriesOptions {
+    detailed?: boolean;
+    format?: string;
+}
+
 const config = loadConfig();
 const spin = spinner();
 const log = console.log;
@@ -87,6 +92,13 @@ program
     .option('-a, --archived', 'Archive epic')
     .option('-O, --open', 'Open epic in browser')
     .action(updateEpic);
+
+program
+    .command('stories <id>')
+    .description('list stories in an epic')
+    .option('-d, --detailed', 'Show more details for each story')
+    .option('-f, --format [template]', 'Format each story output by template', '')
+    .action(listEpicStories);
 
 program.parse(process.argv);
 
@@ -255,6 +267,41 @@ async function updateEpic(id: string, options: EpicUpdateOptions) {
             log(`Epic #${id} not found`);
         } else {
             log('Error updating epic:', error.message ?? String(e));
+        }
+        process.exit(1);
+    }
+}
+
+async function listEpicStories(id: string, options: EpicStoriesOptions) {
+    spin.start();
+    try {
+        const entities = await storyLib.fetchEntities();
+        const stories = await client
+            .listEpicStories(parseInt(id, 10), {
+                includes_description: !!options.detailed,
+            })
+            .then((r) => r.data);
+        spin.stop(true);
+
+        if (stories.length === 0) {
+            log(`No stories found in epic #${id}`);
+            return;
+        }
+
+        stories
+            .map((story) => storyLib.hydrateStory(entities, story))
+            .forEach(
+                options.detailed
+                    ? (story) => storyLib.printDetailedStory(story, entities)
+                    : storyLib.printFormattedStory({ format: options.format })
+            );
+    } catch (e: unknown) {
+        spin.stop(true);
+        const error = e as { response?: { status?: number }; message?: string };
+        if (error.response?.status === 404) {
+            log(`Epic #${id} not found`);
+        } else {
+            log('Error fetching epic stories:', error.message ?? String(e));
         }
         process.exit(1);
     }
