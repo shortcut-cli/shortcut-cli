@@ -254,6 +254,12 @@ Comments:
 npx short story comments 17
 ```
 
+Tasks:
+
+```sh
+npx short story tasks 17
+```
+
 Update examples:
 
 ```sh

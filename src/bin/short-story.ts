@@ -47,6 +47,14 @@ if (process.argv[2] === 'comments') {
     });
 }
 
+if (process.argv[2] === 'tasks') {
+    handledSubcommand = true;
+    showStoryTasks(process.argv[3]).catch((e) => {
+        logError('Error fetching story tasks', e);
+        process.exit(1);
+    });
+}
+
 interface StoryOptions {
     archived?: boolean;
     comment?: string;
@@ -413,6 +421,33 @@ async function showStoryComments(idArg?: string) {
     }
 }
 
+async function showStoryTasks(idArg?: string) {
+    const id = parseInt(idArg || '', 10);
+    if (!id) {
+        logError('Usage: short story tasks <id>');
+        process.exit(2);
+    }
+
+    spin.start();
+    try {
+        const entities = await storyLib.fetchEntities();
+        const story = await client.getStory(id).then((r) => r.data);
+        spin.stop(true);
+
+        if (!story.tasks.length) {
+            log(`No tasks found for story #${id}`);
+            process.exit(0);
+        }
+
+        printStoryTasks(story.tasks, entities);
+        process.exit(0);
+    } catch (e) {
+        spin.stop(true);
+        logError(`Error fetching story tasks ${id}`);
+        process.exit(4);
+    }
+}
+
 const openURL = (url: string) => {
     const open = os.platform() === 'darwin' ? 'open' : 'xdg-open';
     execSync(`${open} '${url}'`);
@@ -499,6 +534,32 @@ const printStoryComment = (
 
     const replies = (repliesByParent.get(comment.id) || []).sort((a, b) => a.position - b.position);
     replies.forEach((reply) => printStoryComment(reply, entities, repliesByParent, depth + 1));
+};
+
+const printStoryTasks = (tasks: Task[], entities: Entities) => {
+    tasks
+        .slice()
+        .sort((a, b) => a.position - b.position)
+        .forEach((task) => printStoryTask(task, entities));
+};
+
+const printStoryTask = (task: Task, entities: Entities) => {
+    const status = task.complete ? '[x]' : '[ ]';
+    const owners = task.owner_ids
+        .map((ownerId) => entities.membersById?.get(ownerId)?.profile?.mention_name || ownerId)
+        .join(', ');
+
+    log(`${chalk.bold('#' + task.id)} ${status} ${task.description}`);
+    if (owners) {
+        log(`Owners: ${owners}`);
+    }
+    if (task.completed_at) {
+        log(`Completed: ${task.completed_at}`);
+    }
+    if (task.updated_at) {
+        log(`Updated: ${task.updated_at}`);
+    }
+    log();
 };
 
 const summarizeHistoryAction = (action: Record<string, unknown>): string => {
