@@ -1,54 +1,52 @@
 {
     "name": "@shortcut-cli/shortcut-cli",
     "version": "4.0.0",
-    "description": "A community-driven command line tool for viewing, creating, and updating shortcut.com stories",
-    "engines": {
-        "node": ">=18"
+    "description": "A community-driven command line tool for viewing, creating, and updating shortcut.com",
+    "keywords": [
+        "shortcut",
+        "cli"
+    ],
+    "homepage": "https://github.com/shortcut-cli/shortcut-cli",
+    "bugs": {
+        "url": "https://github.com/shortcut-cli/shortcut-cli/issues"
     },
-    "packageManager": "pnpm@10.28.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/shortcut-cli/shortcut-cli.git"
+    },
+    "license": "MIT",
+    "author": "email@andjosh.com",
+    "packageManager": "pnpm@10.32.0",
+    "engines": {
+        "node": ">=20.19.0"
+    },
+    "bin": {
+        "short": "./build/bin/short.cjs"
+    },
     "files": [
         "build"
     ],
     "scripts": {
         "build": "tsdown",
         "build:watch": "pnpm run build --watch",
-        "prepublishOnly": "pnpm run clean && pnpm run build",
+        "ci": "pnpm run build && pnpm run test && pnpm run test:format",
         "clean": "rm -rf build",
+        "format": "oxfmt",
+        "lint": "oxlint .",
+        "prepublishOnly": "pnpm run clean && pnpm run build",
         "start": "node -r source-map-support/register build/bin/short.cjs",
         "test": "vitest run --coverage",
-        "test:watch": "vitest",
         "test:format": "oxfmt --check",
         "test:update-spec": "curl -sL -o test/fixtures/shortcut.swagger.json https://developer.shortcut.com/api/rest/v3/shortcut.swagger.json && node test/scripts/patch-spec.mjs",
-        "format": "oxfmt",
-        "ci": "pnpm run build && pnpm run test && pnpm run test:format",
-        "lint": "oxlint .",
+        "test:watch": "vitest",
         "type-check": "tsc --noEmit"
     },
-    "bin": {
-        "short": "./build/bin/short.cjs"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/shortcut-cli/shortcut-cli.git"
-    },
-    "keywords": [
-        "clubhouse",
-        "cli",
-        "shortcut"
-    ],
-    "author": "email@andjosh.com",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/shortcut-cli/shortcut-cli/issues"
-    },
-    "homepage": "https://github.com/shortcut-cli/shortcut-cli",
     "dependencies": {
-        "@shortcut/client": "^3.1.0",
+        "@shortcut/client": "^3.2.0",
         "chalk": "^2.2.0",
         "cli-spinner": "^0.2.10",
-        "commander": "^12.1.0",
-        "debug": "^4.4.3",
-        "prompt": "^1.3.0"
+        "commander": "^14.0.3",
+        "debug": "^4.4.3"
     },
     "devDependencies": {
         "@stoplight/http-spec": "7.1.0",
@@ -60,13 +58,12 @@
         "@types/debug": "4.1.12",
         "@types/node": "24.10.1",
         "@types/node-fetch": "3.0.3",
-        "@types/prompt": "^1.1.9",
         "@vitest/coverage-v8": "4.0.18",
         "oxfmt": "0.37.0",
         "oxlint": "1.52.0",
         "pino": "10.3.1",
         "source-map-support": "0.5.21",
-        "tsdown": "0.19.0",
+        "tsdown": "0.21.1",
         "typescript": "5.9.3",
         "vitest": "4.0.18"
     }

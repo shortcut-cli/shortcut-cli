@@ -19,6 +19,7 @@ const log = console.log;
 
 const program = new Command()
     .description('List stories matching saved workspace query')
+    .argument('[name]')
     .option('-l, --list', 'List saved workspaces')
     .option('-q, --quiet', 'Print only workspace story output, no loading dialog', '')
     .option('-n, --name [name]', 'Load named workspace', '')

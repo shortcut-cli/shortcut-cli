@@ -25,8 +25,27 @@ describe('short-install', () => {
         `);
     });
 
-    it('should enter prompt flow with --force (non-interactive)', async () => {
-        const result = await runBin('short-install', ['--force'], { maxMs: 3000 });
-        expect(result.exitCode).toBeUndefined();
+    it('should save config with --force --token', async () => {
+        const result = await runBin('short-install', [
+            '--force',
+            '--token',
+            'test-token-for-prism-mock',
+        ]);
+        expect(result.output).toEqual({
+            exitCode: undefined,
+            stderr: '',
+            stdout: 'Fetching user/member details from Shortcut...\nSaving config...\nSaved config',
+        });
+    });
+
+    it('should require --token in non-interactive force mode', async () => {
+        const result = await runBin('short-install', ['--force']);
+        expect(result.output).toMatchInlineSnapshot(`
+          {
+            "exitCode": 1,
+            "stderr": "No API token provided. Pass --token when running non-interactively.",
+            "stdout": "",
+          }
+        `);
     });
 });

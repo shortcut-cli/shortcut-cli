@@ -92,7 +92,8 @@ export const loadCachedConfig = (): Config => {
     });
     if (fs.existsSync(configFile)) {
         try {
-            config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+            const rawConfig = fs.readFileSync(configFile, 'utf8').trim();
+            config = rawConfig ? JSON.parse(rawConfig) : {};
         } catch (e) {
             console.error(e);
             process.exit(10);

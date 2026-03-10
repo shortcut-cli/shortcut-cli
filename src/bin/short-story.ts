@@ -112,6 +112,8 @@ interface StoryOptions {
 }
 
 const program = new Command()
+    .allowExcessArguments(true)
+    .argument('[id]')
     .usage('[options] <id>')
     .description('Update and/or display story details')
     .option('-a, --archived', 'Update story as archived')
@@ -330,7 +332,7 @@ const main = async () => {
                     debug('constructed story position update', update);
                 }
                 debug('request story update');
-                const changed = await client.updateStory(id, update);
+                const changed = await client.updateStory(id, update).then((r) => r.data);
                 debug('response story update');
                 story = Object.assign({}, story, changed);
             }
