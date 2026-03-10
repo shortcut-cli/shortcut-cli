@@ -17,11 +17,11 @@
         "start": "node -r source-map-support/register build/bin/short.cjs",
         "test": "vitest run --coverage",
         "test:watch": "vitest",
-        "test:format": "prettier --list-different src/**/*.ts",
+        "test:format": "oxfmt --check",
         "test:update-spec": "curl -sL -o test/fixtures/shortcut.swagger.json https://developer.shortcut.com/api/rest/v3/shortcut.swagger.json && node test/scripts/patch-spec.mjs",
-        "format": "prettier --write src/**/*.ts",
+        "format": "oxfmt",
         "ci": "pnpm run build && pnpm run test && pnpm run test:format",
-        "lint": "eslint .",
+        "lint": "oxlint .",
         "type-check": "tsc --noEmit"
     },
     "bin": {
@@ -51,7 +51,6 @@
         "prompt": "^1.3.0"
     },
     "devDependencies": {
-        "@eslint/js": "^9.39.2",
         "@stoplight/http-spec": "7.1.0",
         "@stoplight/prism-http": "5.12.0",
         "@stoplight/prism-http-server": "5.12.2",
@@ -63,15 +62,12 @@
         "@types/node-fetch": "3.0.3",
         "@types/prompt": "^1.1.9",
         "@vitest/coverage-v8": "4.0.18",
-        "eslint": "^9.39.2",
-        "eslint-plugin-import": "^2.32.0",
-        "globals": "^16.5.0",
+        "oxfmt": "0.37.0",
+        "oxlint": "1.52.0",
         "pino": "10.3.1",
-        "prettier": "3.7.4",
         "source-map-support": "0.5.21",
         "tsdown": "0.19.0",
         "typescript": "5.9.3",
-        "typescript-eslint": "^8.53.0",
         "vitest": "4.0.18"
     }
 }

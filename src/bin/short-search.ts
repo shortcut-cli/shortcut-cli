@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 
-import spinner from '../lib/spinner';
 import configure from '../lib/configure';
+import spinner from '../lib/spinner';
 import storyLib, { type StoryHydrated } from '../lib/stories';
 
 const spin = spinner('Finding... %s ');

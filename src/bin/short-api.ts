@@ -2,8 +2,8 @@
 import { Command } from 'commander';
 import debugging from 'debug';
 
-import spinner from '../lib/spinner';
 import client from '../lib/client';
+import spinner from '../lib/spinner';
 
 interface ApiOptions {
     method?: string;

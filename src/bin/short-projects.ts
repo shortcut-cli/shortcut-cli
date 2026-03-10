@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
 import chalk from 'chalk';
-import type { Project } from '@shortcut/client';
+import { Command } from 'commander';
 
-import spinner from '../lib/spinner';
 import client from '../lib/client';
+import spinner from '../lib/spinner';
+
+import type { Project } from '@shortcut/client';
 
 interface ProjectsOptions {
     archived?: boolean;

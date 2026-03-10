@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import { exec } from 'child_process';
+import { Command } from 'commander';
 import os from 'os';
 
-import type { CreateEpic, Epic, Member, ThreadedComment, UpdateEpic } from '@shortcut/client';
-import { Command } from 'commander';
-
 import client from '../lib/client';
-import spinner from '../lib/spinner';
 import { loadConfig } from '../lib/configure';
+import spinner from '../lib/spinner';
 import storyLib from '../lib/stories';
+
+import type { CreateEpic, Epic, Member, ThreadedComment, UpdateEpic } from '@shortcut/client';
 
 interface EpicCreateOptions {
     name?: string;

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import type { Member } from '@shortcut/client';
 import chalk from 'chalk';
 import { Command } from 'commander';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
+
+import type { Member } from '@shortcut/client';
 
 interface MembersOptions {
     search?: string;

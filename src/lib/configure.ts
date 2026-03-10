@@ -1,6 +1,6 @@
-import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import path from 'path';
 
 function getConfigDir(suffix: string) {
     const configBaseDir =

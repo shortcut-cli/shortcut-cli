@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import type { Group } from '@shortcut/client';
 import chalk from 'chalk';
 import { Command } from 'commander';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
+
+import type { Group } from '@shortcut/client';
 
 interface TeamsOptions {
     archived?: boolean;

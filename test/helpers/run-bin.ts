@@ -14,7 +14,6 @@
  * This runs everything inside the Vitest process so v8 coverage works.
  */
 import { format } from 'util';
-
 import { vi } from 'vitest';
 
 export interface BinOutput {

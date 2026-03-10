@@ -1,7 +1,6 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('configure', () => {

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
 import { Command } from 'commander';
-import type { Workflow, WorkflowState } from '@shortcut/client';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
+
+import type { Workflow, WorkflowState } from '@shortcut/client';
 
 interface WorkflowsOptions {
     search?: string;

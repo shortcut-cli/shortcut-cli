@@ -1,0 +1,16 @@
+{
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "printWidth": 100,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "es5",
+    "sortPackageJson": false,
+    "sortImports": {
+        "groups": [
+            ["value-builtin", "value-external"],
+            ["value-parent", "value-sibling", "value-index"],
+            "unknown"
+        ]
+    },
+    "ignorePatterns": ["test/fixtures/shortcut.swagger.json"]
+}

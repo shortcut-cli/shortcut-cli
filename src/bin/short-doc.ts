@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-import { exec } from 'child_process';
-import os from 'os';
-
-import type { Doc, CreateDoc, UpdateDoc } from '@shortcut/client';
-import { Command } from 'commander';
 import chalk from 'chalk';
+import { exec } from 'child_process';
+import { Command } from 'commander';
+import os from 'os';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
+
+import type { Doc, CreateDoc, UpdateDoc } from '@shortcut/client';
 
 interface ViewDocOptions {
     html?: boolean;

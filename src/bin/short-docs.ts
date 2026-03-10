@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import type { DocSlim } from '@shortcut/client';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
+
+import type { DocSlim } from '@shortcut/client';
 
 interface DocsOptions {
     archived?: boolean;

@@ -1,7 +1,10 @@
-import { execSync } from 'child_process';
-
 import chalk from 'chalk';
+import { execSync } from 'child_process';
 import debugging from 'debug';
+
+import client from './client';
+import { loadConfig } from './configure';
+
 import type {
     CreateLabelParams,
     EpicSlim,
@@ -18,9 +21,6 @@ import type {
     Workflow,
     WorkflowState,
 } from '@shortcut/client';
-
-import client from './client';
-import { loadConfig } from './configure';
 
 const debug = debugging('club');
 const config = loadConfig();

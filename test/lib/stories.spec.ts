@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+import type { Entities } from '../../src/lib/stories';
 import type {
     EpicSlim,
     Group,
@@ -12,8 +14,6 @@ import type {
     UploadedFile,
     WorkflowState,
 } from '@shortcut/client';
-
-import type { Entities } from '../../src/lib/stories';
 
 // ---------------------------------------------------------------------------
 // Helpers: synthetic test entities

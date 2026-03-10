@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { Command } from 'commander';
 import chalk from 'chalk';
-import type { Epic, Objective } from '@shortcut/client';
+import { Command } from 'commander';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
 import storyLib from '../lib/stories';
+
+import type { Epic, Objective } from '@shortcut/client';
 
 interface EpicsOptions {
     archived?: boolean;
