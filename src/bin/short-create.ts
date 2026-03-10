@@ -73,7 +73,7 @@ const main = async () => {
     const entities = await storyLib.fetchEntities();
     if (!opts.idonly) spin.start();
     const update: CreateStoryParams = {
-        name: opts.title,
+        name: opts.title ?? '',
         story_type: opts.type,
         description: `${opts.description}`,
     };
@@ -101,7 +101,7 @@ const main = async () => {
     if (opts.label) {
         update.labels = storyLib.findLabelNames(entities, opts.label);
     }
-    let story: Story;
+    let story: Story | undefined;
     if (!update.name) {
         if (!opts.idonly) spin.stop(true);
         log('Must provide --title');
@@ -111,7 +111,7 @@ const main = async () => {
     } else {
         try {
             story = await client.createStory(update).then((r) => r.data);
-        } catch (e) {
+        } catch (_e) {
             log('Error creating story');
         }
     }

@@ -24,6 +24,9 @@ if (!id) {
 }
 
 async function main() {
+    if (!id) {
+        process.exit(1);
+    }
     spin.start();
     try {
         const field = await client.getCustomField(id).then((r) => r.data);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 
-import configure from '../lib/configure';
+import configure, { type WorkspaceConfig } from '../lib/configure';
 import storyLib from '../lib/stories';
 import { program as searchProgram, type SearchOptions } from './short-search';
 
@@ -28,7 +28,7 @@ const program = new Command()
 
 const opts = program.opts<WorkspaceOptions>();
 
-const toArgs = (obj: object): string =>
+const toArgs = (obj: WorkspaceConfig): string =>
     Object.entries(obj)
         .map(([k, v]) => `--${k} '${v}'`)
         .join(' ');
@@ -46,8 +46,9 @@ const main = async () => {
         return;
     } else if (opts.list) {
         log('Workspaces:');
-        Object.keys(config.workspaces).map((w) => {
-            log(' ', w + ':', toArgs(config.workspaces[w]));
+        const workspaces = config.workspaces ?? {};
+        Object.keys(workspaces).map((w) => {
+            log(' ', w + ':', toArgs(workspaces[w] ?? {}));
         });
         return;
     } else if (opts.unset) {
@@ -60,7 +61,7 @@ const main = async () => {
         return;
     }
     const name: string = `${opts.name || program.args[0] || 'default'}`;
-    const workspace = config.workspaces[name];
+    const workspace = config.workspaces?.[name];
     if (!workspace) {
         log('No workspace saved with name', name);
         log('Please run:');

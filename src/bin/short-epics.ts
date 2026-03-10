@@ -6,7 +6,7 @@ import client from '../lib/client';
 import spinner from '../lib/spinner';
 import storyLib from '../lib/stories';
 
-import type { Epic, Objective } from '@shortcut/client';
+import type { EpicSlim, Objective } from '@shortcut/client';
 
 interface EpicsOptions {
     archived?: boolean;
@@ -39,7 +39,7 @@ const opts = program.opts<EpicsOptions>();
 const main = async () => {
     spin.start();
     const [epics, entities] = await Promise.all([
-        client.listEpics(null).then((r) => r.data),
+        client.listEpics().then((r) => r.data),
         storyLib.fetchEntities(),
     ]);
     spin.stop(true);
@@ -50,7 +50,7 @@ const main = async () => {
         : [];
 
     epics
-        .filter((epic: Epic) => {
+        .filter((epic) => {
             const matchesObjectives =
                 objectiveIds.length === 0 ||
                 objectiveIds.some((objectiveId) => epic.objective_ids.includes(objectiveId));
@@ -61,10 +61,10 @@ const main = async () => {
                 matchesObjectives
             );
         })
-        .forEach((epic: Epic) => printItem(epic, entities.objectivesById));
+        .forEach((epic) => printItem(epic, entities.objectivesById));
 };
 
-const printItem = (epic: Epic, objectivesById?: Map<number, Objective>) => {
+const printItem = (epic: EpicSlim, objectivesById?: Map<number, Objective>) => {
     if (epic.archived && !opts.archived) return;
     if (!epic.started && opts.started) return;
     if (!epic.completed && opts.completed) return;

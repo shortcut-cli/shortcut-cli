@@ -25,7 +25,7 @@ const opts = program.opts<LabelsOptions>();
 
 async function main() {
     spin.start();
-    const labels = await client.listLabels(null).then((r) => r.data);
+    const labels = await client.listLabels().then((r) => r.data);
     spin.stop(true);
 
     const searchMatch = new RegExp(opts.search ?? '', 'i');

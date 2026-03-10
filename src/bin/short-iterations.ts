@@ -37,7 +37,7 @@ const main = async () => {
     spin.start();
 
     const [iterations, groups] = await Promise.all([
-        client.listIterations(null).then((r) => r.data),
+        client.listIterations().then((r) => r.data),
         client.listGroups().then((r) => r.data),
     ]);
 

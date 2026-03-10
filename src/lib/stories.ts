@@ -103,7 +103,7 @@ async function fetchEntities(): Promise<Entities> {
             )
             .then(mapByItemId),
         client
-            .listMembers(null)
+            .listMembers()
             .then((r) => r.data)
             .then(mapByItemStringId),
         client
@@ -111,7 +111,7 @@ async function fetchEntities(): Promise<Entities> {
             .then((r) => r.data)
             .then(mapByItemStringId),
         client
-            .listEpics(null)
+            .listEpics()
             .then((r) => r.data)
             .then(mapByItemId),
         client
@@ -119,10 +119,10 @@ async function fetchEntities(): Promise<Entities> {
             .then((r) => r.data)
             .then(mapByItemId),
         client
-            .listIterations(null)
+            .listIterations()
             .then((r) => r.data)
             .then(mapByItemId),
-        client.listLabels(null).then((r) => r.data),
+        client.listLabels().then((r) => r.data),
     ]).catch((err) => {
         log(`Error fetching workflows: ${err}`);
         process.exit(2);
@@ -174,9 +174,8 @@ async function fetchStories(
     const projectIds = projects.filter((p) => !!(p.id + p.name).match(regexProject));
 
     debug('request all stories for project(s)', projectIds.map((p) => p.name).join(', '));
-    return Promise.all(projectIds.map((p) => client.listStories(p.id, null))).then(
-        (projectStories) =>
-            projectStories.reduce<StorySlim[]>((acc, stories) => acc.concat(stories.data), [])
+    return Promise.all(projectIds.map((p) => client.listStories(p.id))).then((projectStories) =>
+        projectStories.reduce<StorySlim[]>((acc, stories) => acc.concat(stories.data), [])
     );
 }
 
@@ -185,7 +184,7 @@ async function searchStories(options: StoryListOptions): Promise<Story[]> {
     let result = await client.searchStories({ query });
     let stories: Story[] = result.data.data.map(storySearchResultToStory);
     while (result.data.next) {
-        const nextCursor = new URLSearchParams(result.data.next).get('next');
+        const nextCursor = new URLSearchParams(result.data.next).get('next') ?? undefined;
         result = await client.searchStories({ query, next: nextCursor });
         stories = stories.concat(result.data.data.map(storySearchResultToStory));
     }
@@ -209,13 +208,23 @@ const storySearchResultToStory = (storySearchResult: StorySearchResult): Story =
 const hydrateStory = (entities: Entities, story: StoryBase): StoryHydrated => {
     debug('hydrating story');
     const augmented = story as StoryHydrated;
-    augmented.project = entities.projectsById?.get(story.project_id);
+    if (story.project_id !== null && story.project_id !== undefined) {
+        augmented.project = entities.projectsById?.get(story.project_id);
+    }
     augmented.state = entities.statesById?.get(story.workflow_state_id);
-    augmented.epic = entities.epicsById?.get(story.epic_id);
-    augmented.iteration = entities.iterationsById?.get(story.iteration_id);
+    if (story.epic_id !== null && story.epic_id !== undefined) {
+        augmented.epic = entities.epicsById?.get(story.epic_id);
+    }
+    if (story.iteration_id !== null && story.iteration_id !== undefined) {
+        augmented.iteration = entities.iterationsById?.get(story.iteration_id);
+    }
     augmented.owners = story.owner_ids.map((id) => entities.membersById?.get(id));
-    augmented.requester = entities.membersById?.get(story.requested_by_id);
-    augmented.group = entities.groupsById?.get(story.group_id);
+    if (story.requested_by_id) {
+        augmented.requester = entities.membersById?.get(story.requested_by_id);
+    }
+    if (story.group_id) {
+        augmented.group = entities.groupsById?.get(story.group_id);
+    }
     debug('hydrated story');
     return augmented;
 };
@@ -309,8 +318,8 @@ const filterStories = (
     stories: StoryBase[],
     entities: Entities
 ): StoryHydrated[] => {
-    type DateComparator = (date: string) => boolean;
-    type NumberComparator = (n: number | null) => boolean;
+    type DateComparator = (date: string | null | undefined) => boolean;
+    type NumberComparator = (n: number | null | undefined) => boolean;
 
     let createdAtFilter: DateComparator | undefined;
     if (options.created) {
@@ -352,7 +361,7 @@ const filterStories = (
             }
             if (options.owner) {
                 const owned =
-                    s.owners?.filter((o) => {
+                    (s.owners ?? []).filter((o) => {
                         return !!`${o?.profile.name} ${o?.profile.mention_name}`.match(regexOwner);
                     }).length > 0;
                 if (!owned) return false;
@@ -377,22 +386,27 @@ const sortStories = (options: StoryListOptions) => {
     type SortField = [string[], string[]?];
     const fields: SortField[] = (options.sort ?? '').split(',').map((s) => {
         const parts = s.split(':');
-        return [parts[0].split('.'), parts[1]?.split('.')];
+        return [(parts[0] ?? '').split('.'), parts[1]?.split('.')];
     });
-    const pluck = (acc: Record<string, unknown>, val: string): Record<string, unknown> => {
-        const value = acc[val];
-        if (value === undefined) return {};
-        return value as Record<string, unknown>;
+    const pluck = (acc: unknown, val: string): unknown => {
+        if (!acc || typeof acc !== 'object') {
+            return undefined;
+        }
+        const value = (acc as Record<string, unknown>)[val];
+        if (value === undefined || value === null) return undefined;
+        return value;
     };
     debug('sorting stories');
     return (a: StoryHydrated, b: StoryHydrated): number => {
         return fields.reduce((acc: number, field: SortField) => {
             if (acc !== 0) return acc;
-            const ap = field[0].reduce(pluck, a as unknown as Record<string, unknown>);
-            const bp = field[0].reduce(pluck, b as unknown as Record<string, unknown>);
+            const ap = field[0].reduce<unknown>(pluck, a as unknown as Record<string, unknown>);
+            const bp = field[0].reduce<unknown>(pluck, b as unknown as Record<string, unknown>);
             if (ap === bp) return 0;
             const direction = (field[1]?.[0] ?? '').match(/des/i) ? 1 : -1;
-            if (ap > bp) {
+            if (ap === undefined || ap === null) return direction > 0 ? 1 : -1;
+            if (bp === undefined || bp === null) return direction > 0 ? -1 : 1;
+            if (String(ap) > String(bp)) {
                 if (direction > 0) return -1;
             } else {
                 if (direction < 0) return -1;
@@ -556,7 +570,7 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}): void
         story.comments
             .filter((comment) => !comment.deleted)
             .map((c) => {
-                const author = entities.membersById?.get(c.author_id);
+                const author = c.author_id ? entities.membersById?.get(c.author_id) : undefined;
                 log(chalk.bold('Comment:') + `  ${formatLong(c.text)}`);
                 const authorName = author?.profile.name ?? 'Unknown';
                 log(`          ${authorName} ` + chalk.bold('at:') + ` ${c.updated_at}`);
@@ -573,13 +587,18 @@ const printDetailedStory = (story: StoryHydrated, entities: Entities = {}): void
     log();
 };
 
-const formatLong = (str: string) => str.split('\n').join('\n         ');
+const formatLong = (str: string | null | undefined) => (str ?? '').split('\n').join('\n         ');
 
-const parseDateComparator: (arg: string) => (date: string) => boolean = (arg) => {
+const parseDateComparator: (arg: string) => (date: string | null | undefined) => boolean = (
+    arg
+) => {
     const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 30 } };
     const parsedDate = new Date(arg.slice(match.index));
     const comparator = arg.slice(0, match.index);
     return (date) => {
+        if (!date) {
+            return false;
+        }
         switch (comparator) {
             case '<':
                 return new Date(date) < parsedDate;
@@ -592,7 +611,7 @@ const parseDateComparator: (arg: string) => (date: string) => boolean = (arg) =>
     };
 };
 
-const parseNumberComparator: (arg: string) => (n: number) => boolean = (arg) => {
+const parseNumberComparator: (arg: string) => (n: number | null | undefined) => boolean = (arg) => {
     const match = arg.match(/[0-9].*/) || { index: 0, '0': { length: 30 } };
     const parsedNumber = Number(arg.slice(match.index));
     const comparator = arg.slice(0, match.index).trimRight();

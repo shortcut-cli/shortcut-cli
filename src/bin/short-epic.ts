@@ -117,7 +117,7 @@ async function createEpic(options: EpicCreateOptions) {
     if (!options.idonly) spin.start();
 
     const epicData: CreateEpic = {
-        name: options.name,
+        name: options.name ?? '',
     };
 
     if (options.description) {

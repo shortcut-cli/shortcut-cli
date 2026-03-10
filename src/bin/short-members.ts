@@ -25,7 +25,7 @@ const opts = program.opts<MembersOptions>();
 
 const main = async () => {
     spin.start();
-    const members = await client.listMembers(null).then((r) => r.data);
+    const members = await client.listMembers().then((r) => r.data);
     spin.stop(true);
     const ownerMatch = new RegExp(opts.search ?? '', 'i');
     members

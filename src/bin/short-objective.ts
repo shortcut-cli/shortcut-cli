@@ -69,7 +69,7 @@ program
 program.command('epics <id>').description('list epics in an objective').action(listObjectiveEpics);
 
 const args = process.argv.slice(2);
-if (args.length > 0 && /^\d+$/.test(args[0])) {
+if (args.length > 0 && args[0] && /^\d+$/.test(args[0])) {
     process.argv.splice(2, 0, 'view');
 }
 

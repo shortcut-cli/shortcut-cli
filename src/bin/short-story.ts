@@ -228,9 +228,11 @@ const main = async () => {
         } catch (e) {
             debug(e);
         }
-        if (branch.match(/\*.*[0-9]+/)) {
+        const branchMatch = branch.match(/\*.*/);
+        const storyIdMatch = branchMatch?.[0].match(/\/(ch|sc-)([0-9]+)/);
+        if (storyIdMatch?.[2]) {
             debug('parsing story ID from git branch:', branch);
-            const id = parseInt(branch.match(/\*.*/)[0].match(/\/(ch|sc-)([0-9]+)/)[2], 10);
+            const id = parseInt(storyIdMatch[2], 10);
             debug('parsed story ID from git branch:', id);
             if (id) {
                 gitID.push(id.toString());
@@ -243,6 +245,9 @@ const main = async () => {
     }
     const argIDs = program.args.map((a) => (a.match(/\d+/) || [])[0]);
     argIDs.concat(gitID).map(async (_id) => {
+        if (!_id) {
+            return;
+        }
         const id = parseInt(_id, 10);
         let story: Story;
         try {
@@ -365,7 +370,9 @@ const main = async () => {
                 openURL(storyLib.buildURL('iteration', story.iteration_id));
             }
             if (opts.openProject) {
-                openURL(storyLib.buildURL('project', story.project_id));
+                if (story.project_id !== undefined && story.project_id !== null) {
+                    openURL(storyLib.buildURL('project', story.project_id));
+                }
             }
         }
         if (opts.download) {
