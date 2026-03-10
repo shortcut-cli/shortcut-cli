@@ -15,7 +15,7 @@
         "prepublishOnly": "pnpm run clean && pnpm run build",
         "clean": "rm -rf build",
         "start": "node -r source-map-support/register build/bin/short.cjs",
-        "test": "vitest run",
+        "test": "vitest run --coverage",
         "test:watch": "vitest",
         "test:format": "prettier --list-different src/**/*.ts",
         "test:update-spec": "curl -sL -o test/fixtures/shortcut.swagger.json https://developer.shortcut.com/api/rest/v3/shortcut.swagger.json && node test/scripts/patch-spec.mjs",
