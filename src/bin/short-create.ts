@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import { exec } from 'child_process';
-
-import type { CreateStoryParams, Story } from '@shortcut/client';
 import { Command, Option } from 'commander';
 
-import storyLib from '../lib/stories';
 import client from '../lib/client';
-import spinner from '../lib/spinner';
 import { loadConfig } from '../lib/configure';
+import spinner from '../lib/spinner';
+import storyLib from '../lib/stories';
+
+import type { CreateStoryParams, Story } from '@shortcut/client';
 
 type StoryType = NonNullable<CreateStoryParams['story_type']>;
 

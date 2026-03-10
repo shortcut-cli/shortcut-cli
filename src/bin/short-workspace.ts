@@ -3,9 +3,9 @@ import { Command } from 'commander';
 
 import configure from '../lib/configure';
 import storyLib from '../lib/stories';
-import type { StoryHydrated } from '../lib/stories';
-
 import { program as searchProgram, type SearchOptions } from './short-search';
+
+import type { StoryHydrated } from '../lib/stories';
 
 interface WorkspaceOptions {
     list?: boolean;

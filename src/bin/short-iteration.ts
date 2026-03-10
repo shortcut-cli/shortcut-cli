@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-import { exec } from 'child_process';
-
-import type { CreateIteration, Iteration, StorySlim, UpdateIteration } from '@shortcut/client';
-import { Command } from 'commander';
 import chalk from 'chalk';
+import { exec } from 'child_process';
+import { Command } from 'commander';
 
 import client from '../lib/client';
-import spinner from '../lib/spinner';
 import { loadConfig } from '../lib/configure';
+import spinner from '../lib/spinner';
 import storyLib from '../lib/stories';
+
+import type { CreateIteration, Iteration, StorySlim, UpdateIteration } from '@shortcut/client';
 
 interface IterationCreateOptions {
     name?: string;

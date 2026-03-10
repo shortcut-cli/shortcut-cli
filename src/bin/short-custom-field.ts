@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import type { CustomField } from '@shortcut/client';
 import chalk from 'chalk';
 import { Command } from 'commander';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
+
+import type { CustomField } from '@shortcut/client';
 
 const spin = spinner();
 const log = console.log;

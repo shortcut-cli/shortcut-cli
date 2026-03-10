@@ -1,13 +1,18 @@
 #!/usr/bin/env node
+import chalk from 'chalk';
 import { execSync } from 'child_process';
-import os from 'os';
-import path from 'path';
+import { Command } from 'commander';
+import debugging from 'debug';
 import fs from 'fs';
 import https from 'https';
+import os from 'os';
+import path from 'path';
 
-import { Command } from 'commander';
-import chalk from 'chalk';
-import debugging from 'debug';
+import client from '../lib/client';
+import { loadConfig } from '../lib/configure';
+import spinner from '../lib/spinner';
+import storyLib, { type StoryHydrated, type Entities } from '../lib/stories';
+
 import type {
     CreateStoryLink,
     CreateStoryParams,
@@ -18,11 +23,6 @@ import type {
     UpdateStory,
     UploadedFile,
 } from '@shortcut/client';
-
-import client from '../lib/client';
-import storyLib, { type StoryHydrated, type Entities } from '../lib/stories';
-import { loadConfig } from '../lib/configure';
-import spinner from '../lib/spinner';
 
 const config = loadConfig();
 const spin = spinner();

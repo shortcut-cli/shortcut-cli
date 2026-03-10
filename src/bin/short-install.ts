@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import prompt from 'prompt';
-import { Command } from 'commander';
 import { ShortcutClient } from '@shortcut/client';
+import { Command } from 'commander';
+import prompt from 'prompt';
 
-import { type Config, loadCachedConfig, updateConfig } from '../lib/configure';
 import { version } from '../../package.json';
+import { type Config, loadCachedConfig, updateConfig } from '../lib/configure';
 
 const extant = loadCachedConfig();
 const log = console.log;

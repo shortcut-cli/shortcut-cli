@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { Command } from 'commander';
 import chalk from 'chalk';
-import type { IterationSlim } from '@shortcut/client';
+import { Command } from 'commander';
 
 import client from '../lib/client';
-import spinner from '../lib/spinner';
 import { loadConfig } from '../lib/configure';
+import spinner from '../lib/spinner';
+
+import type { IterationSlim } from '@shortcut/client';
 
 interface IterationsOptions {
     status?: string;

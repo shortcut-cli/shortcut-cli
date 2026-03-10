@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import type { CreateLabelParams, EpicSlim, Label, UpdateLabel } from '@shortcut/client';
-import { Command } from 'commander';
 import chalk from 'chalk';
+import { Command } from 'commander';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
 import storyLib from '../lib/stories';
+
+import type { CreateLabelParams, EpicSlim, Label, UpdateLabel } from '@shortcut/client';
 
 const spin = spinner();
 const log = console.log;

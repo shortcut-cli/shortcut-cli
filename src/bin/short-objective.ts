@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-import { exec } from 'child_process';
-import os from 'os';
-
-import type { CreateObjective, EpicSlim, Objective, UpdateObjective } from '@shortcut/client';
-import { Command } from 'commander';
 import chalk from 'chalk';
+import { exec } from 'child_process';
+import { Command } from 'commander';
+import os from 'os';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
+
+import type { CreateObjective, EpicSlim, Objective, UpdateObjective } from '@shortcut/client';
 
 interface ObjectiveCreateOptions {
     name?: string;

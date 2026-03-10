@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import { Command } from 'commander';
 import chalk from 'chalk';
-import type { Objective, ObjectiveSearchResult } from '@shortcut/client';
+import { Command } from 'commander';
 
 import client from '../lib/client';
 import spinner from '../lib/spinner';
+
+import type { Objective, ObjectiveSearchResult } from '@shortcut/client';
 
 interface ObjectivesOptions {
     archived?: boolean;
