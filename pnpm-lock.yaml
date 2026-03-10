@@ -61,10 +61,10 @@ importers:
         specifier: 4.0.18
         version: 4.0.18(vitest@4.0.18(@types/node@24.10.1)(jiti@2.6.1))
       oxfmt:
-        specifier: ^0.37.0
+        specifier: 0.37.0
         version: 0.37.0
       oxlint:
-        specifier: ^1.52.0
+        specifier: 1.52.0
         version: 1.52.0
       pino:
         specifier: 10.3.1
