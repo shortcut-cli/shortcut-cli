@@ -23,3 +23,7 @@ jobs:
                   cache: 'pnpm'
             - run: pnpm install
             - run: pnpm run ${{ matrix.task }}
+            - if: matrix.task == 'test'
+              uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
