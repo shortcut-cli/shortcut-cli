@@ -21,7 +21,11 @@ const opts = program.opts<{ force?: boolean; refresh?: boolean }>();
 
 const enrichConfigWithMemberDetails = async (config: Config) => {
     log('Fetching user/member details from Shortcut...');
-    const member = await new ShortcutClient(config.token)
+    const clientConfig: Record<string, unknown> = {};
+    if (process.env.SHORTCUT_API_BASE_URL) {
+        clientConfig.baseURL = process.env.SHORTCUT_API_BASE_URL;
+    }
+    const member = await new ShortcutClient(config.token, clientConfig)
         .getCurrentMemberInfo()
         .then((r) => r.data);
     return {
