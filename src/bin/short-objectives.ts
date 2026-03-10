@@ -27,6 +27,7 @@ const program = new Command()
         `List and search Shortcut objectives. By default, lists all objectives.
   Passing search operators will use the Shortcut objective search API and page through all results.`
     )
+    .allowExcessArguments(true)
     .usage('[options] [SEARCH OPERATORS]')
     .option('-a, --archived', 'List only objectives including archived', '')
     .option('-c, --completed', 'List only objectives that have been completed', '')

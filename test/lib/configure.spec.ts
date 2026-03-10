@@ -184,6 +184,21 @@ describe('configure', () => {
             expect(config.urlSlug).toBe('file-slug');
         });
 
+        it('treats an empty config file as empty config', async () => {
+            delete process.env.SHORTCUT_API_TOKEN;
+            delete process.env.CLUBHOUSE_API_TOKEN;
+
+            const configDir = path.join(tmpDir, 'shortcut-cli');
+            fs.mkdirSync(configDir, { recursive: true });
+            const configFile = path.join(configDir, 'config.json');
+            fs.writeFileSync(configFile, '');
+
+            const { loadCachedConfig } = await importConfigure();
+            const config = loadCachedConfig();
+
+            expect(config).toEqual({ workspaces: {} });
+        });
+
         it('env token overrides file token', async () => {
             process.env.SHORTCUT_API_TOKEN = 'env-token';
 

@@ -38,6 +38,7 @@ export const program = new Command()
   Refer to https://help.shortcut.com/hc/en-us/articles/360000046646-Search-Operators
   for more details about search operators.`
     )
+    .allowExcessArguments(true)
     .usage('[options] [SEARCH OPERATORS]')
     .option('-a, --archived', 'Include archived Stories')
     .option(

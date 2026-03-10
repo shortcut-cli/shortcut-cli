@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { runBin } from '../helpers/run-bin';
 
@@ -198,6 +198,132 @@ describe('short-story', () => {
             const result = await runBin('short-story', ['123', ...flag]);
             expect(result.exitCode).toBeUndefined();
             expect(result.stdout).toBeTruthy();
+        });
+
+        it('uses updateStory response data instead of the full response object', async () => {
+            const origArgv = process.argv;
+            const origLog = console.log;
+            const origWarn = console.warn;
+            const origError = console.error;
+
+            const stdout: string[] = [];
+            const stderr: string[] = [];
+            console.log = (...args: unknown[]) => stdout.push(args.join(' '));
+            console.warn = (...args: unknown[]) => stderr.push(args.join(' '));
+            console.error = (...args: unknown[]) => stderr.push(args.join(' '));
+
+            let exitCode: number | undefined;
+            const exitMock = vi.spyOn(process, 'exit').mockImplementation(((code?: number) => {
+                exitCode = code ?? 0;
+                throw new Error(`process.exit(${exitCode})`);
+            }) as () => never);
+
+            process.argv = [
+                'node',
+                'src/bin/short-story.ts',
+                '123',
+                '--title',
+                'Updated Title',
+                '--format',
+                '%id %t',
+            ];
+
+            const baseStory = {
+                id: 123,
+                name: 'Original Title',
+                description: 'Story description',
+                story_type: 'feature',
+                estimate: 1,
+                labels: [],
+                owners: [],
+                requester: undefined,
+                project: undefined,
+                epic: undefined,
+                epic_id: undefined,
+                iteration: undefined,
+                iteration_id: undefined,
+                group: undefined,
+                state: { id: 500000007, name: 'To Do' },
+                workflow_state_id: 500000007,
+                created_at: '2026-03-10T00:00:00Z',
+                updated_at: '2026-03-10T00:00:00Z',
+                archived: false,
+                owner_ids: [],
+                requested_by_id: undefined,
+                external_links: [],
+                tasks: [],
+                files: [],
+            };
+
+            const req: { res?: object } = {};
+            const res = { req };
+            req.res = res;
+            const circularResponse = {
+                data: {
+                    ...baseStory,
+                    name: 'Updated Title',
+                    workflow_state_id: 500000008,
+                    state: { id: 500000008, name: 'In Progress' },
+                },
+                request: req,
+            };
+
+            vi.resetModules();
+            vi.doMock('../../src/lib/spinner', () => ({
+                default: () => ({ start: () => {}, stop: () => {} }),
+            }));
+            vi.doMock('../../src/lib/configure', () => ({
+                loadConfig: () => ({
+                    token: 'test-token',
+                    urlSlug: 'test-workspace',
+                    workspaces: {},
+                }),
+            }));
+            vi.doMock('../../src/lib/client', () => ({
+                default: {
+                    getStory: vi.fn().mockResolvedValue({ data: baseStory }),
+                    updateStory: vi.fn().mockResolvedValue(circularResponse),
+                    createStoryComment: vi.fn(),
+                    createTask: vi.fn(),
+                    updateTask: vi.fn(),
+                },
+            }));
+            vi.doMock('../../src/lib/stories', async () => {
+                const actual =
+                    await vi.importActual<typeof import('../../src/lib/stories')>(
+                        '../../src/lib/stories'
+                    );
+
+                return {
+                    ...actual,
+                    default: {
+                        ...actual.default,
+                        fetchEntities: vi.fn().mockResolvedValue({}),
+                        findState: vi.fn().mockReturnValue({ id: 500000008, name: 'In Progress' }),
+                        hydrateStory: vi.fn((_entities, story) => story),
+                    },
+                };
+            });
+
+            try {
+                await import('../../src/bin/short-story');
+                await new Promise((resolve) => setTimeout(resolve, 50));
+            } finally {
+                vi.doUnmock('../../src/lib/spinner');
+                vi.doUnmock('../../src/lib/configure');
+                vi.doUnmock('../../src/lib/client');
+                vi.doUnmock('../../src/lib/stories');
+                vi.resetModules();
+                process.argv = origArgv;
+                console.log = origLog;
+                console.warn = origWarn;
+                console.error = origError;
+                exitMock.mockRestore();
+            }
+
+            expect(exitCode).toBeUndefined();
+            expect(stderr).toEqual([]);
+            expect(stdout.join('\n')).toContain('123 Updated Title');
         });
 
         it('should open story in browser with --open', async () => {

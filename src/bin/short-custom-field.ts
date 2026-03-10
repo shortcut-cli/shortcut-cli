@@ -11,6 +11,7 @@ const spin = spinner();
 const log = console.log;
 
 const program = new Command()
+    .argument('<id>')
     .usage('<id> [options]')
     .description('view a custom field by id')
     .parse(process.argv);
