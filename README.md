@@ -4,7 +4,7 @@
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/shortcut-cli/shortcut-cli/blob/main/LICENSE)
 [![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
-This is a community-driven command line interface for [Shortcut](https://shortcut.com), focused on the display and manipulation of stories. With this, you can run custom searches, save them as local workspaces, and recall those workspaces. You can also view full stories, update most attributes on a story, and create brand new stories quickly.
+This is a community-driven command line interface for [Shortcut](https://shortcut.com). It covers story search and updates, saved workspaces, and newer workspace resources such as teams, labels, epics, objectives, iterations, docs, projects, and raw API access.
 
 ## Table of Contents
 
@@ -35,7 +35,7 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
 Install via npm:
 
 ```sh
-npm install @shortcut-cli/shortcut-cli -g
+npm install -g @shortcut-cli/shortcut-cli
 short install
 ```
 
@@ -88,6 +88,7 @@ short story 3300
 
     install         install and configure API access
     search          search stories with optional query
+    find            [DEPRECATED] search stories with optional query
     members         list members
     teams           list teams
     team            view a team or list its stories
@@ -95,7 +96,7 @@ short story 3300
     label           view stories for a label
     custom-fields   list custom fields
     custom-field    view a custom field
-    story           view or manipulate a story or stories
+    story           view or manipulate stories
     create          create a story
     workflows       list workflows and their states
     epics           list epics and their states
@@ -105,7 +106,7 @@ short story 3300
     objective       view, create, or update objectives
     docs            list and search docs
     doc             view, create, update, or delete a doc
-    projects        list or search projects
+    projects        list projects and their states
     workspace       list stories matching saved workspace query
     api             make a request to the Shortcut API
     help [cmd]      display help for [cmd]
@@ -114,7 +115,7 @@ short story 3300
 ### Search
 
 ```
-  Usage: short find [options] [SEARCH OPERATORS]
+  Usage: short search [options] [SEARCH OPERATORS]
 
   Search through Shortcut stories. Arguments (non-flag/options) will
   be passed to Shortcut story search API as search operators. Passing '%self%' as
@@ -209,6 +210,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
 
   Options:
 
+    -a, --archived           Update story as archived
     -I, --idonly              Print only ID of story results
     -s, --state [id|name]     Update workflow state of story
     -e, --estimate [number]   Update estimate of story
@@ -238,6 +240,7 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     --op, --open-project      Open story's project in browser
     -q, --quiet               Print only story output, no loading dialog
     --requester [id|name]     Update requester of story
+    -T, --team [id|name]      Update team/group of story
     -t, --title [text]        Update title of story
     --task [text]             Create new task on story
     --task-complete [text]    Toggle completion of story task matching text
@@ -321,7 +324,7 @@ Comment: This is a comment
     -T, --team [id|name]      Set team of story
     -t, --title [text]        Set title of story, required
     -s, --state [id|name]     Set workflow state of story, required if --project is not set
-    -y, --type [name]         Set type of story, default: feature
+    -y, --type <name>         Set type of story (feature, bug, chore; default: feature)
     -h, --help                output usage information
     --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
                               as required by the Git integration: https://bit.ly/2RKO1FF
@@ -1027,6 +1030,18 @@ Delete a doc:
 
 ## Development
 
+Install dependencies first:
+
+```sh
+pnpm install
+```
+
+Build the CLI:
+
+```sh
+pnpm run build
+```
+
 You can use TypeScript watcher which will recompile your code automatically:
 
 ```sh
@@ -1037,6 +1052,15 @@ You can run shortcut-cli with TypeScript map enabled:
 
 ```sh
 pnpm start -- story 1234
+```
+
+Run the main checks:
+
+```sh
+pnpm test
+pnpm run test:format
+pnpm run type-check
+pnpm run lint
 ```
 
 ## Acknowledgments
