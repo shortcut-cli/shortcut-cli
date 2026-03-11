@@ -17,11 +17,12 @@
     "license": "MIT",
     "author": "email@andjosh.com",
     "packageManager": "pnpm@10.32.0",
+    "type": "module",
     "engines": {
         "node": ">=20.19.0"
     },
     "bin": {
-        "short": "./build/bin/short.cjs"
+        "short": "./build/bin/short.js"
     },
     "files": [
         "build"
@@ -34,7 +35,7 @@
         "format": "oxfmt",
         "lint": "oxlint .",
         "prepublishOnly": "pnpm run clean && pnpm run build",
-        "start": "node -r source-map-support/register build/bin/short.cjs",
+        "start": "node -r source-map-support/register build/bin/short.js",
         "test": "vitest run --coverage",
         "test:format": "oxfmt --check",
         "test:update-spec": "curl -sL -o test/fixtures/shortcut.swagger.json https://developer.shortcut.com/api/rest/v3/shortcut.swagger.json && node test/scripts/patch-spec.mjs",
@@ -43,7 +44,7 @@
     },
     "dependencies": {
         "@shortcut/client": "^3.2.0",
-        "chalk": "^2.2.0",
+        "chalk": "^5.6.2",
         "cli-spinner": "^0.2.10",
         "commander": "^14.0.3",
         "debug": "^4.4.3"
@@ -53,11 +54,9 @@
         "@stoplight/prism-http": "5.12.0",
         "@stoplight/prism-http-server": "5.12.2",
         "@total-typescript/tsconfig": "^1.0.4",
-        "@types/chalk": "2.2.4",
         "@types/cli-spinner": "0.2.3",
         "@types/debug": "4.1.12",
         "@types/node": "24.10.1",
-        "@types/node-fetch": "3.0.3",
         "@vitest/coverage-v8": "4.0.18",
         "oxfmt": "0.37.0",
         "oxlint": "1.52.0",

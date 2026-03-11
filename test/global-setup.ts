@@ -9,7 +9,9 @@
  * all mocks automatically update.
  */
 import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SPEC_PATH = path.resolve(__dirname, 'fixtures/shortcut.swagger.json');
 const PRISM_PORT = 4010;
 const PRISM_HOST = '127.0.0.1';
