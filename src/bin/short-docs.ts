@@ -42,27 +42,33 @@ const main = async () => {
     try {
         // Use search endpoint if title is provided
         if (opts.title) {
-            const searchParams: {
-                title: string;
-                archived?: boolean;
-                created_by_me?: boolean;
-                followed_by_me?: boolean;
-            } = {
-                title: opts.title,
-            };
+            if (!opts.archived && !opts.mine && !opts.following) {
+                const result = await client.listDocs();
+                const title = opts.title.toLowerCase();
+                docs = result.data.filter((doc) => (doc.title || '').toLowerCase().includes(title));
+            } else {
+                const searchParams: {
+                    title: string;
+                    archived?: boolean;
+                    created_by_me?: boolean;
+                    followed_by_me?: boolean;
+                } = {
+                    title: opts.title,
+                };
 
-            if (opts.archived !== undefined) {
-                searchParams.archived = !!opts.archived;
-            }
-            if (opts.mine) {
-                searchParams.created_by_me = true;
-            }
-            if (opts.following) {
-                searchParams.followed_by_me = true;
-            }
+                if (opts.archived !== undefined) {
+                    searchParams.archived = !!opts.archived;
+                }
+                if (opts.mine) {
+                    searchParams.created_by_me = true;
+                }
+                if (opts.following) {
+                    searchParams.followed_by_me = true;
+                }
 
-            const result = await client.searchDocuments(searchParams);
-            docs = result.data.data;
+                const result = await client.searchDocuments(searchParams);
+                docs = result.data.data;
+            }
         } else {
             // Warn if search filters are used without title
             if (opts.archived || opts.mine || opts.following) {
@@ -89,12 +95,15 @@ const main = async () => {
         return;
     }
 
-    docs.forEach((doc) => printDoc(doc));
+    docs.forEach((doc) => {
+        printDoc(doc);
+    });
 };
 
 const printDoc = (doc: DocSlim) => {
     if (opts.idonly) {
-        return log(doc.id);
+        log(doc.id);
+        return;
     }
     log(`${doc.id} ${doc.title || '(Untitled)'}`);
     log(`\tURL: ${doc.app_url}`);

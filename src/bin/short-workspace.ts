@@ -47,7 +47,7 @@ const main = async () => {
     } else if (opts.list) {
         log('Workspaces:');
         const workspaces = config.workspaces ?? {};
-        Object.keys(workspaces).map((w) => {
+        Object.keys(workspaces).forEach((w) => {
             log(' ', w + ':', toArgs(workspaces[w] ?? {}));
         });
         return;
@@ -74,7 +74,9 @@ const main = async () => {
     // Merge workspace defaults with command-line overrides
     const additionalArgs: SearchOptions = {
         ...workspace,
-        ...Object.fromEntries(Object.entries(foundOpts).filter(([, v]) => v !== undefined)),
+        ...Object.fromEntries(
+            Object.entries(foundOpts).filter(([, v]) => v !== undefined && v !== '' && v !== false)
+        ),
     };
     if (!opts.quiet) {
         log('Loading %s workspace ...', name);

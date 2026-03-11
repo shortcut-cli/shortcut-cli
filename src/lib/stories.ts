@@ -168,15 +168,25 @@ async function fetchStories(
         return searchStories(options);
     }
 
+    const groups = entities.groupsById ? [...entities.groupsById.values()] : [];
+    if (groups.length > 0) {
+        debug('request all stories for group(s)', groups.map((g) => g.name).join(', '));
+        return Promise.all(groups.map((g) => client.listGroupStories(g.id))).then((groupStories) => {
+            const stories = groupStories.reduce<StorySlim[]>((acc, group) => acc.concat(group.data), []);
+            return dedupeStoriesById(stories);
+        });
+    }
+
     debug('filtering projects');
     const regexProject = new RegExp(options.project ?? '', 'i');
     const projects = entities.projectsById ? [...entities.projectsById.values()] : [];
-    const projectIds = projects.filter((p) => !!(p.id + p.name).match(regexProject));
+    const projectIds = projects.filter((p) => !!`${p.id} ${p.name}`.match(regexProject));
 
     debug('request all stories for project(s)', projectIds.map((p) => p.name).join(', '));
-    return Promise.all(projectIds.map((p) => client.listStories(p.id))).then((projectStories) =>
-        projectStories.reduce<StorySlim[]>((acc, stories) => acc.concat(stories.data), [])
-    );
+    return Promise.all(projectIds.map((p) => client.listStories(p.id))).then((projectStories) => {
+        const stories = projectStories.reduce<StorySlim[]>((acc, project) => acc.concat(project.data), []);
+        return dedupeStoriesById(stories);
+    });
 }
 
 async function searchStories(options: StoryListOptions): Promise<Story[]> {
@@ -313,6 +323,17 @@ const findLabelNames = (entities: Entities, label: string): CreateLabelParams[] 
         .map((m) => ({ name: m.name }));
 };
 
+const dedupeStoriesById = <T extends StoryBase>(stories: T[]): T[] => {
+    const seen = new Set<number>();
+    return stories.filter((story) => {
+        if (seen.has(story.id)) {
+            return false;
+        }
+        seen.add(story.id);
+        return true;
+    });
+};
+
 const filterStories = (
     options: StoryListOptions,
     stories: StoryBase[],
@@ -340,6 +361,7 @@ const filterStories = (
     const regexType = new RegExp(options.type ?? '', 'i');
     const regexEpic = new RegExp(options.epic ?? '', 'i');
     const regexIteration = new RegExp(options.iteration ?? '', 'i');
+    const regexProject = new RegExp(options.project ?? '', 'i');
 
     return stories
         .map((story) => hydrateStory(entities, story))
@@ -357,6 +379,9 @@ const filterStories = (
                 return false;
             }
             if (!(s.iteration_id + ' ' + (s.iteration?.name ?? '')).match(regexIteration)) {
+                return false;
+            }
+            if (!(s.project_id + ' ' + (s.project?.name ?? '')).match(regexProject)) {
                 return false;
             }
             if (options.owner) {

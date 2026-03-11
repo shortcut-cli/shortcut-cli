@@ -997,6 +997,45 @@ describe('stories', () => {
             expect(Array.isArray(result)).toBe(true);
         });
 
+        it('falls back to group stories when projects are unavailable', async () => {
+            vi.resetModules();
+            const mockGroupStory = makeStory({
+                id: 77,
+                name: 'Group-only story',
+                project_id: null,
+                group_id: 'group-uuid-1',
+            }) as unknown as StorySlim;
+            const mockListGroupStories = vi.fn().mockResolvedValue({ data: [mockGroupStory] });
+            vi.doMock('../../src/lib/client', () => ({
+                default: {
+                    listProjects: vi.fn().mockResolvedValue({ data: [] }),
+                    listWorkflows: vi.fn().mockResolvedValue({ data: [] }),
+                    listMembers: vi.fn().mockResolvedValue({ data: [] }),
+                    listGroups: vi.fn().mockResolvedValue({ data: [makeGroup()] }),
+                    listGroupStories: mockListGroupStories,
+                    listEpics: vi.fn().mockResolvedValue({ data: [] }),
+                    listObjectives: vi.fn().mockResolvedValue({ data: [] }),
+                    listIterations: vi.fn().mockResolvedValue({ data: [] }),
+                    listLabels: vi.fn().mockResolvedValue({ data: [] }),
+                    listStories: vi.fn(),
+                },
+            }));
+            vi.doMock('../../src/lib/configure', () => ({
+                loadConfig: () => ({
+                    token: 'test-token',
+                    urlSlug: 'test-workspace',
+                    mentionName: 'test-user',
+                    workspaces: {},
+                }),
+            }));
+
+            const mod = await import('../../src/lib/stories');
+            const result = await mod.default.listStories({});
+
+            expect(result.map((story) => story.id)).toEqual([77]);
+            expect(mockListGroupStories).toHaveBeenCalled();
+        });
+
         it('uses search endpoint when args are provided', async () => {
             // Prism mock may return a `next` cursor causing pagination.
             // Use a fresh import with mocked client that returns no next cursor.
@@ -1034,6 +1073,51 @@ describe('stories', () => {
         it('filters stories by project regex', async () => {
             const result = await stories.listStories({ project: '.*' });
             expect(Array.isArray(result)).toBe(true);
+        });
+
+        it('filters fetched group stories by project name', async () => {
+            vi.resetModules();
+            const backendProject = makeProject({ id: 1, name: 'Backend' });
+            const frontendProject = makeProject({ id: 2, name: 'Frontend' });
+            const backendStory = makeStory({
+                id: 91,
+                name: 'Backend story',
+                project_id: 1,
+                group_id: 'group-uuid-1',
+            }) as unknown as StorySlim;
+            const frontendStory = makeStory({
+                id: 92,
+                name: 'Frontend story',
+                project_id: 2,
+                group_id: 'group-uuid-1',
+            }) as unknown as StorySlim;
+
+            vi.doMock('../../src/lib/client', () => ({
+                default: {
+                    listProjects: vi.fn().mockResolvedValue({ data: [backendProject, frontendProject] }),
+                    listWorkflows: vi.fn().mockResolvedValue({ data: [] }),
+                    listMembers: vi.fn().mockResolvedValue({ data: [] }),
+                    listGroups: vi.fn().mockResolvedValue({ data: [makeGroup()] }),
+                    listGroupStories: vi.fn().mockResolvedValue({ data: [backendStory, frontendStory] }),
+                    listEpics: vi.fn().mockResolvedValue({ data: [] }),
+                    listObjectives: vi.fn().mockResolvedValue({ data: [] }),
+                    listIterations: vi.fn().mockResolvedValue({ data: [] }),
+                    listLabels: vi.fn().mockResolvedValue({ data: [] }),
+                },
+            }));
+            vi.doMock('../../src/lib/configure', () => ({
+                loadConfig: () => ({
+                    token: 'test-token',
+                    urlSlug: 'test-workspace',
+                    mentionName: 'test-user',
+                    workspaces: {},
+                }),
+            }));
+
+            const mod = await import('../../src/lib/stories');
+            const result = await mod.default.listStories({ project: 'back' });
+
+            expect(result.map((story) => story.id)).toEqual([91]);
         });
 
         it('replaces %self% in search args with mentionName', async () => {
