@@ -138,7 +138,10 @@ describe('short-iteration', () => {
         ])('should create with %s without crashing', async (_label, args) => {
             const result = await runBin('short-iteration', args);
             expect(result.output.exitCode).toBeUndefined();
-            expect(result.output.stdout).toBeTruthy();
+            // Created iteration should include iteration details in output
+            expect(result.output.stdout).toContain('Status:');
+            expect(result.output.stdout).toContain('URL:');
+            expect(result.output.stderr).toBe('');
         });
 
         it('should open browser with --open', async () => {
@@ -175,7 +178,10 @@ describe('short-iteration', () => {
         ])('should update with %s without crashing', async (_label, args) => {
             const result = await runBin('short-iteration', args);
             expect(result.output.exitCode).toBeUndefined();
-            expect(result.output.stdout).toBeTruthy();
+            // Updated iteration should include iteration details in output
+            expect(result.output.stdout).toContain('Status:');
+            expect(result.output.stdout).toContain('URL:');
+            expect(result.output.stderr).toBe('');
         });
 
         it('should open browser with --open', async () => {

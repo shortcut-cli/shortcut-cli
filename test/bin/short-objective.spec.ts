@@ -128,7 +128,10 @@ describe('short-objective', () => {
         ])('should create with %s without crashing', async (_label, args) => {
             const result = await runBin('short-objective', args);
             expect(result.output.exitCode).toBeUndefined();
-            expect(result.output.stdout).toBeTruthy();
+            // Created objective should include details in output
+            expect(result.output.stdout).toContain('State:');
+            expect(result.output.stdout).toContain('URL:');
+            expect(result.output.stderr).toBe('');
         });
 
         it('should open browser with --open', async () => {
@@ -162,7 +165,10 @@ describe('short-objective', () => {
         ])('should update with %s without crashing', async (_label, args) => {
             const result = await runBin('short-objective', args);
             expect(result.output.exitCode).toBeUndefined();
-            expect(result.output.stdout).toBeTruthy();
+            // Updated objective should include details in output
+            expect(result.output.stdout).toContain('State:');
+            expect(result.output.stdout).toContain('URL:');
+            expect(result.output.stderr).toBe('');
         });
 
         it('should open browser with --open', async () => {

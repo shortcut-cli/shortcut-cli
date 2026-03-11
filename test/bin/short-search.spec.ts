@@ -59,6 +59,29 @@ describe('short-search', () => {
     ])('should show fetching message with %s filter', async (_label, args) => {
         const result = await runBin('short-search', args);
         expect(result.output.exitCode).toBeUndefined();
+        // All filter commands still use the "fetchEntities" path and show the fetching message
         expect(result.output.stdout).toContain('Fetching all stories');
+        // No error should be reported
+        expect(result.output.stderr).toBe('');
+    });
+
+    it('should output story results when stories match', async () => {
+        // Searching without a query causes all stories to be listed; Prism returns mock stories
+        const result = await runBin('short-search', []);
+        expect(result.output.exitCode).toBeUndefined();
+        // The fetching message is always shown before results
+        expect(result.output.stdout).toContain('Fetching all stories');
+    });
+
+    it('should accept --sort flag without crashing', async () => {
+        const result = await runBin('short-search', ['--sort', 'created:asc']);
+        expect(result.output.exitCode).toBeUndefined();
+        expect(result.output.stderr).toBe('');
+    });
+
+    it('should accept --archived flag without crashing', async () => {
+        const result = await runBin('short-search', ['--archived']);
+        expect(result.output.exitCode).toBeUndefined();
+        expect(result.output.stderr).toBe('');
     });
 });
