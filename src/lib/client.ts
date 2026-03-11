@@ -9,6 +9,6 @@ if (process.env.SHORTCUT_API_BASE_URL) {
     clientConfig.baseURL = process.env.SHORTCUT_API_BASE_URL;
 }
 
-const client = new ShortcutClient(config.token, clientConfig);
+const client = new ShortcutClient(config.token ?? '', clientConfig);
 
 export default client;

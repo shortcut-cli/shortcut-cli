@@ -76,7 +76,7 @@ program
 
 // If first argument looks like a UUID, treat it as view command
 const args = process.argv.slice(2);
-if (args.length > 0 && isUUID(args[0])) {
+if (args.length > 0 && args[0] && isUUID(args[0])) {
     // Insert 'view' command before the ID
     process.argv.splice(2, 0, 'view');
 }
@@ -87,10 +87,11 @@ program.parse(process.argv);
 if (args.length === 0) {
     program.outputHelp();
     process.exit(1);
-} else if (args.length > 0 && !isUUID(args[0])) {
+} else if (args.length > 0 && args[0] && !isUUID(args[0])) {
     const validCommands = ['view', 'create', 'update', 'delete'];
-    if (!validCommands.includes(args[0]) && !args[0].startsWith('-')) {
-        console.error(`Error: Unknown command or invalid doc ID: ${args[0]}`);
+    const firstArg = args[0];
+    if (!validCommands.includes(firstArg) && !firstArg.startsWith('-')) {
+        console.error(`Error: Unknown command or invalid doc ID: ${firstArg}`);
         console.error('Run "short doc --help" for usage information.');
         process.exit(1);
     }
@@ -110,7 +111,9 @@ async function viewDoc(id: string, options: ViewDocOptions) {
         if (options.html) {
             params.content_format = 'html';
         }
-        doc = await client.getDoc(id, params).then((r) => r.data);
+        doc = await client
+            .getDoc(id, Object.keys(params).length > 0 ? params : undefined)
+            .then((r) => r.data);
     } catch (e: unknown) {
         if (!options.quiet) spin.stop(true);
         const error = e as { message?: string };

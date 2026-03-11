@@ -29,7 +29,7 @@ const enrichConfigWithMemberDetails = async (config: Config) => {
     if (process.env.SHORTCUT_API_BASE_URL) {
         clientConfig.baseURL = process.env.SHORTCUT_API_BASE_URL;
     }
-    const member = await new ShortcutClient(config.token, clientConfig)
+    const member = await new ShortcutClient(config.token ?? '', clientConfig)
         .getCurrentMemberInfo()
         .then((r) => r.data);
     return {

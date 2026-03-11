@@ -24,8 +24,10 @@ export interface Config {
     token?: string;
     // Object used by short workspace.
     // This is unrelated to the concept of Shortcut Workspaces.
-    workspaces?: { [key: string]: object };
+    workspaces?: Record<string, WorkspaceConfig>;
 }
+
+export type WorkspaceConfig = Record<string, unknown>;
 
 let CONFIG_CACHE: Config | null = null;
 
@@ -136,7 +138,7 @@ export const updateConfig = (newConfig: Config) => {
     return saveConfig({ ...newConfig, ...extantConfig });
 };
 
-const saveWorkspace = (name: string, workspace: object): boolean => {
+const saveWorkspace = (name: string, workspace: WorkspaceConfig): boolean => {
     const extantConfig = loadCachedConfig();
     const workspaces = extantConfig.workspaces ?? {};
     workspaces[name] = workspace;
@@ -145,7 +147,7 @@ const saveWorkspace = (name: string, workspace: object): boolean => {
 
 const removeWorkspace = (name: string) => {
     const extant = loadCachedConfig();
-    delete extant.workspaces[name];
+    delete extant.workspaces?.[name];
     return saveConfig(Object.assign({}, extant));
 };
 
