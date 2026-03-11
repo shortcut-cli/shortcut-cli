@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { runBin } from '../helpers/run-bin';
 
@@ -11,6 +11,86 @@ describe('short-create', () => {
     it('should require --project or --state when --title is given', async () => {
         const result = await runBin('short-create', ['--title', 'test story']);
         expect(result.output.stdout).toContain('Must provide --project or --state');
+    });
+
+    it.each([
+        [
+            'project',
+            ['--title', 'test story', '--project', 'missing-project'],
+            'Project missing-project not found',
+        ],
+        [
+            'state',
+            ['--title', 'test story', '--state', 'missing-state'],
+            'State missing-state not found',
+        ],
+        [
+            'team',
+            ['--title', 'test story', '--state', '.', '--team', 'missing-team'],
+            'Team missing-team not found',
+        ],
+        [
+            'epic',
+            ['--title', 'test story', '--state', '.', '--epic', 'missing-epic'],
+            'Epic missing-epic not found',
+        ],
+        [
+            'iteration',
+            ['--title', 'test story', '--state', '.', '--iteration', 'missing-iteration'],
+            'Iteration missing-iteration not found',
+        ],
+    ])('should report missing %s lookups clearly', async (_label, args, message) => {
+        const result = await runBin('short-create', args);
+        expect(result.output.stdout).toContain(message);
+    });
+
+    it('should report create API failures', async () => {
+        const origArgv = process.argv;
+        const origLog = console.log;
+        const stdout: string[] = [];
+
+        process.argv = ['node', 'src/bin/short-create.ts', '--title', 'test story', '--state', '.'];
+        console.log = (...args: unknown[]) => {
+            stdout.push(args.map(String).join(' '));
+        };
+
+        vi.resetModules();
+        vi.doMock('../../src/lib/spinner', () => ({
+            default: () => ({ start: () => {}, stop: () => {} }),
+        }));
+        vi.doMock('../../src/lib/client', () => ({
+            default: {
+                createStory: vi.fn().mockRejectedValue(new Error('boom')),
+            },
+        }));
+        vi.doMock('../../src/lib/stories', () => ({
+            default: {
+                fetchEntities: vi.fn().mockResolvedValue({}),
+                findState: vi.fn().mockReturnValue({ id: 1, name: 'Todo' }),
+                findProject: vi.fn(),
+                findGroup: vi.fn(),
+                findEpic: vi.fn(),
+                findIteration: vi.fn(),
+                findOwnerIds: vi.fn().mockReturnValue([]),
+                findLabelNames: vi.fn().mockReturnValue([]),
+                hydrateStory: vi.fn((_, story) => story),
+                printDetailedStory: vi.fn(),
+            },
+        }));
+
+        try {
+            await import('../../src/bin/short-create');
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        } finally {
+            vi.doUnmock('../../src/lib/spinner');
+            vi.doUnmock('../../src/lib/client');
+            vi.doUnmock('../../src/lib/stories');
+            vi.resetModules();
+            process.argv = origArgv;
+            console.log = origLog;
+        }
+
+        expect(stdout.join('\n')).toContain('Error creating story');
     });
 
     it('should create a story with --title and --state', async () => {

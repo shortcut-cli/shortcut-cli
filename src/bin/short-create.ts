@@ -72,25 +72,31 @@ const opts = program.opts<CreateOptions>();
 const main = async () => {
     const entities = await storyLib.fetchEntities();
     if (!opts.idonly) spin.start();
+    const project = opts.project ? storyLib.findProject(entities, opts.project) : undefined;
+    const group = opts.team ? storyLib.findGroup(entities, opts.team) : undefined;
+    const state = opts.state ? storyLib.findState(entities, opts.state) : undefined;
+    const epic = opts.epic ? storyLib.findEpic(entities, opts.epic) : undefined;
+    const iteration = opts.iteration ? storyLib.findIteration(entities, opts.iteration) : undefined;
+
     const update: CreateStoryParams = {
         name: opts.title ?? '',
         story_type: opts.type,
         description: `${opts.description}`,
     };
-    if (opts.project) {
-        update.project_id = storyLib.findProject(entities, opts.project)?.id;
+    if (project) {
+        update.project_id = project.id;
     }
-    if (opts.team) {
-        update.group_id = storyLib.findGroup(entities, opts.team)?.id;
+    if (group) {
+        update.group_id = group.id;
     }
-    if (opts.state) {
-        update.workflow_state_id = storyLib.findState(entities, opts.state)?.id;
+    if (state) {
+        update.workflow_state_id = state.id;
     }
-    if (opts.epic) {
-        update.epic_id = storyLib.findEpic(entities, opts.epic)?.id;
+    if (epic) {
+        update.epic_id = epic.id;
     }
-    if (opts.iteration) {
-        update.iteration_id = storyLib.findIteration(entities, opts.iteration)?.id;
+    if (iteration) {
+        update.iteration_id = iteration.id;
     }
     if (opts.estimate) {
         update.estimate = parseInt(opts.estimate, 10);
@@ -105,6 +111,21 @@ const main = async () => {
     if (!update.name) {
         if (!opts.idonly) spin.stop(true);
         log('Must provide --title');
+    } else if (opts.project && !project) {
+        if (!opts.idonly) spin.stop(true);
+        log(`Project ${opts.project} not found`);
+    } else if (opts.state && !state) {
+        if (!opts.idonly) spin.stop(true);
+        log(`State ${opts.state} not found`);
+    } else if (opts.team && !group) {
+        if (!opts.idonly) spin.stop(true);
+        log(`Team ${opts.team} not found`);
+    } else if (opts.epic && !epic) {
+        if (!opts.idonly) spin.stop(true);
+        log(`Epic ${opts.epic} not found`);
+    } else if (opts.iteration && !iteration) {
+        if (!opts.idonly) spin.stop(true);
+        log(`Iteration ${opts.iteration} not found`);
     } else if (!update.project_id && !update.workflow_state_id) {
         if (!opts.idonly) spin.stop(true);
         log('Must provide --project or --state');
