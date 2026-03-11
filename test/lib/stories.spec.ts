@@ -1094,11 +1094,15 @@ describe('stories', () => {
 
             vi.doMock('../../src/lib/client', () => ({
                 default: {
-                    listProjects: vi.fn().mockResolvedValue({ data: [backendProject, frontendProject] }),
+                    listProjects: vi
+                        .fn()
+                        .mockResolvedValue({ data: [backendProject, frontendProject] }),
                     listWorkflows: vi.fn().mockResolvedValue({ data: [] }),
                     listMembers: vi.fn().mockResolvedValue({ data: [] }),
                     listGroups: vi.fn().mockResolvedValue({ data: [makeGroup()] }),
-                    listGroupStories: vi.fn().mockResolvedValue({ data: [backendStory, frontendStory] }),
+                    listGroupStories: vi
+                        .fn()
+                        .mockResolvedValue({ data: [backendStory, frontendStory] }),
                     listEpics: vi.fn().mockResolvedValue({ data: [] }),
                     listObjectives: vi.fn().mockResolvedValue({ data: [] }),
                     listIterations: vi.fn().mockResolvedValue({ data: [] }),

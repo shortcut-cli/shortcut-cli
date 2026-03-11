@@ -171,10 +171,15 @@ async function fetchStories(
     const groups = entities.groupsById ? [...entities.groupsById.values()] : [];
     if (groups.length > 0) {
         debug('request all stories for group(s)', groups.map((g) => g.name).join(', '));
-        return Promise.all(groups.map((g) => client.listGroupStories(g.id))).then((groupStories) => {
-            const stories = groupStories.reduce<StorySlim[]>((acc, group) => acc.concat(group.data), []);
-            return dedupeStoriesById(stories);
-        });
+        return Promise.all(groups.map((g) => client.listGroupStories(g.id))).then(
+            (groupStories) => {
+                const stories = groupStories.reduce<StorySlim[]>(
+                    (acc, group) => acc.concat(group.data),
+                    []
+                );
+                return dedupeStoriesById(stories);
+            }
+        );
     }
 
     debug('filtering projects');
@@ -184,7 +189,10 @@ async function fetchStories(
 
     debug('request all stories for project(s)', projectIds.map((p) => p.name).join(', '));
     return Promise.all(projectIds.map((p) => client.listStories(p.id))).then((projectStories) => {
-        const stories = projectStories.reduce<StorySlim[]>((acc, project) => acc.concat(project.data), []);
+        const stories = projectStories.reduce<StorySlim[]>(
+            (acc, project) => acc.concat(project.data),
+            []
+        );
         return dedupeStoriesById(stories);
     });
 }
