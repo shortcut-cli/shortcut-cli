@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { runBin } from '../helpers/run-bin';
 
@@ -51,5 +51,70 @@ describe('short-workspace', () => {
           to create it.",
           }
         `);
+    });
+
+    it('should preserve saved workspace filters when commander returns empty defaults', async () => {
+        const origArgv = process.argv;
+        const origLog = console.log;
+        const stdout: string[] = [];
+
+        process.argv = ['node', 'src/bin/short-workspace.ts', 'default'];
+        console.log = (...args: unknown[]) => {
+            stdout.push(args.map(String).join(' '));
+        };
+
+        const listStories = vi.fn().mockResolvedValue([]);
+        const printFormattedStory = vi.fn(() => vi.fn());
+
+        vi.resetModules();
+        vi.doMock('../../src/lib/configure', () => ({
+            default: {
+                loadConfig: () => ({
+                    token: 'test-token',
+                    workspaces: {
+                        default: {
+                            text: 'saved query',
+                            archived: true,
+                        },
+                    },
+                }),
+                removeWorkspace: vi.fn(),
+            },
+        }));
+        vi.doMock('../../src/lib/stories', () => ({
+            default: {
+                listStories,
+                printFormattedStory,
+            },
+        }));
+        vi.doMock('../../src/bin/short-search', () => ({
+            program: {
+                parse: vi.fn().mockReturnValue({
+                    opts: () => ({
+                        text: '',
+                        archived: false,
+                        format: '',
+                        quiet: false,
+                    }),
+                }),
+            },
+        }));
+
+        try {
+            await import('../../src/bin/short-workspace');
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        } finally {
+            vi.doUnmock('../../src/lib/configure');
+            vi.doUnmock('../../src/lib/stories');
+            vi.doUnmock('../../src/bin/short-search');
+            vi.resetModules();
+            process.argv = origArgv;
+            console.log = origLog;
+        }
+
+        expect(listStories).toHaveBeenCalledWith(
+            expect.objectContaining({ text: 'saved query', archived: true })
+        );
+        expect(stdout.join('\n')).toContain('Loading %s workspace ... default');
     });
 });

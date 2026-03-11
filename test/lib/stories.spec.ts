@@ -1124,6 +1124,46 @@ describe('stories', () => {
             expect(result.map((story) => story.id)).toEqual([91]);
         });
 
+        it('dedupes project stories fetched from matching projects', async () => {
+            vi.resetModules();
+            const duplicateStory = makeStory({
+                id: 101,
+                name: 'Duplicate story',
+                project_id: 1,
+            }) as unknown as StorySlim;
+
+            vi.doMock('../../src/lib/client', () => ({
+                default: {
+                    listProjects: vi
+                        .fn()
+                        .mockResolvedValue({ data: [makeProject({ id: 1, name: 'Backend' })] }),
+                    listWorkflows: vi.fn().mockResolvedValue({ data: [] }),
+                    listMembers: vi.fn().mockResolvedValue({ data: [] }),
+                    listGroups: vi.fn().mockResolvedValue({ data: [] }),
+                    listEpics: vi.fn().mockResolvedValue({ data: [] }),
+                    listObjectives: vi.fn().mockResolvedValue({ data: [] }),
+                    listIterations: vi.fn().mockResolvedValue({ data: [] }),
+                    listLabels: vi.fn().mockResolvedValue({ data: [] }),
+                    listStories: vi
+                        .fn()
+                        .mockResolvedValue({ data: [duplicateStory, duplicateStory] }),
+                },
+            }));
+            vi.doMock('../../src/lib/configure', () => ({
+                loadConfig: () => ({
+                    token: 'test-token',
+                    urlSlug: 'test-workspace',
+                    mentionName: 'test-user',
+                    workspaces: {},
+                }),
+            }));
+
+            const mod = await import('../../src/lib/stories');
+            const result = await mod.default.listStories({ project: 'back' });
+
+            expect(result.map((story) => story.id)).toEqual([101]);
+        });
+
         it('replaces %self% in search args with mentionName', async () => {
             // Prism mock may return a `next` cursor causing pagination.
             // Use a fresh import with mocked client.
