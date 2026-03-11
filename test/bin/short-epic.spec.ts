@@ -79,7 +79,10 @@ describe('short-epic', () => {
         ])('should create with %s without crashing', async (_label, args) => {
             const result = await runBin('short-epic', args);
             expect(result.output.exitCode).toBeUndefined();
-            expect(result.output.stdout).toBeTruthy();
+            // Created epic should include epic details in output
+            expect(result.output.stdout).toContain('State:');
+            expect(result.output.stdout).toContain('URL:');
+            expect(result.output.stderr).toBe('');
         });
 
         it('should open browser with --open', async () => {
@@ -156,7 +159,10 @@ describe('short-epic', () => {
         ])('should update with %s without crashing', async (_label, args) => {
             const result = await runBin('short-epic', args);
             expect(result.output.exitCode).toBeUndefined();
-            expect(result.output.stdout).toBeTruthy();
+            // Updated epic should include epic details in output
+            expect(result.output.stdout).toContain('State:');
+            expect(result.output.stdout).toContain('URL:');
+            expect(result.output.stderr).toBe('');
         });
 
         it('should open browser with --open', async () => {

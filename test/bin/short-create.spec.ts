@@ -122,7 +122,10 @@ describe('short-create', () => {
         `);
     });
 
-    it('should create a story with --idonly', async () => {
+    it('should create a story with --idonly (suppresses spinner, still shows full output)', async () => {
+        // Note: --idonly in short-create suppresses the spinner but does NOT change
+        // the output format — it still prints the full story details via printDetailedStory.
+        // This differs from short-story where --idonly prints only the numeric ID.
         const result = await runBin('short-create', [
             '--title',
             'test story',
@@ -178,17 +181,22 @@ describe('short-create', () => {
             '--owners and --label',
             ['--title', 'labeled', '--state', '.', '--owners', 'u', '--label', 'l'],
         ],
-        ['--team', ['--title', 'team story', '--state', '.', '--team', 't']],
+        // Use '.' (matches any entity via regex) to ensure lookup succeeds in Prism
+        ['--team', ['--title', 'team story', '--state', '.', '--team', '.']],
         [
             '--epic and --iteration',
-            ['--title', 'epic story', '--state', '.', '--epic', 'e', '--iteration', 'i'],
+            ['--title', 'epic story', '--state', '.', '--epic', '.', '--iteration', '.'],
         ],
         ['--git-branch', ['--title', 'branch', '--state', '.', '--git-branch']],
         ['--git-branch-short', ['--title', 'short branch', '--state', '.', '--git-branch-short']],
     ])('should create with %s without crashing', async (_label, args) => {
         const result = await runBin('short-create', args);
         expect(result.output.exitCode).toBeUndefined();
-        expect(result.output.stdout).toBeTruthy();
+        // Created story should include story details in output
+        expect(result.output.stdout).toContain('State:');
+        expect(result.output.stdout).toContain('URL:');
+        // No error output expected
+        expect(result.output.stderr).toBe('');
     });
 
     it('should open browser with --open', async () => {
