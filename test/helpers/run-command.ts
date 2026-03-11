@@ -9,8 +9,10 @@
  */
 import { execFile } from 'child_process';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 const PRISM_BASE_URL = 'http://127.0.0.1:4010';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export interface CommandResult {
     exitCode: number;
