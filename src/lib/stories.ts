@@ -285,19 +285,24 @@ const searchFilterTerms = (options: StoryListOptions, entities: Entities): strin
     const addEntityTerm = <V extends HasId & { name: string }>(
         operator: string,
         value: string | undefined,
-        candidates: Map<string | number, V> | undefined
+        candidates: Map<string | number, V> | undefined,
+        nullableValue?: string
     ) => {
         if (!value) return;
+        if (nullableValue && new RegExp(value, 'i').test(nullableValue)) return;
         const entity = findUniqueEntity(candidates, value);
         if (entity) terms.push(`${operator}:${entity.id}`);
     };
 
     if (options.label) {
-        const matches = (entities.labels ?? []).filter(
-            (label) => !!`${label.id} ${label.name}`.match(new RegExp(options.label!, 'i'))
-        );
-        const label = matches.length === 1 ? matches[0] : undefined;
-        if (label && !label.name.includes('"')) terms.push(`label:"${label.name}"`);
+        const labelMatch = new RegExp(options.label, 'i');
+        if (!labelMatch.test('')) {
+            const matches = (entities.labels ?? []).filter(
+                (label) => !!`${label.id} ${label.name}`.match(labelMatch)
+            );
+            const label = matches.length === 1 ? matches[0] : undefined;
+            if (label && !label.name.includes('"')) terms.push(`label:"${label.name}"`);
+        }
     }
     addEntityTerm('state', options.state, entities.statesById);
 
@@ -319,12 +324,12 @@ const searchFilterTerms = (options: StoryListOptions, entities: Entities): strin
         if (storyTypes.length === 1) terms.push(`type:${storyTypes[0]}`);
     }
 
-    addEntityTerm('epic', options.epic, entities.epicsById);
-    addEntityTerm('iteration', options.iteration, entities.iterationsById);
-    addEntityTerm('project', options.project, entities.projectsById);
+    addEntityTerm('epic', options.epic, entities.epicsById, 'null ');
+    addEntityTerm('iteration', options.iteration, entities.iterationsById, 'null ');
+    addEntityTerm('project', options.project, entities.projectsById, 'null ');
 
     const estimate = options.estimate?.match(/^=?\s*(\d+)$/)?.[1];
-    if (estimate) terms.push(`estimate:${estimate}`);
+    if (estimate && Number(estimate) !== 0) terms.push(`estimate:${estimate}`);
 
     return terms;
 };
