@@ -273,8 +273,6 @@ const findUniqueEntity = <V extends HasId & { name: string }>(
     value: string | number
 ): V | undefined => {
     if (!entities) return undefined;
-    const exact = entities.get(value) ?? entities.get(Number(value));
-    if (exact) return exact;
     const match = new RegExp(`${value}`, 'i');
     const matches = Array.from(entities.values()).filter(
         (entity) => !!`${entity.id} ${entity.name}`.match(match)
@@ -304,8 +302,15 @@ const searchFilterTerms = (options: StoryListOptions, entities: Entities): strin
     addEntityTerm('state', options.state, entities.statesById);
 
     if (options.owner) {
-        const ownerIds = findOwnerIds(entities, options.owner);
-        if (ownerIds.length === 1) terms.push(`owner:${ownerIds[0]}`);
+        const ownerMatch = new RegExp(options.owner.split(',').join('|'), 'i');
+        const owners = Array.from(entities.membersById?.values() ?? []).filter(
+            (member) =>
+                !!`${member.id} ${member.profile.name} ${member.profile.mention_name}`.match(
+                    ownerMatch
+                )
+        );
+        const [owner] = owners;
+        if (owners.length === 1 && owner) terms.push(`owner:${owner.profile.mention_name}`);
     }
 
     if (options.type) {
@@ -317,17 +322,6 @@ const searchFilterTerms = (options: StoryListOptions, entities: Entities): strin
     addEntityTerm('epic', options.epic, entities.epicsById);
     addEntityTerm('iteration', options.iteration, entities.iterationsById);
     addEntityTerm('project', options.project, entities.projectsById);
-
-    const addDateTerm = (operator: 'created' | 'updated', value: string | undefined) => {
-        const match = value?.match(/^([<>=]?)(\d{4}-\d{1,2}-\d{1,2})$/);
-        if (!match) return;
-        const [, comparator, date] = match;
-        if (comparator === '>') terms.push(`${operator}:${date}..*`);
-        else if (comparator === '<') terms.push(`${operator}:*..${date}`);
-        else terms.push(`${operator}:${date}`);
-    };
-    addDateTerm('created', options.created);
-    addDateTerm('updated', options.updated);
 
     const estimate = options.estimate?.match(/^=?\s*(\d+)$/)?.[1];
     if (estimate) terms.push(`estimate:${estimate}`);

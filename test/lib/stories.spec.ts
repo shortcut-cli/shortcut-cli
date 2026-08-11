@@ -1240,13 +1240,11 @@ describe('stories', () => {
                 epic: 'Epic Alpha',
                 iteration: 'Sprint 1',
                 project: 'Backend',
-                created: '>2024-01-01',
-                updated: '<2024-02-01',
                 estimate: '=3',
             });
 
             expect(mockSearchStories).toHaveBeenCalledWith({
-                query: 'label:"bug" state:500 owner:aaa-bbb-ccc type:feature epic:10 iteration:30 project:1 created:2024-01-01..* updated:*..2024-02-01 estimate:3 a',
+                query: 'label:"bug" state:500 owner:testuser type:feature epic:10 iteration:30 project:1 estimate:3 a',
             });
         });
 
@@ -1266,7 +1264,7 @@ describe('stories', () => {
                     listIterations: vi.fn().mockResolvedValue({
                         data: [
                             makeIteration({ id: 30, name: 'Sprint 1' }),
-                            makeIteration({ id: 31, name: 'Sprint 2' }),
+                            makeIteration({ id: 301, name: 'Sprint 2' }),
                         ],
                     }),
                     listLabels: vi.fn().mockResolvedValue({ data: [] }),
@@ -1283,7 +1281,7 @@ describe('stories', () => {
             }));
 
             const mod = await import('../../src/lib/stories');
-            await mod.default.listStories({ args: ['a'], iteration: 'Sprint' });
+            await mod.default.listStories({ args: ['a'], iteration: '30' });
 
             expect(mockSearchStories).toHaveBeenCalledWith({ query: 'a' });
         });
