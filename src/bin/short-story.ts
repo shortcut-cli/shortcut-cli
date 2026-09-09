@@ -130,12 +130,12 @@ const program = new Command()
     .option('--follower [id|name]', 'Update followers of story, comma-separated', '')
     .option(
         '--git-branch',
-        'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
+        'Checkout git branch from story slug <mention-name>/sc-<id>/<type>-<title>\n' +
             '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
     )
     .option(
         '--git-branch-short',
-        'Checkout git branch from story slug <mention-name>/ch<id>/<title>'
+        'Checkout git branch from story slug <mention-name>/sc-<id>/<title>'
     )
     .option('-I, --idonly', 'Print only ID of story results', '')
     .option('-l, --label [id|name]', 'Stories with label id/name, by regex', '')

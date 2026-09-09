@@ -221,9 +221,9 @@ The default sorting for stories found is `state.position:asc,position:asc`, whic
     -i, --iteration [id|name] Update iteration of story
     -f, --format [template]   Format story output by template
     --from-git                Fetch story parsed by ID in current git branch
-    --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
+    --git-branch              Checkout git branch from story slug <mention-name>/sc-<id>/<type>-<title>
                                 as required by the Git integration: https://bit.ly/2RKO1FF
-    --git-branch-short        Checkout git branch from story slug <mention-name>/ch<id>/<title>
+    --git-branch-short        Checkout git branch from story slug <mention-name>/sc-<id>/<title>
     -l, --label [id|name]     Update story with labels, comma-separated
     --move-after [id]         Move story to position below story ID
     --move-before [id]        Move story to position above story ID
@@ -326,9 +326,9 @@ Comment: This is a comment
     -s, --state [id|name]     Set workflow state of story, required if --project is not set
     -y, --type <name>         Set type of story (feature, bug, chore; default: feature)
     -h, --help                output usage information
-    --git-branch              Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>
+    --git-branch              Checkout git branch from story slug <mention-name>/sc-<id>/<type>-<title>
                               as required by the Git integration: https://bit.ly/2RKO1FF
-    --git-branch-short        Checkout git branch from story slug <mention-name>/ch<id>/<title>
+    --git-branch-short        Checkout git branch from story slug <mention-name>/sc-<id>/<title>
 ```
 
 ### Workspace

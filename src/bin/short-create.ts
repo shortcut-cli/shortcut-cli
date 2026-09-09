@@ -40,12 +40,12 @@ const program = new Command()
     .option('--epic [id|name]', 'Set epic of story')
     .option(
         '--git-branch',
-        'Checkout git branch from story slug <mention-name>/ch<id>/<type>-<title>\n' +
+        'Checkout git branch from story slug <mention-name>/sc-<id>/<type>-<title>\n' +
             '\t\t\t\tas required by the Git integration: https://bit.ly/2RKO1FF'
     )
     .option(
         '--git-branch-short',
-        'Checkout git branch from story slug <mention-name>/ch<id>/<title>'
+        'Checkout git branch from story slug <mention-name>/sc-<id>/<title>'
     )
     .option('-i, --iteration [id|name]', 'Set iteration of story')
     .option('-I, --idonly', 'Print only ID of story result')
