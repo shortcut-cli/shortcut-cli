@@ -32,8 +32,8 @@ export const program = new Command()
         `Search through Shortcut stories. Arguments (non-flag/options) will be
   passed to Shortcut story search API as search operators. Passing '%self%' as
   a search operator argument will be replaced by your mention name. Note that
-  passing search operators and options (e.g. --owner foobar) will use the
-  options as extra filtering in the client.
+  resolvable entity, type, and exact-estimate filters are included in the
+  server-side query before the search terms and are also applied in the client.
 
   Refer to https://help.shortcut.com/hc/en-us/articles/360000046646-Search-Operators
   for more details about search operators.`
