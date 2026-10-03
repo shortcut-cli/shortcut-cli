@@ -1,0 +1,9 @@
+{
+    "name": "shortcut-cli",
+    "version": "5.0.0",
+    "description": "Use Shortcut (shortcut.com) from any repo via the deterministic `short` CLI — skills and a configure wizard that replace a Shortcut MCP server.",
+    "license": "MIT",
+    "homepage": "https://github.com/shortcut-cli/shortcut-cli#readme",
+    "repository": "https://github.com/shortcut-cli/shortcut-cli.git",
+    "keywords": ["shortcut", "cli", "skills", "mcp-replacement", "claude-code", "plugin"]
+}

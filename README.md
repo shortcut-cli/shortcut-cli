@@ -25,6 +25,7 @@ This is a community-driven command line interface for [Shortcut](https://shortcu
     - [Workflows](#workflows)
     - [Projects](#projects)
     - [API](#api)
+- [Claude Code Plugin](#claude-code-plugin)
 - [Development](#development)
 - [Acknowledgments](#acknowledgments)
 
@@ -1027,6 +1028,21 @@ Delete a doc:
     # jq can be used to shorten the response output.
     $ short api /search/iterations -f page_size=10 -f query=123 | jq '.data[] | {id, name}'
 ```
+
+## Claude Code Plugin
+
+This repo ships a [Claude Code](https://claude.com/claude-code) plugin so AI agents can use Shortcut deterministically via `short` instead of an MCP server. Install it in any repo:
+
+```
+/plugin marketplace add shortcut-cli/shortcut-cli
+/plugin install shortcut-cli@shortcut-cli
+```
+
+It needs `short` on `PATH` (`npm install -g @shortcut-cli/shortcut-cli`) and a token (see [Install](#install) above). The plugin provides:
+
+- **`shortcut`** skill — usage recipes for searching, viewing, creating, and updating stories, epics, iterations, and more, plus the `short api` escape hatch for anything else.
+- **`run-shortcut-cli`** skill — build/test/smoke-test the CLI itself, including a hermetic mock mode with no credentials required.
+- **`/shortcut-cli:shortcut-configure`** — a wizard that reads your teams and workflows from the live API and writes a per-repo `.shortcut.json` (default team, workflow, starting state, story type) so agents don't have to guess or ask every time.
 
 ## Development
 
