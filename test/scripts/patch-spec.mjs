@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 /* global console */
 /**
- * Patches the downloaded Shortcut swagger spec to add `minimum: 0` or
- * `minimum: 1` to integer fields that lack a minimum constraint.
- *
- * Without this, Prism's static mode generates -9007199254740991
- * (MIN_SAFE_INTEGER) for all int64 fields because @stoplight/http-spec
- * injects `minimum: -9007199254740991` when no minimum is specified,
- * and the sampler returns the minimum value.
+ * Patches the downloaded Shortcut swagger spec:
+ * - adds `minimum: 0` or `minimum: 1` to integer fields that lack one
+ *   (Prism's static sampler otherwise returns MIN_SAFE_INTEGER)
+ * - adds `example: null` to pagination cursor fields (`next` on
+ *   `*SearchResults`), which are `x-nullable: true` but still required —
+ *   Prism's static sampler ignores `x-nullable` for required fields and
+ *   synthesizes the literal string "string", which is truthy and makes
+ *   pagination loops (`while (result.data.next)` in src/lib/stories.ts)
+ *   run forever against the mock
  *
  * Run automatically as part of `pnpm test:update-spec`.
  */
@@ -21,6 +23,7 @@ const SPEC_PATH = resolve(__dirname, '../fixtures/shortcut.swagger.json');
 const spec = JSON.parse(readFileSync(SPEC_PATH, 'utf-8'));
 
 let patched = 0;
+let cursorsPatched = 0;
 
 /**
  * Add `minimum` to integer fields that don't have one.
@@ -65,14 +68,36 @@ function patchIntegerMinimum(schema, propName) {
     }
 }
 
+/**
+ * Force the mock's pagination cursor to null so a single-page mock
+ * response terminates pagination instead of looping forever.
+ */
+function patchPaginationCursorExample(schema, propName) {
+    if (!schema || typeof schema !== 'object') return;
+
+    // Force null unconditionally (not just when no example is set) — an upstream spec
+    // update could ship its own non-null example for `next` and silently reopen the hang.
+    if (
+        propName === 'next' &&
+        schema.type === 'string' &&
+        schema['x-nullable'] === true &&
+        schema.example !== null
+    ) {
+        schema.example = null;
+        cursorsPatched++;
+    }
+}
+
 // Walk all definitions
 for (const [, def] of Object.entries(spec.definitions || {})) {
     if (def.properties) {
         for (const [propName, propSchema] of Object.entries(def.properties)) {
             patchIntegerMinimum(propSchema, propName);
+            patchPaginationCursorExample(propSchema, propName);
         }
     }
 }
 
 writeFileSync(SPEC_PATH, JSON.stringify(spec, null, 2) + '\n');
 console.log(`[patch-spec] Patched ${patched} integer fields with minimum constraints`);
+console.log(`[patch-spec] Patched ${cursorsPatched} pagination cursor fields to example: null`);
