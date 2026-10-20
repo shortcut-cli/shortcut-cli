@@ -165,7 +165,7 @@ async function fetchStories(
 ): Promise<(Story | StorySlim)[]> {
     if ((options.args ?? []).length) {
         debug('using the search endpoint');
-        return searchStories(options);
+        return searchStories(options, entities);
     }
 
     const groups = entities.groupsById ? [...entities.groupsById.values()] : [];
@@ -197,8 +197,9 @@ async function fetchStories(
     });
 }
 
-async function searchStories(options: StoryListOptions): Promise<Story[]> {
-    const query = (options.args ?? []).join(' ').replace('%self%', config.mentionName ?? '');
+async function searchStories(options: StoryListOptions, entities: Entities): Promise<Story[]> {
+    const textQuery = (options.args ?? []).join(' ').replace('%self%', config.mentionName ?? '');
+    const query = [...searchFilterTerms(options, entities), textQuery].filter(Boolean).join(' ');
     let result = await client.searchStories({ query });
     let stories: Story[] = result.data.data.map(storySearchResultToStory);
     while (result.data.next) {
@@ -265,6 +266,72 @@ const findEntity = <V extends { name: string }>(
     }
     const match = new RegExp(`${id}`, 'i');
     return Array.from(entities.values()).filter((s) => !!s.name.match(match))[0];
+};
+
+const findUniqueEntity = <V extends HasId & { name: string }>(
+    entities: Map<string | number, V> | undefined,
+    value: string | number
+): V | undefined => {
+    if (!entities) return undefined;
+    const match = new RegExp(`${value}`, 'i');
+    const matches = Array.from(entities.values()).filter(
+        (entity) => !!`${entity.id} ${entity.name}`.match(match)
+    );
+    return matches.length === 1 ? matches[0] : undefined;
+};
+
+const searchFilterTerms = (options: StoryListOptions, entities: Entities): string[] => {
+    const terms: string[] = [];
+    const addEntityTerm = <V extends HasId & { name: string }>(
+        operator: string,
+        value: string | undefined,
+        candidates: Map<string | number, V> | undefined,
+        nullableValue?: string
+    ) => {
+        if (!value) return;
+        if (nullableValue && new RegExp(value, 'i').test(nullableValue)) return;
+        const entity = findUniqueEntity(candidates, value);
+        if (entity) terms.push(`${operator}:${entity.id}`);
+    };
+
+    if (options.label) {
+        const labelMatch = new RegExp(options.label, 'i');
+        if (!labelMatch.test('')) {
+            const matches = (entities.labels ?? []).filter(
+                (label) => !!`${label.id} ${label.name}`.match(labelMatch)
+            );
+            const label = matches.length === 1 ? matches[0] : undefined;
+            if (label && !label.name.includes('"')) terms.push(`label:"${label.name}"`);
+        }
+    }
+    addEntityTerm('state', options.state, entities.statesById);
+
+    if (options.owner) {
+        const ownerMatch = new RegExp(options.owner.split(',').join('|'), 'i');
+        const owners = Array.from(entities.membersById?.values() ?? []).filter(
+            (member) =>
+                !!`${member.id} ${member.profile.name} ${member.profile.mention_name}`.match(
+                    ownerMatch
+                )
+        );
+        const [owner] = owners;
+        if (owners.length === 1 && owner) terms.push(`owner:${owner.profile.mention_name}`);
+    }
+
+    if (options.type) {
+        const match = new RegExp(options.type, 'i');
+        const storyTypes = ['feature', 'bug', 'chore'].filter((type) => type.match(match));
+        if (storyTypes.length === 1) terms.push(`type:${storyTypes[0]}`);
+    }
+
+    addEntityTerm('epic', options.epic, entities.epicsById, 'null ');
+    addEntityTerm('iteration', options.iteration, entities.iterationsById, 'null ');
+    addEntityTerm('project', options.project, entities.projectsById, 'null ');
+
+    const estimate = options.estimate?.match(/^=?\s*(\d+)$/)?.[1];
+    if (estimate && Number(estimate) !== 0) terms.push(`estimate:${estimate}`);
+
+    return terms;
 };
 
 const findProject = (entities: Entities, project: string | number) =>

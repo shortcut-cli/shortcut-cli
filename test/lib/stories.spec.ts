@@ -1201,6 +1201,124 @@ describe('stories', () => {
             expect(calledQuery).not.toContain('%self%');
         });
 
+        it('applies compatible filters before the text query in the search request', async () => {
+            vi.resetModules();
+            const mockSearchStories = vi.fn().mockResolvedValue({
+                data: { data: [], next: null, total: 0 },
+            });
+            vi.doMock('../../src/lib/client', () => ({
+                default: {
+                    listProjects: vi.fn().mockResolvedValue({ data: [makeProject()] }),
+                    listWorkflows: vi.fn().mockResolvedValue({
+                        data: [{ states: [makeWorkflowState()] }],
+                    }),
+                    listMembers: vi.fn().mockResolvedValue({ data: [makeMember()] }),
+                    listGroups: vi.fn().mockResolvedValue({ data: [] }),
+                    listEpics: vi.fn().mockResolvedValue({ data: [makeEpic()] }),
+                    listObjectives: vi.fn().mockResolvedValue({ data: [] }),
+                    listIterations: vi.fn().mockResolvedValue({ data: [makeIteration()] }),
+                    listLabels: vi.fn().mockResolvedValue({ data: [makeLabel()] }),
+                    searchStories: mockSearchStories,
+                },
+            }));
+            vi.doMock('../../src/lib/configure', () => ({
+                loadConfig: () => ({
+                    token: 'test-token',
+                    urlSlug: 'test-workspace',
+                    mentionName: 'test-user',
+                    workspaces: {},
+                }),
+            }));
+
+            const mod = await import('../../src/lib/stories');
+            await mod.default.listStories({
+                args: ['a'],
+                label: 'bug',
+                state: 'Unstarted',
+                owner: 'testuser',
+                type: 'feature',
+                epic: 'Epic Alpha',
+                iteration: 'Sprint 1',
+                project: 'Backend',
+                estimate: '=3',
+            });
+
+            expect(mockSearchStories).toHaveBeenCalledWith({
+                query: 'label:"bug" state:500 owner:testuser type:feature epic:10 iteration:30 project:1 estimate:3 a',
+            });
+        });
+
+        it('does not narrow ambiguous regex filters in the server-side query', async () => {
+            vi.resetModules();
+            const mockSearchStories = vi.fn().mockResolvedValue({
+                data: { data: [], next: null, total: 0 },
+            });
+            vi.doMock('../../src/lib/client', () => ({
+                default: {
+                    listProjects: vi.fn().mockResolvedValue({ data: [] }),
+                    listWorkflows: vi.fn().mockResolvedValue({ data: [] }),
+                    listMembers: vi.fn().mockResolvedValue({ data: [] }),
+                    listGroups: vi.fn().mockResolvedValue({ data: [] }),
+                    listEpics: vi.fn().mockResolvedValue({ data: [] }),
+                    listObjectives: vi.fn().mockResolvedValue({ data: [] }),
+                    listIterations: vi.fn().mockResolvedValue({
+                        data: [
+                            makeIteration({ id: 30, name: 'Sprint 1' }),
+                            makeIteration({ id: 301, name: 'Sprint 2' }),
+                        ],
+                    }),
+                    listLabels: vi.fn().mockResolvedValue({ data: [] }),
+                    searchStories: mockSearchStories,
+                },
+            }));
+            vi.doMock('../../src/lib/configure', () => ({
+                loadConfig: () => ({
+                    token: 'test-token',
+                    urlSlug: 'test-workspace',
+                    mentionName: 'test-user',
+                    workspaces: {},
+                }),
+            }));
+
+            const mod = await import('../../src/lib/stories');
+            await mod.default.listStories({ args: ['a'], iteration: '30' });
+
+            expect(mockSearchStories).toHaveBeenCalledWith({ query: 'a' });
+        });
+
+        it('keeps nullable and zero-estimate matches in client-side filtering', async () => {
+            vi.resetModules();
+            const mockSearchStories = vi.fn().mockResolvedValue({
+                data: { data: [], next: null, total: 0 },
+            });
+            vi.doMock('../../src/lib/client', () => ({
+                default: {
+                    listProjects: vi.fn().mockResolvedValue({ data: [] }),
+                    listWorkflows: vi.fn().mockResolvedValue({ data: [] }),
+                    listMembers: vi.fn().mockResolvedValue({ data: [] }),
+                    listGroups: vi.fn().mockResolvedValue({ data: [] }),
+                    listEpics: vi.fn().mockResolvedValue({ data: [] }),
+                    listObjectives: vi.fn().mockResolvedValue({ data: [] }),
+                    listIterations: vi.fn().mockResolvedValue({ data: [makeIteration()] }),
+                    listLabels: vi.fn().mockResolvedValue({ data: [] }),
+                    searchStories: mockSearchStories,
+                },
+            }));
+            vi.doMock('../../src/lib/configure', () => ({
+                loadConfig: () => ({
+                    token: 'test-token',
+                    urlSlug: 'test-workspace',
+                    mentionName: 'test-user',
+                    workspaces: {},
+                }),
+            }));
+
+            const mod = await import('../../src/lib/stories');
+            await mod.default.listStories({ args: ['a'], iteration: '.', estimate: '0' });
+
+            expect(mockSearchStories).toHaveBeenCalledWith({ query: 'a' });
+        });
+
         it('filters by label option', async () => {
             const result = await stories.listStories({ label: 'some-label' });
             expect(Array.isArray(result)).toBe(true);
