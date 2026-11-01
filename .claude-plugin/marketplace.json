@@ -1,0 +1,18 @@
+{
+    "name": "shortcut-cli",
+    "owner": {
+        "name": "shortcut-cli"
+    },
+    "description": "Shortcut (shortcut.com) agent skills: deterministic `short` CLI recipes and a per-repo configure wizard.",
+    "plugins": [
+        {
+            "name": "shortcut-cli",
+            "source": "./.claude",
+            "description": "Use Shortcut from any repo via the deterministic `short` CLI — skills and a configure wizard that replace a Shortcut MCP server.",
+            "homepage": "https://github.com/shortcut-cli/shortcut-cli#readme",
+            "repository": "https://github.com/shortcut-cli/shortcut-cli.git",
+            "license": "MIT",
+            "keywords": ["shortcut", "cli", "skills", "mcp-replacement", "claude-code", "plugin"]
+        }
+    ]
+}
