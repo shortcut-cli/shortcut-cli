@@ -135,7 +135,7 @@ const saveConfig = (config: Config) => {
 
 export const updateConfig = (newConfig: Config) => {
     const extantConfig = loadCachedConfig() || {};
-    return saveConfig({ ...newConfig, ...extantConfig });
+    return saveConfig({ ...extantConfig, ...newConfig });
 };
 
 const saveWorkspace = (name: string, workspace: WorkspaceConfig): boolean => {
