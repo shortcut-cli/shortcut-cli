@@ -269,8 +269,41 @@ describe('configure', () => {
 
             const savedConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
             expect(savedConfig.token).toBe('my-token');
-            // Extant config takes precedence in the spread: { ...newConfig, ...extantConfig }
-            // So the existing cached values remain
+            expect(savedConfig.urlSlug).toBe('new-slug');
+        });
+
+        it('replaces saved values with the new ones', async () => {
+            delete process.env.SHORTCUT_API_TOKEN;
+            delete process.env.CLUBHOUSE_API_TOKEN;
+            const configFile = path.join(tmpDir, 'shortcut-cli', 'config.json');
+            fs.mkdirSync(path.dirname(configFile), { recursive: true });
+            fs.writeFileSync(
+                configFile,
+                JSON.stringify({
+                    token: 'old-token',
+                    urlSlug: 'old-slug',
+                    mentionName: 'old-mention',
+                    workspaces: { 'my-ws': { foo: 'bar' } },
+                })
+            );
+
+            const { loadCachedConfig, updateConfig } = await importConfigure();
+
+            // What `short install --force` does: keep the saved config, swap the token.
+            const result = updateConfig({
+                ...loadCachedConfig(),
+                token: 'new-token',
+                urlSlug: 'new-slug',
+            });
+            expect(result).toBe(true);
+
+            expect(JSON.parse(fs.readFileSync(configFile, 'utf8'))).toEqual({
+                token: 'new-token',
+                urlSlug: 'new-slug',
+                mentionName: 'old-mention',
+                workspaces: { 'my-ws': { foo: 'bar' } },
+            });
+            expect(loadCachedConfig().token).toBe('new-token');
         });
     });
 
